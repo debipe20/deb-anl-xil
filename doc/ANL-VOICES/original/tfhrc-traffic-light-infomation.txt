@@ -1,0 +1,124 @@
+WARNING: Version mismatch detected: You are trying to connect to a simulator that might be incompatible with this API 
+WARNING: Client API version     = 0.9.10.1 
+WARNING: Simulator API version  = 0.9.10-dirty 
+WARNING: Traffic sign 1235 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 422 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 1234 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 424 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 425 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 430 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 1232 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 1233 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 428 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 427 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 419 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 1229 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 418 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 438 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 1236 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 1230 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 421 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 423 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 429 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 1231 overlaps a driving lane. Moving out of the road... 
+WARNING: Failed to find suitable place for signal. 
+WARNING: Traffic sign 426 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 442 overlaps a driving lane. Moving out of the road... 
+TFHRC
+world.getActors() size: 17
+
+TypeID: spectator
+
+TypeID: traffic.traffic_light
+Sign ID: 914 hex: 393134
+Actor ID: 2
+Location x:147, y:-428.2, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 910 hex: 393130
+Actor ID: 3
+Location x:145.1, y:-425.3, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 911 hex: 393131
+Actor ID: 4
+Location x:147.3, y:-429, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 912 hex: 393132
+Actor ID: 5
+Location x:151.2, y:-432.9, z:42.4
+
+TypeID: traffic.traffic_light
+Sign ID: 913 hex: 393133
+Actor ID: 6
+Location x:149.5, y:-429.1, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 908 hex: 393038
+Actor ID: 7
+Location x:149.1, y:-428.2, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 909 hex: 393039
+Actor ID: 8
+Location x:151, y:-432.3, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 900 hex: 393030
+Actor ID: 9
+Location x:-11.9, y:-439.7, z:42.7
+
+TypeID: traffic.traffic_light
+Sign ID: 905 hex: 393035
+Actor ID: 10
+Location x:-42.8, y:-431.7, z:41.9
+
+TypeID: traffic.traffic_light
+Sign ID: 904 hex: 393034
+Actor ID: 11
+Location x:-41.1, y:-435.4, z:41.9
+
+TypeID: traffic.traffic_light
+Sign ID: 903 hex: 393033
+Actor ID: 12
+Location x:-30.7, y:-413.9, z:42.7
+
+TypeID: traffic.traffic_light
+Sign ID: 902 hex: 393032
+Actor ID: 13
+Location x:-33.5, y:-415, z:42.7
+
+TypeID: traffic.traffic_light
+Sign ID: 906 hex: 393036
+Actor ID: 14
+Location x:-5.2, y:-415, z:42.9
+
+TypeID: traffic.traffic_light
+Sign ID: 907 hex: 393037
+Actor ID: 15
+Location x:-6.5, y:-411.3, z:42.9
+
+TypeID: traffic.traffic_light
+Sign ID: 915 hex: 393135
+Actor ID: 16
+Location x:144.8, y:-424.5, z:42.5
+
+TypeID: traffic.traffic_light
+Sign ID: 901 hex: 393031
+Actor ID: 17
+Location x:-7.8, y:-437.9, z:42.7
+
+Available Maps
+/Game/Carla/Maps/Town04
+/Game/Carla/Maps/Town03
+/Game/Carla/ExportedMaps/TFHRC
+

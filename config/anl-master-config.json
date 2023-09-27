@@ -1,0 +1,12 @@
+{
+	"HostIp": "192.168.26.101",
+	"SourceDsrcDeviceIp": "192.168.26.121",
+	"V2XHubIp": "192.168.26.100",
+	"PortNumber": {
+		"BsmGenerator": 50001,
+		"SpeedProfileGenerator": 50002,
+		"MessageReceiver": 26789		
+	},
+    "VehicleId": "f03ad610",
+    "BsmLogFileName":"MCity-BSM-Log.csv"
+}

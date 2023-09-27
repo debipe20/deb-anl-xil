@@ -1,0 +1,90 @@
+10:39:16 carma@carma ~/tenadev/INSTALL/debug-CARLAtenaAdapter-1.4.4/bin $ ./CARLAtenaAdapter 
+WARNING: Version mismatch detected: You are trying to connect to a simulator that might be incompatible with this API 
+WARNING: Client API version     = 0.9.10.1 
+WARNING: Simulator API version  = 0.9.10-dirty 
+WARNING: Traffic sign 692 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 691 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 696 overlaps a driving lane. Moving out of the road... 
+WARNING: Traffic sign 695 overlaps a driving lane. Moving out of the road... 
+mcity_map_v2
+world.getActors() size: 16
+
+TypeID: spectator
+
+TypeID: traffic.traffic_light
+Sign ID: -12 hex: 2d3132
+Actor ID: 2
+Location x:66.7, y:-54.1, z:237.2
+
+TypeID: traffic.traffic_light
+Sign ID: -13 hex: 2d3133
+Actor ID: 3
+Location x:64.5, y:-23.8, z:237.2
+
+TypeID: traffic.traffic_light
+Sign ID: -14 hex: 2d3134
+Actor ID: 4
+Location x:43.6, y:-54.4, z:237.2
+
+TypeID: traffic.traffic_light
+Sign ID: -15 hex: 2d3135
+Actor ID: 5
+Location x:41.8, y:-26.8, z:237.2
+
+TypeID: traffic.traffic_light
+Sign ID: -5 hex: 2d35
+Actor ID: 6
+Location x:124, y:16.2, z:237
+
+TypeID: traffic.traffic_light
+Sign ID: -1 hex: 2d31
+Actor ID: 7
+Location x:101.6, y:-51.9, z:237.6
+
+TypeID: traffic.traffic_light
+Sign ID: -2 hex: 2d32
+Actor ID: 8
+Location x:125.2, y:-51.9, z:237.6
+
+TypeID: traffic.traffic_light
+Sign ID: -3 hex: 2d33
+Actor ID: 9
+Location x:101.6, y:-23, z:237.6
+
+TypeID: traffic.traffic_light
+Sign ID: -4 hex: 2d34
+Actor ID: 10
+Location x:124.5, y:-22.4, z:237.7
+
+TypeID: traffic.traffic_light
+Sign ID: -7 hex: 2d37
+Actor ID: 11
+Location x:101.9, y:33.2, z:236.6
+
+TypeID: traffic.traffic_light
+Sign ID: -8 hex: 2d38
+Actor ID: 12
+Location x:60.3, y:12.3, z:236.8
+
+TypeID: traffic.traffic_light
+Sign ID: -9 hex: 2d39
+Actor ID: 13
+Location x:41.5, y:30.9, z:236.8
+
+TypeID: traffic.traffic_light
+Sign ID: -10 hex: 2d3130
+Actor ID: 14
+Location x:60.6, y:30.8, z:236.8
+
+TypeID: traffic.traffic_light
+Sign ID: -11 hex: 2d3131
+Actor ID: 15
+Location x:42.1, y:13.4, z:236.8
+
+TypeID: traffic.traffic_light
+Sign ID: -6 hex: 2d36
+Actor ID: 16
+Location x:124, y:33.7, z:236.6
+
+Available Maps
+/Game/Carla/Maps/mcity_map_v2/mcity_map_v2

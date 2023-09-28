@@ -9,4 +9,4 @@ export PYTHONPATH=${PYTHONPATH}:${PYROOT}/python/src
 
 PYEXE=$(which python3)
 
-${PYEXE} msgDecoder.py
+${PYEXE} msg-decoder.py

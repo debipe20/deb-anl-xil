@@ -18,6 +18,7 @@ def main():
     bsm = "001425007C0EB58400AF266E8B019EA6BC5F128CFFFFFFFFF0D890EAFDFA1FA1007FFF8000962580"
     bsm = binascii.unhexlify(bsm)
     jSPAT = v2x.MessageFrame.to_json(bsm,len(bsm))
+    print(jSPAT)
     # while True:
     #     data, address = msgDecoderSocket.recvfrom(1024)
         

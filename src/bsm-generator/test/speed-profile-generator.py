@@ -1,8 +1,19 @@
+import random
 import socket
 import json
 import time
 
+speedProfileLogFile = open("Speed-Profile-Log.csv", 'w')
+speedProfileLogFile.write("TimeStamp,TimeStep,Speed\n")
 
+def getSpeed(previousSpeed):
+
+    currentSpeed = previousSpeed * (random.randint(80,130)/100)
+    
+    if(currentSpeed > 12.0):
+        currentSpeed = 10.0
+            
+    return currentSpeed
     
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", 'r')
@@ -22,23 +33,25 @@ def main():
     
     previousSpeed = 6.0
     previousTime = time.time()
-    count = 0
+
     while True:
-        
-        data, address = speedProfileGeneratorSocket.recvfrom(4096)
-        print("Received data\n", data)
-        currentSpeed = int.from_bytes(data, byteorder='big')
-        count= count +1
-        if count == 100:
-            count = 1
+        currentSpeed = getSpeed(previousSpeed)
+        previousSpeed = currentSpeed
+    
         speedJsonString = json.dumps({
             "MsgType": "SpeedData",
             "Speed": currentSpeed
         })
         
-        print("Following message will send for : \n",count, speedJsonString)
+        print("Following message will send:\n", speedJsonString)
         speedProfileGeneratorSocket.sendto(speedJsonString.encode(), clientAddress)
         
+        # currentTime = time.time()
+        # timeStep = currentTime - previousTime
+        # previousTime = currentTime
+        
+        # csvRow = (str(currentTime) + "," + str(timeStep) + "," + str(currentSpeed) + "\n")
+        # speedProfileLogFile.write(csvRow)
         
         time.sleep(0.0997)
     speedProfileGeneratorSocket.close()

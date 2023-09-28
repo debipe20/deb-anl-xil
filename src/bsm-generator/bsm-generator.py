@@ -16,7 +16,7 @@ from osys import v2x
 from BsmGenerator import BsmGenerator
 
 def main():
-    configFile = open("../anl-master-config.json", 'r')
+    configFile = open("/nojournal/bin/anl-master-config.json", 'r')
     config = (json.load(configFile))
     configFile.close()
 

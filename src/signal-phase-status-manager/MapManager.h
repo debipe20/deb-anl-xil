@@ -13,14 +13,21 @@
 
 #pragma once
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <string>
 #include"Map.h"
+#include "BasicVehicle.h"
+#include "Position3D.h"
+#include "locAware.h"
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::ofstream;
+using std::ifstream;
+using std::stringstream;
 
 class MapManager
 {
@@ -28,15 +35,25 @@ private:
     int intersectinID{};
     string mapPayload{};
     string intersectionMapName{};
+    vector<Map::ActiveMap> activeMapList{};
+    LocAware *plocAwareLib;
 
 public:
     MapManager();
     ~MapManager();
 
     vector<Map::AvailableMap> availableMapList{};
-
+    
     void json2MapPayload(string jsonString);
+    void writeMAPPayloadInFile();
     bool addToMapInList();
     bool updateMapPayLoadList();
-    bool deleteMapPayLoadFromList();
+    void maintainAvailableMapList();
+    void deleteMapPayLoadFromList();
+    void createActiveMapList(BasicVehicle basicVehicle);
+    void deleteActiveMapfromList();
+    void updateMapAge();
+    // void loggingData(string logString);
+    // void displayConsoleData(string consoleString);
+    void printAvailableMapList();
 };

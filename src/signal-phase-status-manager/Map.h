@@ -10,10 +10,10 @@ namespace Map
         std::string availableMapFileDirectory;
         int mapIntersectionID;
         double mapAge;
-        int minuteOfYear;
-        int secondOfMinute;
+        double mapReceivingTime;
+
         std::string activeMapStatus;
-        
+
         void reset() 
         {
             availableMapPayload = "";
@@ -21,8 +21,7 @@ namespace Map
             availableMapFileDirectory = "";
             mapIntersectionID = 0;
             mapAge = 0; 
-            minuteOfYear = 0;
-            secondOfMinute = 0;
+            mapReceivingTime = 0.0;
             activeMapStatus = "False";
         }
         

@@ -1,3 +1,7 @@
+#https://scapy.readthedocs.io/en/latest/usage.html
+#https://subscription.packtpub.com/book/security/9781784399771/8/ch08lvl1sec48/reading-and-writing-to-pcap-files
+#https://www.youtube.com/watch?v=gOcT5r0spVM&t=10s&ab_channel=danscourses
+#https://stackoverflow.com/questions/5649407/how-to-convert-hexadecimal-string-to-bytes-in-python
 from scapy.all import *
 import json
 import binascii

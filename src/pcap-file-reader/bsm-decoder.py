@@ -3,19 +3,6 @@ import json
 import binascii
 from osys import v2x
 
-def getMessageType(jsonString):
-    messageType = ""
-
-    if(jsonString["messageId"]) == 18:
-        messageType = "MAP"
-
-    elif (jsonString["messageId"]) == 19:
-        messageType = "SPaT"
-
-    elif(jsonString["messageId"]) == 20:
-        messageType = "BSM"    
-
-    return messageType
 
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", 'r')

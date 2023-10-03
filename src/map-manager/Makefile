@@ -9,10 +9,10 @@ INCLUDES    := -I$(J2735_INCL) -I$(JSONCPP_INCL) -I$(COMMON_INCL) -I$(BUILD_ROOT
 LIBS        := -L$(J2735_LIB) -L$(MMITSS_COMMON_LIB) -L$(MAPENGINE_LIB) -llocAware -ldsrc -lasn -lmmitss-common #tell the linker where to find the j2735 and json libraries
 
 #cpp's go here
-SRC += MapManager.cpp signal-phase-status-manager.cpp
+SRC += MapManager.cpp map-manager-main.cpp
 
 #the name of the executable goes here
-TARGET = M_SignalPhaseStatusManager
+TARGET = M_MapManager
 
 # list the .o's corresponding to .cpp's
 # see: https://www.gnu.org/software/make/manual/html_node/Text-Functions.html

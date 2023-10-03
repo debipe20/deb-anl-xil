@@ -16,7 +16,9 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <fstream>
 #include"Map.h"
+#include "json/json.h"
 #include "BasicVehicle.h"
 #include "Position3D.h"
 #include "locAware.h"
@@ -44,6 +46,7 @@ public:
 
     vector<Map::AvailableMap> availableMapList{};
     
+    int getMessageType(string jsonString);
     void json2MapPayload(string jsonString);
     void writeMAPPayloadInFile();
     bool addToMapInList();

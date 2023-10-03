@@ -1,11 +1,8 @@
-
-#include <fstream>
 #include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "MapManager.h"
 #include "Timestamp.h"
-#include "json/json.h"
 #include "geoUtils.h"
 #include "msgEnum.h"
 
@@ -33,6 +30,33 @@ MapManager::MapManager()
     LocAware *tempPlocAwareLib = new LocAware(intersectionName, singleFrame);
     plocAwareLib = tempPlocAwareLib;
 }
+
+/*
+	-Get the message type based on the received json string
+*/
+int MapManager::getMessageType(string jsonString)
+{
+	int messageType{};
+	Json::Value jsonObject;
+	Json::CharReaderBuilder builder;
+	Json::CharReader *reader = builder.newCharReader();
+	string errors{};
+
+	bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
+	delete reader;
+
+	if (parsingSuccessful == true)
+	{
+		if ((jsonObject["MsgType"]).asString() == "MAP")
+			messageType = MsgEnum::DSRCmsgID_map;
+
+		else if ((jsonObject["MsgType"]).asString() == "BSM")
+			messageType = MsgEnum::DSRCmsgID_bsm;
+	}
+
+	return messageType;
+}
+
 
 /*
     -Get uper hex string payload from the received json string

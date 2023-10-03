@@ -6,28 +6,26 @@ from scapy.all import *
 import json
 import binascii
 from osys import v2x
-filename='/home/debashis/Downloads/constant-drive-trace/const_speed_msg_fwd.pcap'
+filename='/home/carma/Downloads/constant-drive-trace/const_speed_msg_fwd.pcap'
 p = rdpcap(filename)
-# print(p)
-# print(len(p))
-# packets = rdpcap("/home/debashis/Downloads/constant-drive-trace/const_speed_msg_fwd.pcap")
-# print(packet.summary())
-# print(p.summary())
+
 pkt = p[100]
-# print(pkt)
-# print(type(pkt))
-# print(dir(pkt))
-# print(hexdump(pkt))
-# print(pkt.show())
-# pkts = []
-# for packet in p:
-#     if packet.haslayer('Other'):
-#       pkts.append(packet)
-# print(pkts)
+
 data = raw(pkt)
 print(data)
 # print("hexadecimal dump",hexdump(pkt))
-data = binascii.unhexlify(data.strip())
+data = binascii.hexlify(data)
+
+
+data = str(data, encoding='utf-8')
+index = data.find('0014')
+print("index is:", index)
+data = data[index:]
+print("payload is:\n", data)
+# data = b'001468427298b345a441a76dbbdd9cb32bd78ca18505000071388238fd7d07d0007fff00004f89d00104c0c10a0e405af02203b0115e7c06b705222b2114cec06d704c22c610f5cbec0502a5bb610d43be5e301a5c9210c95bdebd0165d2010c0abda110165d84b53bc600'
+data = binascii.unhexlify(data)
 receivedJsonString = v2x.MessageFrame.to_json(data,len(data))
 receivedJsonString = json.loads(receivedJsonString)
 print(receivedJsonString)
+
+

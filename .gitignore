@@ -19,6 +19,7 @@ CMake*
 
 
 *.pyc
+3rdparty/*.pyc
 .DS_Store
 
 *OptimizationModel_EV.mod

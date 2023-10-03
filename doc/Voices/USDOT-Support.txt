@@ -1,0 +1,86 @@
+#Insatll VOICES Adapters
+cd $HOME/voices-poc
+git checkout fix/update_adapter_build_script
+
+#Add following line in the /home/carma/tenadev/carla-tena-adaptar/docker/Dockerfile 
+RUN find /home/carla -type f -exec sed -i 's/XERCESC_VERSION=3.2.3/XERCESC_VERSION=3.2.4/g' {} \;
+
+#Install the following
+sudo apt install libxcb-xinerama0
+sudo apt-get install libboost-all-dev
+
+#Change the ownership/permission in the /opt/TENA directory
+sudo chown -R carma:carma TENA
+sudo chown -R carma:carma ./*
+
+** Run TENA Console
+#Excute the following command in a terminal sequetinally
+cd /opt/TENA/Console-v2.0.1
+source /home/carma/TENA/6.0.8/scripts/tenaenv-u2004-gcc9-64-v6.0.8.sh
+./start.sh
+
+optional: echo $TENA_HOME
+output:/home/carma/TENA
+optional: ps aux |grep -i TENA
+output: list of tena console is running or not
+
+** Run TENA Canary
+#Excute the following command in a terminal sequetinally
+cd /home/carma/TENA/tenaCanary-v1.0.12 
+./start.sh
+
+
+##Install V2X-Hub
+-Follow the instruction from confluence page (https://usdot-carma.atlassian.net/wiki/spaces/V2XH/pages/1886158849/V2X-Hub+Docker+Deployment)
+	-Download V2X-Hub git hub repo (https://github.com/usdot-fhwa-OPS/V2X-Hub.git)
+	- cd V2X-Hub/configuration/amd64/
+	- git checkout 7.3.1
+	- mkdir secrets
+	- cd secrets
+	- nano mysql_root_password.txt
+	- set password
+		- anl123
+	- Remove end line characters from your password file
+		- echo -n $(tr -d '\n' < mysql_root_password.txt) > mysql_root_password.txt
+	- nano mysql_password.txt
+	- set password
+		- anl123
+	- Remove end line characters from your password file
+		- echo -n $(tr -d '\n' < mysql_password.txt) > mysql_password.txt
+	- cd ..
+	- run initialization.sh script
+	- 
+	- cd mysql
+	- Run add_v2xhub_user.bash script
+	- Set V2X-Hub login credential
+		- username: ddas
+		- password: ANLamtl@123
+	- Navigate to https://<v2x-hub ip>:19760
+		192.168.26.101:19760
+	- open a new tab-> https://192.168.26.101:19760/ -> advance -> accept the risk
+	- login with V2X-Hub credential
+	- Upload the plugin (zip file) if required
+	
+## Configure Carma Platform Adapter	
+	- carma config edit
+	- cd vehicle/config
+	- cat docker-compose.yml
+	
+	- cd ~/carma_ws/src/carma-cohda-dsrc-driver/dsrc_driver/launch
+	- git checkout carma-system-3.11.0
+	
+	- modify dsrc_node.launch
+		<launch>
+		    <arg name="dsrc_address" default="192.168.26.100" />
+		    <arg name="dsrc_listening_port" default="56700" />
+		    <arg name="listening_port" default="5398" />
+		    <arg name="wave_cfg_file" default="$(find dsrc_driver)/etc/wave.json" />
+
+		    <node name="dsrc" pkg="dsrc_driver" type="dsrc_driver_node" output="screen">
+			<param name="dsrc_address" value="$(arg dsrc_address)" />
+			<param name="dsrc_listening_port" value="$(arg dsrc_listening_port)" />
+			<param name="listening_port" value="$(arg listening_port)" />
+			<param name="wave_cfg_file" value="$(arg wave_cfg_file)" />
+		    </node>
+		</launch>
+

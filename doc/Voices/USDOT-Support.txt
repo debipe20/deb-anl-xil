@@ -49,14 +49,14 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 		- echo -n $(tr -d '\n' < mysql_password.txt) > mysql_password.txt
 	- cd ..
 	- run initialization.sh script
-	- 
+	- run docker-compose up -d
 	- cd mysql
 	- Run add_v2xhub_user.bash script
 	- Set V2X-Hub login credential
-		- username: ddas
-		- password: ANLamtl@123
+		- username: amtl
+		- password: Anl-123
 	- Navigate to https://<v2x-hub ip>:19760
-		192.168.26.101:19760
+		192.168.26.100:19760
 	- open a new tab-> https://192.168.26.101:19760/ -> advance -> accept the risk
 	- login with V2X-Hub credential
 	- Upload the plugin (zip file) if required

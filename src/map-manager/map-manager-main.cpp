@@ -1,4 +1,5 @@
 #include "MapManager.h"
+#include "BsmManager.h"
 #include <UdpSocket.h>
 
 
@@ -15,9 +16,10 @@ int main()
 
     MapManager mapManager;
     BasicVehicle basicVehicle;
+    BsmManager bsmManager;
 
     const string HostIP = jsonObject["HostIp"].asString();
-    UdpSocket mapManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["PriorityRequestGenerator"].asInt()));
+    UdpSocket mapManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["MapManager"].asInt()));
     
     char receiveBuffer[2048];
     int msgType{};
@@ -31,12 +33,16 @@ int main()
         if (msgType == MsgEnum::DSRCmsgID_bsm)
         {
             basicVehicle.json2BasicVehicle(receivedJsonString);
+            bsmManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
+            cout<<"Signal group is " << bsmManager.getSignalGroup() << endl;;
         }
 
         else if (msgType == MsgEnum::DSRCmsgID_map)
         {
             mapManager.json2MapPayload(receivedJsonString);
             mapManager.maintainAvailableMapList();
+            mapManager.updateMapAge();
+            mapManager.deleteMapPayLoadFromList();
         }
     }
 

@@ -3,8 +3,6 @@
 #include <sys/stat.h>
 #include "MapManager.h"
 #include "Timestamp.h"
-#include "geoUtils.h"
-#include "msgEnum.h"
 
 using namespace GeoUtils;
 using namespace MsgEnum;
@@ -13,22 +11,11 @@ const double TIME_GAP_BETWEEN_RECEIVING_MAPPAYLOAD = 300.0;
 
 MapManager::MapManager()
 {
-    string intersectionName{};
-    bool singleFrame{false};
-    Json::Value jsonObject;
-	Json::CharReaderBuilder builder;
-	Json::CharReader *reader = builder.newCharReader();
-	string errors{};
-	ifstream jsonconfigfile("/nojournal/bin/anl-master-config.json");
+    const char *path = "/nojournal/bin/map";
+    struct stat sb;
 
-	string configJsonString((std::istreambuf_iterator<char>(jsonconfigfile)), std::istreambuf_iterator<char>());
-	reader->parse(configJsonString.c_str(), configJsonString.c_str() + configJsonString.size(), &jsonObject, &errors);
-	delete reader;
-
-	intersectionName = jsonObject["IntersectionName"].asString();
-
-    LocAware *tempPlocAwareLib = new LocAware(intersectionName, singleFrame);
-    plocAwareLib = tempPlocAwareLib;
+    if (stat(path, &sb) != 0)
+        mkdir(path, 0777);
 }
 
 /*
@@ -83,16 +70,12 @@ void MapManager::json2MapPayload(string jsonString)
 */
 void MapManager::writeMAPPayloadInFile()
 {
-    const char *path = "/nojournal/bin/map";
-    struct stat sb;
+    const char *path = "/nojournal/bin/map";    
     stringstream ss{};
     ss << path;
     string pathDirectory{};
     ss >> pathDirectory;
     ofstream outputfile;
-
-    if (stat(path, &sb) != 0)
-        mkdir(path, 0777);
 
     outputfile.open(pathDirectory + "/" + intersectionMapName + ".map.payload");
     outputfile << "payload" << " " << intersectionMapName << " " << mapPayload << endl;
@@ -206,9 +189,10 @@ void MapManager::deleteMapPayLoadFromList()
 /*
     - This function is for maintaining active map list based on the available map list.
 */
-void MapManager::createActiveMapList(BasicVehicle basicVehicle)
+void MapManager::setActiveMapList(BasicVehicle basicVehicle)
 {
     Map::ActiveMap activeMap;
+    bool singleFrame{false}; /// TRUE to encode speed limit in lane, FALSE to encode in approach
     string fmap{};
     string intersectionName{};
 
@@ -219,6 +203,8 @@ void MapManager::createActiveMapList(BasicVehicle basicVehicle)
             fmap = availableMapList[i].availableMapFileDirectory;
             intersectionName = availableMapList[i].availableMapFileName;
             
+            //Initialize mapengine library.
+            LocAware *plocAwareLib = new LocAware(fmap, singleFrame);
             // Obtain vehicle information from bsm
             double vehicle_Latitude = basicVehicle.getLatitude_DecimalDegree();
             double vehicle_Longitude = basicVehicle.getLongitude_DecimalDegree();
@@ -228,7 +214,7 @@ void MapManager::createActiveMapList(BasicVehicle basicVehicle)
             // Initialize all struct require to locate vehicle in map by mapengine library.
             struct geoPoint_t geoPoint_t_1 = {vehicle_Latitude, vehicle_Longitude, vehicle_Elevation};
             struct motion_t motion_t_1 = {vehicle_Speed, vehicle_Heading};
-            struct intersectionTracking_t intersectionTracking_t_1 = {mapLocType::onInbound, 0, 0, 0};
+            struct intersectionTracking_t intersectionTracking_t_1 = {mapLocType::outside, 0, 0, 0};
             struct projection_t projection_t_1 = {0.0, 0.0, 0.0};
             struct laneProjection_t laneProjection_t_1 = {0, projection_t_1};
             struct vehicleTracking_t vehicleTracking_t_1 = {intersectionTracking_t_1, laneProjection_t_1};
@@ -246,8 +232,10 @@ void MapManager::createActiveMapList(BasicVehicle basicVehicle)
                 activeMap.activeMapFileName = intersectionName;
                 activeMap.activeMapFileDirectory = fmap;
                 activeMapList.push_back(activeMap);
+                cout << "Active map is " << intersectionName << endl;
                 break;
             }
+            delete plocAwareLib;
         }
     }
 }
@@ -268,6 +256,23 @@ void MapManager::updateMapAge()
     for (size_t i = 0; i < availableMapList.size(); i++)
         availableMapList[i].mapAge = availableMapList[i].mapAge + (getPosixTimestamp() - availableMapList[i].mapReceivingTime);
 }
+
+/*
+    - Getters for Active map List
+*/
+    vector<Map::ActiveMap> MapManager::getActiveMapList()
+{
+    return activeMapList;
+}
+
+/*
+	- Getters for Available map List
+*/
+vector<Map::AvailableMap> MapManager::getAvailableMapList()
+{
+    return availableMapList;
+}
+
 
 // /*
 // 	- Method for logging data in a file
@@ -308,5 +313,4 @@ void MapManager::printAvailableMapList()
 
 MapManager::~MapManager()
 {
-    delete plocAwareLib;
 }

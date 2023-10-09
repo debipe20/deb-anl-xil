@@ -18,15 +18,18 @@ s.bind((hostIp,port))
 clientPort = config["PortNumber"]["SpatManager"]
 communicationInfo = (hostIp, clientPort)
 
+f = open(fileName, 'r')
+data = f.read()
+s.sendto(data.encode(),communicationInfo)
+print("sent spat at time ", time.time())
+# while True:
 
-while True:
+#     f = open(fileName, 'r')
+#     data = f.read()
+#     s.sendto(data.encode(),communicationInfo)
+#     print("sent spat at time ", time.time())
 
-    f = open(fileName, 'r')
-    data = f.read()
-    s.sendto(data.encode(),communicationInfo)
-    print("sent spat at time ", time.time())
-
-    time.sleep(0.0998)
+#     time.sleep(0.0998)
     
 
 f.close()

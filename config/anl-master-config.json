@@ -10,6 +10,7 @@
 		"BsmGenerator": 50001,
 		"SpeedProfileGenerator": 50002,
 		"MapManager": 50003,
+		"SpatManager": 50004,
 		"MessageReceiver": 26789
 				
 	},

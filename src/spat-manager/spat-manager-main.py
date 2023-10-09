@@ -18,9 +18,12 @@ def main():
     spatManagerSocket.bind(com_info)
 
     while True:
+        data, address = spatManagerSocket.recvfrom(10240)
+        bsmPayload = data.decode()
         bsmBytes = binascii.unhexlify(bsmPayload)
         receivedJsonString = v2x.MessageFrame.to_json(bsmBytes, len(bsmBytes))
         receivedJsonString = json.loads(receivedJsonString)
+        print(receivedJsonString)
 
 
     spatManagerSocket.close()

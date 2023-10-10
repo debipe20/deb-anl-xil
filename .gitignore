@@ -1,0 +1,38 @@
+#ignore binaries
+M_*
+
+#unignore the shell script
+!docker/applictions/*.sh
+
+#Ignore obj files
+*.o
+
+.idea
+
+*.code-workspace
+
+.vscode
+
+cmake*
+
+CMake*
+
+
+*.pyc
+3rdparty/*.pyc
+.DS_Store
+
+*OptimizationModel_EV.mod
+*OptimizationModel.mod
+*OptimizationModelData.dat
+*OptimizationModelResults.txt
+*.map.payload
+*.log
+*mmitss-system-performance-roadside-log-data.csv
+config/*.csv
+config/*/*/*/nojournal/bin/v2x-data/*
+config/*/*/*/nojournal/bin/log/*.txt
+config/*/*/*/nojournal/bin/*.txt
+config/*/*/*/nojournal/bin/*.dat
+config/*/*/*/nojournal/bin/*.mod
+src/system-interface/static/json/mmitss-phase3-master-config_NEW.json

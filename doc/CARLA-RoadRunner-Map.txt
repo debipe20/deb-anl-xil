@@ -1,0 +1,71 @@
+Import RoadRunner to Carla:
+https://www.mathworks.com/help/roadrunner/ug/export-to-carla.html#mw_1f5def58-87f6-43c9-a193-d52856b4db19
+
+https://www.mathworks.com/help/roadrunner/import-scene-data.html
+
+https://www.mathworks.com/help/roadrunner/ug/export-to-carla.html
+
+https://rocketloop.de/en/blog/importing-custom-roadrunner-map-carla/
+
+
+Create real world road map:
+
+https://www.youtube.com/watch?v=cC9oDGnu2vY&t=37s&ab_channel=VectorZero
+
+https://www.youtube.com/watch?v=4onk_xu1P14&ab_channel=VectorZero
+
+https://www.youtube.com/watch?v=VmoibGgaWJU&ab_channel=VectorZero
+
+https://www.youtube.com/watch?v=0NmNhSLG9C4&ab_channel=VectorZero
+
+
+Carla Documentation:
+
+https://carla.readthedocs.io/en/0.9.13/build_windows/
+
+https://carla.readthedocs.io/en/0.9.13/tuto_M_generate_map/
+
+https://carla.readthedocs.io/en/0.9.13/tuto_M_custom_map_overview/
+
+https://carla.readthedocs.io/en/0.9.13/tuto_M_add_map_alternative/#roadrunner-plugin-import
+
+https://www.youtube.com/watch?v=ctRlzUM8QdM&t=2s&ab_channel=avr4dev
+
+https://github.com/thillRobot/carla_simulator/blob/master/docs/maps.md
+
+https://www.youtube.com/watch?v=mHiUUZ4xC9o&ab_channel=CARLASimulator
+
+
+Linux:
+
+https://github.com/thillRobot/carla_simulator/blob/master/docs/maps.md
+
+https://github.com/carla-simulator/carla/issues/3441
+
+https://forums.unrealengine.com/t/upcoming-disruption-of-service-impacting-unreal-engine-users-on-github/1155880
+
+###RoadRunner Tutorial:
+
+https://www.mathworks.com/help/roadrunner/get-started-with-roadrunner.html?s_tid=CRUX_lftnav
+
+https://www.mathworks.com/help/roadrunner/ug/create-simple-roadrunner-scene.html
+
+https://www.mathworks.com/support/search.html/videos/design-3d-scenes-for-automated-driving-simulation-with-roadrunner-1606237745749.html?fq%5B%5D=asset_type_name:video&fq%5B%5D=category:driving/index&page=1
+
+
+Parking Tool:
+
+https://www.mathworks.com/videos/design-3d-scenes-for-automated-driving-simulation-with-roadrunner-1606237745749.html
+
+Unreal Engine:
+https://docs.unrealengine.com/5.2/en-US/viewport-controls-in-unreal-engine/
+Design Scenes:
+
+https://www.mathworks.com/support/search.html?fq%5B%5D=asset_type_name:video&fq%5B%5D=category:roadrunner/design-scenes&page=1
+
+https://github.com/carla-simulator/carla/issues/1015
+
+
+Docker Build:
+
+https://github.com/ar4development/carla_build

@@ -37,11 +37,12 @@ def Main():
     frequency = 0.1
     msgCount = 1
 
-    while True:
-        msgSenderSocket.sendto(message.encode(), receiver) # Send the data to receiver
-        print("Sent message# " + str(msgCount) + " to " + str(hostIp) + ":" + str(receiverPort))
-        msgCount = msgCount + 1
-        time.sleep(frequency) 
+    msgSenderSocket.sendto(message.encode(), receiver)
+    # while True:
+    #     msgSenderSocket.sendto(message.encode(), receiver) # Send the data to receiver
+    #     print("Sent message# " + str(msgCount) + " to " + str(hostIp) + ":" + str(receiverPort))
+    #     msgCount = msgCount + 1
+    #     time.sleep(frequency) 
 
     msgSenderSocket.close() # Close the socket
 

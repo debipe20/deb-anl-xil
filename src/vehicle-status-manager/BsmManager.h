@@ -18,6 +18,7 @@ class BsmManager
 {
 private:
     int vehicleSignalGroup{};
+    int vehicleIntersectionId{};
     vector<Map::ActiveMap> activeMapList;
 
 
@@ -26,7 +27,9 @@ public:
     ~BsmManager();
 
     void getVehicleInformationFromMAP(MapManager mapManager, BasicVehicle basicVehicle);
-    int getSignalGroup();
+    void setVehicleIntersectionId(int intersection_id);
+    int getVehicleIntersectionId();
+    int getVehicleSignalGroup();
     vector<Map::ActiveMap> getActiveMapList(MapManager mapManager);
 };
 

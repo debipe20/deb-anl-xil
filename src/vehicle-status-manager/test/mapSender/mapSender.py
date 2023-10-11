@@ -17,8 +17,8 @@ port = config["PortNumber"]["MessageDecoder"]
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind((hostIp,port))
 
-priorityRequestGeneratorPort = config["PortNumber"]["MapManager"]
-communicationInfo = (hostIp, priorityRequestGeneratorPort)
+vehicleStatusManagerPort = config["PortNumber"]["VehicleStatusManager"]
+communicationInfo = (hostIp, vehicleStatusManagerPort)
 
 mapNo = 1
 

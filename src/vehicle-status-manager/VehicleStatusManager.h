@@ -2,13 +2,13 @@
 **********************************************************************************
 
 **********************************************************************************
-  VehicleStatusManger.h
+  VehicleStatusManager.h
   Created by: Debashis Das
   Argonne National Laboratory
   Transportation and Power Systems Division
 
   Revision History:
-  1. This script is header file for VehicleStatusManger.cpp
+  1. This script is header file for VehicleStatusManager.cpp
 */
 
 #pragma once
@@ -17,15 +17,22 @@
 
 #define SignalGroupData_Time_Gap_Value 2.0
 
-class VehicleStatusManger
+
+enum msgType
+{
+    signalStatusData = 1,
+};
+
+class VehicleStatusManager
 {
 private:
     double signalGroupDataRequestSendingTime{0.0};
 
 public:
-    VehicleStatusManger();
-    ~VehicleStatusManger();
+    VehicleStatusManager();
+    ~VehicleStatusManager();
 
+    int getMessageType(string jsonString);
     bool checkSignalGroupDataRequestSendingStatus();
-    string getSignalGroupDataRequestJsonString();
+    string getSignalGroupDataRequestJsonString(BsmManager bsmManager);
 };

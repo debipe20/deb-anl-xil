@@ -2,14 +2,15 @@
 **********************************************************************************
 
 **********************************************************************************
-  VehicleStatusManger.h
+  VehicleStatusManager.h
   Created by: Debashis Das
   Argonne National Laboratory
   Transportation and Power Systems Division
 
   Revision History:
-  1. This script is the demonstration of VehicleStatusManger API.
+  1. This script is the demonstration of VehicleStatusManager API.
 */
+#include "VehicleStatusManager.h"
 #include <UdpSocket.h>
 
 
@@ -24,19 +25,21 @@ int main()
     reader->parse(configJsonString.c_str(), configJsonString.c_str() + configJsonString.size(), &jsonObject, &errors);        
     delete reader;
 
-    MapManager mapManager;
     BasicVehicle basicVehicle;
+    MapManager mapManager;
     BsmManager bsmManager;
+    VehicleStatusManager vehicleStatusManager;
 
     const string HostIP = jsonObject["HostIp"].asString();
-    UdpSocket mapManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["MapManager"].asInt()));
-    
+    UdpSocket vehicleStatusManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["VehicleStatusManager"].asInt()));
+    const int spatManagerPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["SpatManager"].asInt());
     char receiveBuffer[2048];
     int msgType{};
+    string sendingJsonString{};
 
     while (true)
     {
-        mapManagerSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
+        vehicleStatusManagerSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
         string receivedJsonString(receiveBuffer);
         msgType = mapManager.getMessageType(receivedJsonString);
 
@@ -44,7 +47,13 @@ int main()
         {
             basicVehicle.json2BasicVehicle(receivedJsonString);
             bsmManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
-            cout<<"Signal group is " << bsmManager.getSignalGroup() << endl;;
+            cout<<"Signal group is " << bsmManager.getVehicleSignalGroup() << endl;;
+
+            if (vehicleStatusManager.checkSignalGroupDataRequestSendingStatus())
+            {
+                sendingJsonString = vehicleStatusManager.getSignalGroupDataRequestJsonString(bsmManager);
+                vehicleStatusManagerSocket.sendData(HostIP, static_cast<short unsigned int>(spatManagerPort), sendingJsonString);
+            }
         }
 
         else if (msgType == MsgEnum::DSRCmsgID_map)
@@ -54,8 +63,14 @@ int main()
             mapManager.updateMapAge();
             mapManager.deleteMapPayLoadFromList();
         }
+
+
+        else if (msgType == static_cast<int>(msgType::signalStatusData))
+        {
+            
+        }
     }
 
-    mapManagerSocket.closeSocket();
+    vehicleStatusManagerSocket.closeSocket();
     return 0;
 }

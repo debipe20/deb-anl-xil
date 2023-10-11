@@ -46,6 +46,7 @@ void BsmManager::getVehicleInformationFromMAP(MapManager mapManager, BasicVehicl
         uint32_t referenceId = plocAwareLib->getIntersectionIdByName(intersectionName);
         uint16_t regionalId = static_cast<uint16_t>((referenceId >> 16) & 0xFFFF);
         uint16_t intersectionId = static_cast<uint16_t>(referenceId & 0xFFFF);
+        setVehicleIntersectionId(intersectionId);
 
         // get the vehicle data from bsm
         double vehicleLatitude = basicVehicle.getLatitude_DecimalDegree();
@@ -83,13 +84,24 @@ void BsmManager::getVehicleInformationFromMAP(MapManager mapManager, BasicVehicl
         {
             mapManager.deleteActiveMapfromList();
             activeMapList.clear();
+            vehicleIntersectionId = 0;
             vehicleSignalGroup = 0;
         }
         delete plocAwareLib;
     }
 }
 
-int BsmManager::getSignalGroup()
+void BsmManager::setVehicleIntersectionId(int intersection_id)
+{
+    vehicleIntersectionId = intersection_id;
+}
+
+int BsmManager::getVehicleIntersectionId()
+{
+    return vehicleIntersectionId;
+}
+
+int BsmManager::getVehicleSignalGroup()
 {
 	return vehicleSignalGroup;
 }

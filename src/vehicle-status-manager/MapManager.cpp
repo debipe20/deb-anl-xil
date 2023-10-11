@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "MapManager.h"
-#include "Timestamp.h"
 
 using namespace GeoUtils;
 using namespace MsgEnum;
@@ -29,33 +28,6 @@ MapManager::MapManager()
     if (stat(path, &sb) != 0)
         mkdir(path, 0777);
 }
-
-/*
-	-Get the message type based on the received json string
-*/
-int MapManager::getMessageType(string jsonString)
-{
-	int messageType{};
-	Json::Value jsonObject;
-	Json::CharReaderBuilder builder;
-	Json::CharReader *reader = builder.newCharReader();
-	string errors{};
-
-	bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
-	delete reader;
-
-	if (parsingSuccessful == true)
-	{
-		if ((jsonObject["MsgType"]).asString() == "MAP")
-			messageType = MsgEnum::DSRCmsgID_map;
-
-		else if ((jsonObject["MsgType"]).asString() == "BSM")
-			messageType = MsgEnum::DSRCmsgID_bsm;
-	}
-
-	return messageType;
-}
-
 
 /*
     -Get uper hex string payload from the received json string

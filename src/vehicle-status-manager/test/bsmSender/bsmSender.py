@@ -15,8 +15,8 @@ port = config["PortNumber"]["BsmGenerator"]
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind((hostIp,port))
 
-priorityRequestGeneratorPort = config["PortNumber"]["MapManager"]
-communicationInfo = (hostIp, priorityRequestGeneratorPort)
+vehicleStatusManagerPort = config["PortNumber"]["VehicleStatusManager"]
+communicationInfo = (hostIp, vehicleStatusManager)
 
 
 bsmSendingTime = 0.0

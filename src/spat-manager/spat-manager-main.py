@@ -2,6 +2,7 @@ import socket
 import json
 import binascii
 from osys import v2x
+from SpatManager import SpatManager
 
 
 def main():
@@ -17,13 +18,26 @@ def main():
     spatManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     spatManagerSocket.bind(com_info)
 
+    vehicleStatusManagerAddress = (hostIp, config["PortNumber"]["VehicleStatusManager"])
+    
+    spatManager = SpatManager()
+
     while True:
         data, address = spatManagerSocket.recvfrom(10240)
-        bsmPayload = data.decode()
-        bsmBytes = binascii.unhexlify(bsmPayload)
-        receivedJsonString = v2x.MessageFrame.to_json(bsmBytes, len(bsmBytes))
-        receivedJsonString = json.loads(receivedJsonString)
-        print(receivedJsonString)
+        data = data.decode()
+        receivedMessage = json.loads(data)
+        if receivedMessage["MsgType"] == "SignalGroupDataRequest":
+            requestedSignalGroupData = spatManager.getRequestedSignalGroupData()
+            spatManagerSocket.sendto(requestedSignalGroupData.encode(), vehicleStatusManagerAddress)
+        
+        elif receivedMessage["MsgType"] == "SPaT":
+            spatPayload = receivedMessage["SpatPayload"]
+            spatBytes = binascii.unhexlify(spatPayload)
+            receivedJsonString = v2x.MessageFrame.to_json(spatBytes, len(spatBytes))
+            receivedJsonString = json.loads(receivedJsonString)
+            # print(receivedJsonString)
+            spatManager.manageSpatData(receivedJsonString)
+
 
 
     spatManagerSocket.close()

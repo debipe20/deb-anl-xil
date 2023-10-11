@@ -3,7 +3,7 @@ import json
 import time
 
 fileName = "spat.txt"
-
+fileName2 = "spat2.txt"
 
 # Read a config file into a json object:
 configFile = open("/nojournal/bin/anl-master-config.json", 'r')
@@ -22,6 +22,13 @@ f = open(fileName, 'r')
 data = f.read()
 s.sendto(data.encode(),communicationInfo)
 print("sent spat at time ", time.time())
+f.close()
+
+f = open(fileName2, 'r')
+data = f.read()
+s.sendto(data.encode(),communicationInfo)
+print("sent spat at time ", time.time())
+
 # while True:
 
 #     f = open(fileName, 'r')

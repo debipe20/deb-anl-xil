@@ -1,5 +1,15 @@
-#include "MapManager.h"
-#include "BsmManager.h"
+/*
+**********************************************************************************
+
+**********************************************************************************
+  VehicleStatusManger.h
+  Created by: Debashis Das
+  Argonne National Laboratory
+  Transportation and Power Systems Division
+
+  Revision History:
+  1. This script is the demonstration of VehicleStatusManger API.
+*/
 #include <UdpSocket.h>
 
 

@@ -59,6 +59,7 @@ def main():
 
     for pkt in pcapPackets:
         packet = raw(pkt)
+        print(packet)
         hexPacket = binascii.hexlify(packet)
         packetString = str(hexPacket, encoding='utf-8')
         bsmIdentifier = packetString.find('0014')

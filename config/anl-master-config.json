@@ -13,7 +13,8 @@
 		"SpeedProfileGenerator": 50002,
 		"VehicleStatusManager": 50003,
 		"SpatManager": 50004,
-		"MessageReceiver": 26789
+		"MessageReceiver": 26789,
+		"SpatReceiver": 6053
 				
 	},
     "VehicleId": "f03ad610",

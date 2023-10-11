@@ -5,6 +5,8 @@ import time
 fileName = "spat.txt"
 fileName2 = "spat2.txt"
 
+fileName3 = "SPaT-Payload.txt"
+
 # Read a config file into a json object:
 configFile = open("/nojournal/bin/anl-master-config.json", 'r')
 config = (json.load(configFile))
@@ -18,16 +20,16 @@ s.bind((hostIp,port))
 clientPort = config["PortNumber"]["SpatManager"]
 communicationInfo = (hostIp, clientPort)
 
-f = open(fileName, 'r')
-data = f.read()
-s.sendto(data.encode(),communicationInfo)
-print("sent spat at time ", time.time())
-f.close()
+# f = open(fileName, 'r')
+# data = f.read()
+# s.sendto(data.encode(),communicationInfo)
+# print("sent spat at time ", time.time())
+# f.close()
 
-f = open(fileName2, 'r')
-data = f.read()
-s.sendto(data.encode(),communicationInfo)
-print("sent spat at time ", time.time())
+# f = open(fileName2, 'r')
+# data = f.read()
+# s.sendto(data.encode(),communicationInfo)
+# print("sent spat at time ", time.time())
 
 # while True:
 
@@ -37,6 +39,16 @@ print("sent spat at time ", time.time())
 #     print("sent spat at time ", time.time())
 
 #     time.sleep(0.0998)
+
+while True:
+
+    f = open(fileName3, 'r')
+    for line in f:
+        data = line.strip()
+        s.sendto(data.encode(),communicationInfo)
+        print("sent spat at time ", time.time())
+
+        time.sleep(0.0998)
     
 
 f.close()

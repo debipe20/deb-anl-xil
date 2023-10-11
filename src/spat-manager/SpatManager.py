@@ -33,7 +33,7 @@ class SpatManager:
         """
         """
         requestedIntersectionId = jsonData["IntersectionId"]
-        requestedSignalGroup = jsonData["Signalgroup"]
+        requestedSignalGroup = jsonData["SignalGroup"]
         key = str(requestedIntersectionId) #str(1003)
         
         if key in self.spatDataDictionary.keys():
@@ -44,7 +44,7 @@ class SpatManager:
                     maxEndTime = data["maxEndTime"]
 
         requestedSignalGroupData = json.dumps({
-            "MsgType": "SignalGroupData",
+            "MsgType": "SignalGroupDataMessage",
             "startTime": startTime,
             "minEndTime": minEndTime,
             "maxEndTime": maxEndTime

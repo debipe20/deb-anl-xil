@@ -41,16 +41,18 @@ int main()
     {
         vehicleStatusManagerSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
         string receivedJsonString(receiveBuffer);
-        msgType = mapManager.getMessageType(receivedJsonString);
+        msgType = vehicleStatusManager.getMessageType(receivedJsonString);
 
         if (msgType == MsgEnum::DSRCmsgID_bsm)
         {
             basicVehicle.json2BasicVehicle(receivedJsonString);
             bsmManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
+            vehicleStatusManager.manageVehicleStatusList(basicVehicle);
             cout<<"Signal group is " << bsmManager.getVehicleSignalGroup() << endl;;
 
             if (vehicleStatusManager.checkSignalGroupDataRequestSendingStatus())
             {
+                vehicleStatusManager.updateVehicleStatusList(bsmManager);
                 sendingJsonString = vehicleStatusManager.getSignalGroupDataRequestJsonString(bsmManager);
                 vehicleStatusManagerSocket.sendData(HostIP, static_cast<short unsigned int>(spatManagerPort), sendingJsonString);
             }

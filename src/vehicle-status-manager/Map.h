@@ -1,3 +1,16 @@
+/*
+**********************************************************************************
+
+**********************************************************************************
+  Map.h
+  Created by: Debashis Das
+  Argonne National Laboratory
+  Transportation and Power Systems Division
+
+  Revision History:
+  1. This script is a data structure declaration for map-manager class.
+*/
+
 #pragma once
 #include "string"
 

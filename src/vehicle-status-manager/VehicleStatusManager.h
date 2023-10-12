@@ -12,6 +12,7 @@
 */
 
 #pragma once
+#include "VehicleStatus.h"
 #include "MapManager.h"
 #include "BsmManager.h"
 
@@ -27,12 +28,15 @@ class VehicleStatusManager
 {
 private:
     double signalGroupDataRequestSendingTime{0.0};
+    vector<VehicleStatus>vehicleStatusList{};
 
 public:
     VehicleStatusManager();
     ~VehicleStatusManager();
 
     int getMessageType(string jsonString);
+    void manageVehicleStatusList(BasicVehicle basicVehicle);
+    void updateVehicleStatusList(BsmManager bsmManager);
     bool checkSignalGroupDataRequestSendingStatus();
     string getSignalGroupDataRequestJsonString(BsmManager bsmManager);
 };

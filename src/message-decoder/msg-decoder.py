@@ -120,6 +120,12 @@ def main():
     while True:
         data, address = msgDecoderSocket.recvfrom(2048)
         payload = data.decode()
+        '''If received from V2X-Hub'''
+        spatIdentifier = payload.find('0013')
+        payload = payload[spatIdentifier:].strip()
+        print("Decoded payload is:\n",payload)
+        '''***End of Block***'''
+        print(type(payload))
         unhexedPayload = binascii.unhexlify(payload)
         decodedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))
         receivedJsonString = json.loads(decodedJsonString)
@@ -137,7 +143,7 @@ def main():
             msgDecoderSocket.sendto(spatJsonString.encode(), spatManagerAddress)
             logger.loggingAndConsoleDisplayDictionary(spatJsonString)
 
-        if getMessageType(receivedJsonString) == "BSM":
+        elif getMessageType(receivedJsonString) == "BSM":
             logger.consoleDisplayString("Received BSM")
             bsmJsonString = getBsmJsonString(receivedJsonString)
             msgDecoderSocket.sendto(bsmJsonString.encode(), vehicleStatusManagerAddress)

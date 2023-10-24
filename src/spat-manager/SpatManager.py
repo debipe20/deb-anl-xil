@@ -16,11 +16,15 @@ class SpatManager:
         intersectionId = jsonData["value"]["intersections"][0]["id"]["id"]
 
         for data in jsonData["value"]["intersections"][0]["states"]:
+            startTime = data["state-time-speed"][0]["timing"]["startTime"] if "startTime" in data["state-time-speed"][0]["timing"].keys() else 0.0
+            minEndTime = data["state-time-speed"][0]["timing"]["minEndTime"] if "minEndTime" in data["state-time-speed"][0]["timing"].keys() else 0.0
+            maxEndTime = data["state-time-speed"][0]["timing"]["maxEndTime"] if "maxEndTime" in data["state-time-speed"][0]["timing"].keys() else minEndTime
             phaseDataDictionary = {
                 "SignalGroup": data["signalGroup"],
-                "startTime": data["state-time-speed"][0]["timing"]["startTime"],
-                "minEndTime": data["state-time-speed"][0]["timing"]["minEndTime"],
-                "maxEndTime": data["state-time-speed"][0]["timing"]["maxEndTime"]
+                
+                "startTime": startTime,
+                "minEndTime": minEndTime,
+                "maxEndTime": maxEndTime
             }
             phaseDataList.append(phaseDataDictionary)
         self.spatDataDictionary.update({str(intersectionId): {"PhaseData": phaseDataList}})

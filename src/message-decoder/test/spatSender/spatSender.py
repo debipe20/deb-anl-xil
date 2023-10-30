@@ -8,7 +8,7 @@ config = (json.load(configFile))
 configFile.close()
 
 hostIp = config["HostIp"]
-port = config["PortNumber"]["SpatManager"]
+port = 2000
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind((hostIp,port))
 

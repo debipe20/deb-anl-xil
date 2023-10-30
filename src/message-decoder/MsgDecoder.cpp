@@ -33,7 +33,7 @@ int MsgDecoder::getMessageType(string payload)
     else if (messageIdentifier.at(1).compare(subPayload) == 0)
         messageType = MsgEnum::DSRCmsgID_bsm;
 
-    else if (messageIdentifier.at(4).compare(subPayload) == 0)
+    else if (messageIdentifier.at(2).compare(subPayload) == 0)
         messageType = MsgEnum::DSRCmsgID_spat;
 
     return messageType;
@@ -46,7 +46,7 @@ string MsgDecoder::mapDecoder(string mapPayload)
     string intersection_Name{};
     string mapName{};
     int intersectionID{};
-    bool singleFrame = false;
+    bool singleFrame{false};
     string deleteFileName = "Map.map.payload";
     string jsonString{};
 
@@ -92,7 +92,7 @@ string MsgDecoder::mapDecoder(string mapPayload)
 
 string MsgDecoder::spatDecoder(string spatPayload)
 {
-    string jsonString;
+    string jsonString{};
 
     /// buffer to hold message payload
     size_t bufSize = DsrcConstants::maxMsgSize;
@@ -100,7 +100,7 @@ string MsgDecoder::spatDecoder(string spatPayload)
     /// dsrcFrameOut to store UPER decoding result
     Frame_element_t dsrcFrameOut;
 
-    string output;
+    string output{};
     size_t cnt = spatPayload.length() / 2;
 
     for (size_t i = 0; cnt > i; ++i)
@@ -130,13 +130,12 @@ string MsgDecoder::spatDecoder(string spatPayload)
         builder["commentStyle"] = "None";
         builder["indentation"] = "";
         int currVehPhaseState{};
-        int currPedPhaseState{};
 
         jsonObject["MsgType"] = "SPaT";
         jsonObject["Timestamp_verbose"] = getVerboseTimestamp();
-        jsonObject["Timestamp_posix"] = getVerboseTimestamp();
-        jsonObject["Spat"]["IntersectionState"]["regionalID"] = spatOut.regionalId;
-        jsonObject["Spat"]["IntersectionState"]["intersectionID"] = spatOut.id;
+        jsonObject["Timestamp_posix"] = getPosixTimestamp();
+        jsonObject["Spat"]["intersectionState"]["regionalID"] = spatOut.regionalId;
+        jsonObject["Spat"]["intersectionState"]["intersectionID"] = spatOut.id;
         jsonObject["Spat"]["msgCnt"] = static_cast<unsigned int>(spatOut.msgCnt);
         jsonObject["Spat"]["minuteOfYear"] = spatOut.timeStampMinute;
         jsonObject["Spat"]["msOfMinute"] = spatOut.timeStampSec;
@@ -166,56 +165,9 @@ string MsgDecoder::spatDecoder(string spatPayload)
             }
         }
 
-        int pedListLocation = 0;
-        for (int i = 0; i < 8; i++)
-        {
-            if (spatOut.permittedPedPhases.test(i))
-            {
-                const auto &phaseState = spatOut.pedPhaseState[i];
-                int phaseNo = 0;
-
-                if (i == 4)
-                {
-                    phaseNo = 2;
-                }
-                else if (i == 5)
-                {
-                    phaseNo = 4;
-                }
-                else if (i == 6)
-                {
-                    phaseNo = 6;
-                }
-                else if (i == 7)
-                {
-                    phaseNo = 8;
-                }
-                else
-                {
-                    std::cout << "Invalid pedestrian phase" << std::endl;
-                    phaseNo = i+1;
-                }
-
-
-                jsonObject["Spat"]["pedPhaseState"][pedListLocation]["phaseNo"] = phaseNo;
-                jsonObject["Spat"]["pedPhaseState"][pedListLocation]["startTime"] = phaseState.startTime;
-                jsonObject["Spat"]["pedPhaseState"][pedListLocation]["minEndTime"] = phaseState.minEndTime;
-                jsonObject["Spat"]["pedPhaseState"][pedListLocation]["maxEndTime"] = phaseState.maxEndTime;
-                jsonObject["Spat"]["pedPhaseState"][pedListLocation]["elapsedTime"] = -1;
-                currPedPhaseState = static_cast<unsigned int>(phaseState.currState);
-                if (currPedPhaseState == DONOTWALK)
-                    jsonObject["Spat"]["pedPhaseState"][pedListLocation]["currState"] = "do_not_walk";
-                else if (currPedPhaseState == PEDCLEAR)
-                    jsonObject["Spat"]["pedPhaseState"][pedListLocation]["currState"] = "ped_clear";
-                else if (currPedPhaseState == WALK)
-                    jsonObject["Spat"]["pedPhaseState"][pedListLocation]["currState"] = "walk";
-                pedListLocation += 1;
-            }
-        }
-
         jsonString = Json::writeString(builder, jsonObject);
     }
-
+    cout << jsonString << endl;
     return jsonString;
 }
 
@@ -231,7 +183,7 @@ string MsgDecoder::bsmDecoder(string bsmPayload)
     /// dsrcFrameOut to store UPER decoding result
     Frame_element_t dsrcFrameOut;
 
-    string output;
+    string output{};
     size_t cnt = bsmPayload.length() / 2;
 
     for (size_t i = 0; cnt > i; ++i)

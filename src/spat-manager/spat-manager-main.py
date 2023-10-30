@@ -31,14 +31,20 @@ def main():
             requestedSignalGroupData = spatManager.getRequestedSignalGroupData()
             spatManagerSocket.sendto(requestedSignalGroupData.encode(), vehicleStatusManagerAddress)
         
-        elif receivedMessage["MsgType"] == "SPaT":
-            spatPayload = receivedMessage["SpatPayload"]
-            print("Received Payload is", spatPayload)
-            spatBytes = binascii.unhexlify(spatPayload)
-            receivedJsonString = v2x.MessageFrame.to_json(spatBytes, len(spatBytes))
-            receivedJsonString = json.loads(receivedJsonString)
+        #  ''' if msg-decoder is run using mmitss'''
 
-            spatManager.manageSpatData(receivedJsonString)
+        elif receivedMessage["MsgType"] == "SPaT":
+            spatManager.manageSpatData(receivedMessage)
+        
+        #''' if msg-decoder is run using objective-systems'''
+        # elif receivedMessage["MsgType"] == "SPaT":
+        #     spatPayload = receivedMessage["SpatPayload"]
+        #     print("Received Payload is", spatPayload)
+        #     spatBytes = binascii.unhexlify(spatPayload)
+        #     receivedJsonString = v2x.MessageFrame.to_json(spatBytes, len(spatBytes))
+        #     receivedJsonString = json.loads(receivedJsonString)
+
+        #     spatManager.manageSpatData(receivedJsonString)
 
 
 

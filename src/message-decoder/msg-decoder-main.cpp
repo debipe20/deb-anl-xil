@@ -17,38 +17,62 @@ int main()
     MsgDecoder msgDecoder;
     const string HostIP = jsonObject["HostIp"].asString();
     UdpSocket msgDecoderSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageDecoder"].asInt()));
+    const int spatManagerPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["SpatManager"].asInt());
     
-    // char receiveBuffer[2048];
-    string receivedPayload{};
-    string extractedPayload{};
+    char receiveBuffer[2048];
+    // string receivedPayload{};
+    // string extractedPayload{};
     int msgType{};
     string sendingJsonString{};
 
     while (true)
     {
-        receivedPayload = msgDecoderSocket.receivePayloadHexString();
-        size_t pos = receivedPayload.find("001");
-
-        if (pos != string::npos)
-        {
-            extractedPayload = receivedPayload.erase(0, pos);
-            msgType = msgDecoder.getMessageType(extractedPayload);
+        msgDecoderSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
+        string receivedPayload(receiveBuffer);
+        
+        msgType = msgDecoder.getMessageType(receivedPayload);
 
             if (msgType == MsgEnum::DSRCmsgID_map)
             {
-
+                cout << "Received MAP" <<endl;
             }
 
             else if (msgType == MsgEnum::DSRCmsgID_bsm)
             {
-
+                cout << "Received BSM" <<endl;
             }
 
             else if (msgType == MsgEnum::DSRCmsgID_spat)
             {
-
+                cout << "Received SPaT" <<endl;
+                sendingJsonString = msgDecoder.spatDecoder(receivedPayload);
+                msgDecoderSocket.sendData(HostIP, static_cast<short unsigned int>(spatManagerPort), sendingJsonString);
             }
-        }
+
+        // receivedPayload = msgDecoderSocket.receivePayloadHexString();
+        // cout << receivedPayload << endl;
+        // size_t pos = receivedPayload.find("001");
+
+        // if (pos != string::npos)
+        // {
+        //     extractedPayload = receivedPayload.erase(0, pos);
+        //     msgType = msgDecoder.getMessageType(extractedPayload);
+
+        //     if (msgType == MsgEnum::DSRCmsgID_map)
+        //     {
+
+        //     }
+
+        //     else if (msgType == MsgEnum::DSRCmsgID_bsm)
+        //     {
+
+        //     }
+
+        //     else if (msgType == MsgEnum::DSRCmsgID_spat)
+        //     {
+
+        //     }
+        // }
     }
     
     return 0;

@@ -25,16 +25,20 @@ def main():
     while True:
         data, address = spatManagerSocket.recvfrom(2048)
         data = data.decode()
-        receivedMessage = json.loads(data)
-        print("Decoded Json Message is :\n",receivedMessage)
-        if receivedMessage["MsgType"] == "SignalGroupDataRequest":
-            requestedSignalGroupData = spatManager.getRequestedSignalGroupData()
-            spatManagerSocket.sendto(requestedSignalGroupData.encode(), vehicleStatusManagerAddress)
-        
-        #  ''' if msg-decoder is run using mmitss'''
+        spatBytes = binascii.unhexlify(data)
+        receivedJsonString = v2x.MessageFrame.to_json(spatBytes, len(spatBytes))
+        receivedJsonString = json.loads(receivedJsonString)
 
-        elif receivedMessage["MsgType"] == "SPaT":
-            spatManager.manageSpatData(receivedMessage)
+        # receivedMessage = json.loads(data)
+        # print("Decoded Json Message is :\n",receivedMessage)
+        # if receivedMessage["MsgType"] == "SignalGroupDataRequest":
+        #     requestedSignalGroupData = spatManager.getRequestedSignalGroupData()
+        #     spatManagerSocket.sendto(requestedSignalGroupData.encode(), vehicleStatusManagerAddress)
+        
+        # #  ''' if msg-decoder is run using mmitss'''
+
+        # elif receivedMessage["MsgType"] == "SPaT":
+        #     spatManager.manageSpatData(receivedMessage)
         
         #''' if msg-decoder is run using objective-systems'''
         # elif receivedMessage["MsgType"] == "SPaT":

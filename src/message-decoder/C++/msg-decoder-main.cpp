@@ -2,7 +2,7 @@
 #include <UdpSocket.h>
 #include "geoUtils.h"
 #include "msgEnum.h"
-
+#include <algorithm>
 int main()
 {
     Json::Value jsonObject;
@@ -29,6 +29,10 @@ int main()
     {
         msgDecoderSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
         string receivedPayload(receiveBuffer);
+        cout << receivedPayload << endl;
+        size_t pos = receivedPayload.find("001");
+        cout << pos << endl;
+        receivedPayload = receivedPayload.erase(0,pos);
         
         msgType = msgDecoder.getMessageType(receivedPayload);
 

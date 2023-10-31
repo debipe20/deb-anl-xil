@@ -59,7 +59,7 @@ def getSpatJsonString(jsonString, spatPayload):
     """
     spatJsonString = json.dumps({
         "MsgType": "SPaT",
-        "SpatPayload": spatPayload,
+        "SpatPayload":spatPayload,
         "IntersectionID": jsonString["value"]["intersections"][0]["id"]["id"]
     })
 
@@ -118,7 +118,8 @@ def main():
     atexit.register(lambda: destruct_logger(logger))
 
     while True:
-        data, address = msgDecoderSocket.recvfrom(2048)
+        data, address = msgDecoderSocket.recvfrom(4096)
+        print(data)
         payload = data.decode()
         '''If received from V2X-Hub'''
         spatIdentifier = payload.find('0013')
@@ -129,6 +130,7 @@ def main():
         unhexedPayload = binascii.unhexlify(payload)
         decodedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))
         receivedJsonString = json.loads(decodedJsonString)
+        print(receivedJsonString)
         logger.loggingAndConsoleDisplayDictionary(receivedJsonString)
 
         if getMessageType(receivedJsonString) == "MAP":

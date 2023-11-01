@@ -12,12 +12,18 @@
 */
 
 #include "BsmGenerator.h"
+#include "Timestamp.h"
 #include <cmath>
 // using namespace GeoUtils;
 // using namespace MsgEnum;
 
-BsmGenerator::BsmGenerator(string logfile)
+const int OneByTenMicroDegree_To_Degree = 10000000;
+const int Deca_Conversion = 10;
+const double MPS_TO_KPH_CONVERSION = 3.6;
+
+BsmGenerator::BsmGenerator(string logfile, string vehId)
 {
+    vehicleId = vehId;  
     inputFile.open(logfile, ios::in);    
     readPreloadedCoordinates();
 }
@@ -61,22 +67,25 @@ void BsmGenerator::readPreloadedCoordinates()
             for (int index = 0; getline(strToSplit, subString, ','); index++)
             {
                 if (index == 5)
-                    latitudeList.push_back(subString);
+                    latitudeList.push_back(stod(subString));
                 
-                elif (index == 6)
-                    longitudeList.push_back(subString);
+                else if (index == 6)
+                    longitudeList.push_back(stod(subString));
 
-                elif (index == 7)
-                    elevationList.push_back(subString);
+                else if (index == 7)
+                    elevationList.push_back(stod(subString));
 
-                elif (index == 9)
-                    headingList.push_back(subString);
+                else if (index == 9)
+                {
+                    headingList.push_back(stod(subString));
+                    break;
+                }
             }
         }
     }
 }
 
-void BsmGenerator::getNearestGpsCoordinates(double currentSpeed)
+void BsmGenerator::getNearestGpsCoordinates()
 {
     double currentTime =  getPosixTimestamp();
     double travelDistance{};
@@ -93,17 +102,42 @@ void BsmGenerator::getNearestGpsCoordinates(double currentSpeed)
     elapsedTimeStep = currentTime - previousTimeStamp;
     travelDistance = currentSpeed * elapsedTimeStep;
 
-    for (size_t i = previousIndex + 1; i < latitudeList.size() - 1; i++)
+    for (size_t currentIndex = previousIndex + 1; currentIndex < latitudeList.size() - 1; currentIndex++)
     {
-        estimatedDistance = haversineDistance(latitudeList[previousIndex], longitudeList[previousIndex], latitudeList[i], longitudeList[i]);
-        estimatedDistanceNext = haversineDistance(latitudeList[previousIndex], longitudeList[previousIndex], latitudeList[i+1], longitudeList[i+1]);
+        estimatedDistance = haversineDistance(latitudeList[previousIndex], longitudeList[previousIndex], latitudeList[currentIndex], longitudeList[currentIndex]);
+        estimatedDistanceNext = haversineDistance(latitudeList[previousIndex], longitudeList[previousIndex], latitudeList[currentIndex+1], longitudeList[currentIndex+1]);
     
         if((estimatedDistance < travelDistance) && (estimatedDistanceNext < travelDistance))
             continue;
 
+        else if((estimatedDistance >= travelDistance) && (estimatedDistanceNext >= travelDistance))
+        {
+            previousIndex = static_cast<int>(currentIndex);
+            currentLatitude = latitudeList[currentIndex];
+            currentLongitude = longitudeList[currentIndex];
+            currentElevation = elevationList[currentIndex];
+            currentHeading = headingList[currentIndex];
+            break;
+        }
+        
         else if ((estimatedDistance <= travelDistance) && (estimatedDistanceNext > travelDistance))
         {
-            previousIndex = 
+            previousIndex = static_cast<int>(currentIndex);
+            currentLatitude = latitudeList[currentIndex];
+            currentLongitude = longitudeList[currentIndex];
+            currentElevation = elevationList[currentIndex];
+            currentHeading = headingList[currentIndex];
+            break;
+        }
+
+        else if ((estimatedDistance < travelDistance) && (estimatedDistanceNext >= travelDistance))
+        {
+            previousIndex = static_cast<int>(currentIndex+1);
+            currentLatitude = latitudeList[currentIndex+1];
+            currentLongitude = longitudeList[currentIndex+1];
+            currentElevation = elevationList[currentIndex+1];
+            currentHeading = headingList[currentIndex+1];
+            break;
         }
     
     }
@@ -133,47 +167,58 @@ double BsmGenerator::haversineDistance(double lat1, double lon1,double lat2, dou
     return distance;
 }
 
-// string BsmGenerator::BsmEncoder(string jsonString)
-// {
-//     BasicVehicle basicVehicle;
-//     stringstream payloadstream{};
-//     string bsmMessagePayload;
-//     /// buffer to hold message payload
-//     size_t bufSize = DsrcConstants::maxMsgSize;
-//     vector<uint8_t> buf(bufSize, 0);
-//     basicVehicle.json2BasicVehicle(jsonString);
-//     /// dsrcFrameIn to store input to UPER encoding function
-//     Frame_element_t dsrcFrameIn;
-//     dsrcFrameIn.reset();
+string BsmGenerator::BsmEncoder(string jsonString)
+{
+    stringstream payloadstream{};
+    string bsmMessagePayload{};
+    /// buffer to hold message payload
+    size_t bufSize = DsrcConstants::maxMsgSize;
+    vector<uint8_t> buf(bufSize, 0);
+    // basicVehicle.json2BasicVehicle(jsonString);
+    /// dsrcFrameIn to store input to UPER encoding function
+    Frame_element_t dsrcFrameIn;
+    dsrcFrameIn.reset();
 
-//     /// manual input bsmIn
-//     dsrcFrameIn.dsrcMsgId = MsgEnum::DSRCmsgID_bsm;
-//     BSM_element_t &bsmIn = dsrcFrameIn.bsm;
-//     bsmIn.msgCnt = 1;
-//     bsmIn.id = basicVehicle.getTemporaryID();
-//     bsmIn.timeStampSec = static_cast<int16_t>(basicVehicle.getSecMark_Second());
-//     bsmIn.latitude = DsrcConstants::unit2damega<int32_t>(basicVehicle.getLatitude_DecimalDegree());
-//     bsmIn.longitude = DsrcConstants::unit2damega<int32_t>(basicVehicle.getLongitude_DecimalDegree());
-//     bsmIn.elevation = DsrcConstants::unit2deca<int32_t>(basicVehicle.getElevation_Meter());
-//     bsmIn.yawRate = 0;
-//     bsmIn.vehLen = 1200;
-//     bsmIn.vehWidth = 300;
-//     bsmIn.speed = DsrcConstants::kph2unit<uint16_t>(basicVehicle.getSpeed_MeterPerSecond() * MPS_TO_KPH_CONVERSION);
-//     bsmIn.heading = DsrcConstants::heading2unit<uint16_t>(basicVehicle.getHeading_Degree());
+    int messageType{};
+    Json::Value jsonObject;
+    Json::CharReaderBuilder builder;
+    Json::CharReader *reader = builder.newCharReader();
+    string errors{};
 
-//     /// encode BSM payload
-//     size_t payload_size = AsnJ2735Lib::encode_msgFrame(dsrcFrameIn, &buf[0], bufSize);
-//     if (payload_size > 0)
-//     {
-//         for (size_t i = 0; i < payload_size; i++)
-//             payloadstream << std::uppercase << std::setw(2) << std::setfill('0') << std::hex << static_cast<unsigned int>(buf[i]);
-//     }
+    bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
+    delete reader;
 
-//     bsmMessagePayload = payloadstream.str();
-//     bsmMsgCount = bsmMsgCount + 1;
+    currentSpeed = jsonObject["Speed"].asDouble();
+    cout << currentSpeed << endl;
+    getNearestGpsCoordinates();
+    /// manual input bsmIn
+    dsrcFrameIn.dsrcMsgId = MsgEnum::DSRCmsgID_bsm;
+    BSM_element_t &bsmIn = dsrcFrameIn.bsm;
+    bsmIn.msgCnt = 1;
+    bsmIn.id = std::stoi("f03ad610");
+    bsmIn.timeStampSec = static_cast<int16_t>(1000);
+    bsmIn.latitude = DsrcConstants::unit2damega<int32_t>(currentLatitude);
+    bsmIn.longitude = DsrcConstants::unit2damega<int32_t>(currentLongitude);
+    bsmIn.elevation = DsrcConstants::unit2deca<int32_t>(currentElevation);
+    bsmIn.yawRate = 0;
+    bsmIn.vehLen = 1200;
+    bsmIn.vehWidth = 300;
+    bsmIn.speed = DsrcConstants::kph2unit<uint16_t>(currentSpeed * MPS_TO_KPH_CONVERSION);
+    bsmIn.heading = DsrcConstants::heading2unit<uint16_t>(currentHeading);
 
-//     return bsmMessagePayload;
-// }
+    /// encode BSM payload
+    size_t payload_size = AsnJ2735Lib::encode_msgFrame(dsrcFrameIn, &buf[0], bufSize);
+    if (payload_size > 0)
+    {
+        for (size_t i = 0; i < payload_size; i++)
+            payloadstream << std::uppercase << std::setw(2) << std::setfill('0') << std::hex << static_cast<unsigned int>(buf[i]);
+    }
+
+    bsmMessagePayload = payloadstream.str();
+
+
+    return bsmMessagePayload;
+}
 
 BsmGenerator::~BsmGenerator()
 {

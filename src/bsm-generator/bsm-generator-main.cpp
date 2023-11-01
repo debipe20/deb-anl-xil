@@ -29,10 +29,12 @@ int main()
     const int msgReceiverPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageReceiver"].asInt());
 
     string bsmLogFile = jsonObject["BsmLogFileName"].asString();
+    string vehicleId = jsonObject["VehicleId"].asString();
     char receiveBuffer[2048];
     int msgType{};
+    string sendingString{};
 
-    BsmGenerator bsmGenerator(bsmLogFile);
+    BsmGenerator bsmGenerator(bsmLogFile, vehicleId);
 
     while (true)
     {
@@ -41,9 +43,10 @@ int main()
 
         msgType = bsmGenerator.getMessageType(receivedJsonString);
         
-        if (msgTye == static_cast<int>(msgType::speedData))
+        if (msgType == static_cast<int>(msgType::speedData))
         {
-          
+          sendingString = bsmGenerator.BsmEncoder(receivedJsonString);
+          cout << sendingString << endl;
         }
     }
 

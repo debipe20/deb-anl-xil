@@ -49,7 +49,7 @@ def main():
             # print(type(bsmJsonString))
             # print("BSM Json is following:\n", bsmJsonString)
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            # encodedBsm = binascii.hexlify(encodedBsm)
+            encodedBsm = binascii.hexlify(encodedBsm)
             print("Encoded BSM is Following:\n", encodedBsm)
 
             bsmGeneratorSocket.sendto(encodedBsm, clientAddress)

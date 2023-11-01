@@ -12,23 +12,14 @@
 */
 
 #include "BsmGenerator.h"
-
+#include <cmath>
 // using namespace GeoUtils;
 // using namespace MsgEnum;
 
 BsmGenerator::BsmGenerator(string logfile)
 {
-    // Json::Value jsonObject;
-	// Json::CharReaderBuilder builder;
-	// Json::CharReader *reader = builder.newCharReader();
-	// string errors{};
-	// ifstream jsonconfigfile("/nojournal/bin/anl-master-config.json");
-
-	// string configJsonString((std::istreambuf_iterator<char>(jsonconfigfile)), std::istreambuf_iterator<char>());
-	// reader->parse(configJsonString.c_str(), configJsonString.c_str() + configJsonString.size(), &jsonObject, &errors);
-	// delete reader;
-    
-    inputFile.open(logfile, ios::in);
+    inputFile.open(logfile, ios::in);    
+    readPreloadedCoordinates();
 }
 
 /*
@@ -57,13 +48,89 @@ int BsmGenerator::getMessageType(string jsonString)
 void BsmGenerator::readPreloadedCoordinates()
 {
     string line{};
+    string subString{};
+    int lineNo{};
 
-   while(getline(inputFile, line))
+    while (getline(inputFile, line))
+    {
+        lineNo++;
+        stringstream strToSplit(line.c_str());
+
+        if (lineNo > 1)
+        {
+            for (int index = 0; getline(strToSplit, subString, ','); index++)
+            {
+                if (index == 5)
+                    latitudeList.push_back(subString);
+                
+                elif (index == 6)
+                    longitudeList.push_back(subString);
+
+                elif (index == 7)
+                    elevationList.push_back(subString);
+
+                elif (index == 9)
+                    headingList.push_back(subString);
+            }
+        }
+    }
 }
 
-void BsmGenerator::getNearestGpsCoordinates()
+void BsmGenerator::getNearestGpsCoordinates(double currentSpeed)
 {
+    double currentTime =  getPosixTimestamp();
+    double travelDistance{};
+    double elapsedTimeStep{};
+    double estimatedDistance{};
+    double estimatedDistanceNext{};
 
+    if (!previousTimeStampSetStatus)
+    {    
+        previousTimeStamp = currentTime - 0.1;
+        previousTimeStampSetStatus = true;
+    }
+
+    elapsedTimeStep = currentTime - previousTimeStamp;
+    travelDistance = currentSpeed * elapsedTimeStep;
+
+    for (size_t i = previousIndex + 1; i < latitudeList.size() - 1; i++)
+    {
+        estimatedDistance = haversineDistance(latitudeList[previousIndex], longitudeList[previousIndex], latitudeList[i], longitudeList[i]);
+        estimatedDistanceNext = haversineDistance(latitudeList[previousIndex], longitudeList[previousIndex], latitudeList[i+1], longitudeList[i+1]);
+    
+        if((estimatedDistance < travelDistance) && (estimatedDistanceNext < travelDistance))
+            continue;
+
+        else if ((estimatedDistance <= travelDistance) && (estimatedDistanceNext > travelDistance))
+        {
+            previousIndex = 
+        }
+    
+    }
+}
+
+double BsmGenerator::haversineDistance(double lat1, double lon1,double lat2, double lon2)
+{
+    double lattitudeDifference{};
+    double longitudeDifference{};
+    double rad{6371};
+    double distance{};
+    double intermediateCalculation{};
+
+    // distance between latitudes and longitudes
+    lattitudeDifference = (lat2 - lat1) * M_PI / 180.0;
+    longitudeDifference = (lon2 - lon1) * M_PI / 180.0;
+
+    // convert to radians
+    lat1 = (lat1)*M_PI / 180.0;
+    lat2 = (lat2)*M_PI / 180.0;
+
+    // apply formula
+    intermediateCalculation = pow(sin(lattitudeDifference / 2), 2) + pow(sin(longitudeDifference / 2), 2) * cos(lat1) * cos(lat2);
+
+    distance = 2 * rad * asin(sqrt(intermediateCalculation)) * 1000.0;
+
+    return distance;
 }
 
 // string BsmGenerator::BsmEncoder(string jsonString)
@@ -107,7 +174,6 @@ void BsmGenerator::getNearestGpsCoordinates()
 
 //     return bsmMessagePayload;
 // }
-
 
 BsmGenerator::~BsmGenerator()
 {

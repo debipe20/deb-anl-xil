@@ -66,7 +66,7 @@ class BsmGenerator:
             self.previousTimeStampSetStatus == True
 
         self.timeStep = currentTime - self.previousTime
-        travelDistance = self.currentSpeed * (currentTime - self.previousTime)
+        travelDistance = self.currentSpeed * self.timeStep
 
         for index in range(self.previousIndex+1, len(self.latitudeList)-2):
             calculatedDistance = haversine.haversine((self.previousLatitude, self.previousLongitude), (
@@ -74,7 +74,7 @@ class BsmGenerator:
 
             calculatedDistanceNext = haversine.haversine((self.previousLatitude, self.previousLongitude), (
                 self.latitudeList[index+1], self.longitudeList[index+1]), unit=haversine.Unit.METERS)
-
+            
             if (calculatedDistance <= travelDistance) and (calculatedDistanceNext <= travelDistance):
                 continue
 

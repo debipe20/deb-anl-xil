@@ -40,6 +40,11 @@ int main()
         string receivedJsonString(receiveBuffer);
 
         msgType = bsmGenerator.getMessageType(receivedJsonString);
+        
+        if (msgTye == static_cast<int>(msgType::speedData))
+        {
+          
+        }
     }
 
     return 0;

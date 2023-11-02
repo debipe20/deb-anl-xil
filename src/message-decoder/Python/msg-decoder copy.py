@@ -13,8 +13,9 @@
 
 import socket
 import json
+import binascii
 import atexit
-
+from osys import v2x
 from MsgDecoder import MsgDecoder
 from Logger import Logger
 
@@ -54,27 +55,37 @@ def main():
 
     while True:
         data, address = msgDecoderSocket.recvfrom(4096)
+        print(data)
         payload = data.decode()
-
-        msgIdentifier = payload.find('001')
-        payload = payload[msgIdentifier:].strip()
-        msgType = msgDecoder.getMessageType(payload)
         
-        if msgType == "MAP":
+        '''If received from V2X-Hub'''
+        spatIdentifier = payload.find('0013')
+        payload = payload[spatIdentifier:].strip()
+        print("Decoded payload is:\n",payload)
+        '''***End of Block***'''
+        print(type(payload))
+        unhexedPayload = binascii.unhexlify(payload)
+        decodedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))
+        receivedJsonString = json.loads(decodedJsonString)
+        print(receivedJsonString)
+        logger.loggingAndConsoleDisplayDictionary(receivedJsonString)
+        
+
+        if msgDecoder.getMessageType(receivedJsonString) == "MAP":
             logger.consoleDisplayString("Received MAP")
-            mapJsonString = msgDecoder.getMapJsonString(payload)
+            mapJsonString = msgDecoder.getMapJsonString(receivedJsonString, payload)
             msgDecoderSocket.sendto(mapJsonString.encode(), vehicleStatusManagerAddress)
             logger.loggingAndConsoleDisplayDictionary(mapJsonString)
 
-        elif msgType == "SPaT":
+        elif msgDecoder.getMessageType(receivedJsonString) == "SPaT":
             logger.consoleDisplayString("Received SPaT")
-            spatJsonString = msgDecoder.getSpatJsonString(payload)
+            spatJsonString = msgDecoder.getSpatJsonString(receivedJsonString, payload)
             msgDecoderSocket.sendto(spatJsonString.encode(), spatManagerAddress)
             logger.loggingAndConsoleDisplayDictionary(spatJsonString)
 
-        elif msgType == "BSM":
+        elif msgDecoder.getMessageType(receivedJsonString) == "BSM":
             logger.consoleDisplayString("Received BSM")
-            bsmJsonString = msgDecoder.getBsmJsonString(payload)
+            bsmJsonString = msgDecoder.getBsmJsonString(receivedJsonString)
             msgDecoderSocket.sendto(bsmJsonString.encode(), vehicleStatusManagerAddress)
             logger.loggingAndConsoleDisplayDictionary(bsmJsonString)
 

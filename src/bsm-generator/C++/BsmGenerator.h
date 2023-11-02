@@ -40,12 +40,14 @@ using std::showpoint;
 enum msgType
 {
     speedData = 1,
+    currentSignalStatusData = 2
 };
 
 class BsmGenerator
 {
 private:
     string vehicleId{};
+    int currentSignalStatus{1};
     int msgCount{};
     int previousIndex{0};
     double previousTimeStamp{};
@@ -71,6 +73,7 @@ public:
     void getNearestGpsCoordinates();
     double haversineDistance(double lat1, double lon1,double lat2, double lon2);
     string BsmEncoder(string jsonString);
+    void setCurrentSignalStatus(string jsonString);
     int getMsOfMinute();
     void setMsgCount();
     void loggingData();

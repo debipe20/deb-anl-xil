@@ -33,6 +33,7 @@ int main()
     const string HostIP = jsonObject["HostIp"].asString();
     UdpSocket vehicleStatusManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["VehicleStatusManager"].asInt()));
     const int spatManagerPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["SpatManager"].asInt());
+    const int bsmGeneratorPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["BsmGenerator"].asInt());
     char receiveBuffer[2048];
     int msgType{};
     string sendingJsonString{};
@@ -67,9 +68,11 @@ int main()
         }
 
 
-        else if (msgType == static_cast<int>(msgType::signalStatusData))
+        else if (msgType == static_cast<int>(msgType::signalGroupData))
         {
-            
+            vehicleStatusManager.manageSignalGroupData(receivedJsonString);
+            sendingJsonString = vehicleStatusManager.getCurrentSignalStatusDataJsonString();
+            vehicleStatusManagerSocket.sendData(HostIP, static_cast<short unsigned int>(bsmGeneratorPort), sendingJsonString);
         }
     }
 

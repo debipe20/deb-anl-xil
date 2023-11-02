@@ -203,7 +203,11 @@ string BsmGenerator::BsmEncoder(string jsonString)
     if(parsingSuccessful)
         currentSpeed = jsonObject["Speed"].asDouble();
     
-    getNearestGpsCoordinates();
+    if(currentSignalStatus == 1)
+        getNearestGpsCoordinates();
+
+    else currentSpeed = 0;
+
     setMsgCount();
 
     /// manual input bsmIn
@@ -233,6 +237,20 @@ string BsmGenerator::BsmEncoder(string jsonString)
     // loggingData();
 
     return bsmMessagePayload;
+}
+
+void BsmGenerator::setCurrentSignalStatus(string jsonString)
+{
+    Json::Value jsonObject;
+    Json::CharReaderBuilder builder;
+    Json::CharReader *reader = builder.newCharReader();
+    string errors{};
+
+    bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
+    delete reader;
+
+    if(parsingSuccessful)
+        currentSignalStatus = jsonObject["EventSTate"].asInt();
 }
 
 /*

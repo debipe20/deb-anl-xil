@@ -32,7 +32,7 @@ int VehicleStatusManager::getMessageType(string jsonString)
     bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
     delete reader;
 
-    if (parsingSuccessful == true)
+    if (parsingSuccessful)
     {
         if ((jsonObject["MsgType"]).asString() == "MAP")
             messageType = MsgEnum::DSRCmsgID_map;
@@ -41,7 +41,7 @@ int VehicleStatusManager::getMessageType(string jsonString)
             messageType = MsgEnum::DSRCmsgID_bsm;
 
         else if ((jsonObject["MsgType"]).asString() == "SignalGroupDataMessage")
-            messageType = static_cast<int>(msgType::signalStatusData);
+            messageType = static_cast<int>(msgType::signalGroupData);
     }
 
     return messageType;
@@ -108,6 +108,51 @@ string VehicleStatusManager::getSignalGroupDataRequestJsonString(BsmManager bsmM
     signalGroupDataRequestJsonString = Json::writeString(builder, jsonObject);
 
     return signalGroupDataRequestJsonString;
+}
+
+void VehicleStatusManager::manageSignalGroupData(string jsonString)
+{
+    Json::Value jsonObject;
+    Json::CharReaderBuilder builder;
+    Json::CharReader *reader = builder.newCharReader();
+    string errors{};
+
+    bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
+    delete reader;
+
+    if (parsingSuccessful && jsonObject["DataAvalability"])
+        vehicleStatusList.at(0).vehicleSignalGroupState = jsonObject["EventState"].asInt();
+
+    else if (parsingSuccessful && !jsonObject["DataAvalability"])
+        vehicleStatusList.at(0).vehicleSignalGroupState = 0;
+}
+
+// bool VehicleStatusManager::checkCurrentSignalStatusDataSendingRequirement()
+// {
+//     bool currentSignalStatusDataSendingRequirement{false};
+
+//     if (currentSignalStatus != vehicleStatusList.at(0).vehicleSignalGroupState)
+//         currentSignalStatusDataSendingRequirement = true;
+
+//     return currentSignalStatusDataSendingRequirement;
+// }
+
+string VehicleStatusManager::getCurrentSignalStatusDataJsonString()
+{
+    string currentSignalStatusDataJsonString{};
+
+    Json::Value jsonObject;
+    Json::StreamWriterBuilder builder;
+    builder["commentStyle"] = "None";
+    builder["indentation"] = "";
+
+    jsonObject["MsgType"] = "CurrentSignalStatusData";
+    jsonObject["SignalGroup"] = vehicleStatusList.at(0).vehicleSignalGroup;
+    jsonObject["EventSTate"] = vehicleStatusList.at(0).vehicleSignalGroupState;
+
+    currentSignalStatusDataJsonString = Json::writeString(builder, jsonObject);
+
+    return currentSignalStatusDataJsonString;
 }
 
 VehicleStatusManager::~VehicleStatusManager()

@@ -26,7 +26,7 @@ int main()
 
     const string HostIP = jsonObject["HostIp"].asString();
     UdpSocket bsmGeneratorSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["BsmGenerator"].asInt()));
-    // const int msgReceiverPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageReceiver"].asInt());
+    const int messageDecoderPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageDecoder"].asInt());
     const int dataConverterPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["DataConverter"].asInt());
 
     string bsmLogFile = jsonObject["BsmLogFileName"].asString();
@@ -47,9 +47,13 @@ int main()
         {
           sendingString = bsmGenerator.BsmEncoder(receivedJsonString);
           cout << "Following message will send:\n" << sendingString << endl;
-          // bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(msgReceiverPort), sendingString);
+          bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(messageDecoderPort), sendingString);
           bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(dataConverterPort), sendingString);
         }
+
+        else if (msgType == static_cast<int>(msgType::currentSignalStatusData))
+          bsmGenerator.setCurrentSignalStatus(receivedJsonString);
+          
     }
 
     return 0;

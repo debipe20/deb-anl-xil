@@ -73,7 +73,7 @@ void BsmManager::getVehicleInformationFromMAP(MapManager mapManager, BasicVehicl
         // If vehicle is on Map, update all the information
         if (plocAwareLib->locateVehicleInMap(connectedVehicle_t_1, vehicleTracking_t_1) == true && unsigned(vehicleTracking_t_1.intsectionTrackingState.vehicleIntersectionStatus) == static_cast<int>(MsgEnum::mapLocType::onInbound))
         {
-
+            cout << "Vehicle on Map" << endl;
             int vehicleLaneID = plocAwareLib->getLaneIdByIndexes(unsigned(vehicleTracking_t_1.intsectionTrackingState.intersectionIndex), unsigned(vehicleTracking_t_1.intsectionTrackingState.approachIndex), unsigned(vehicleTracking_t_1.intsectionTrackingState.laneIndex));
             int vehicleApproachID = plocAwareLib->getApproachIdByLaneId(regionalId, intersectionId, static_cast<uint8_t>(vehicleLaneID));
             vehicleSignalGroup = plocAwareLib->getControlPhaseByIds(regionalId, intersectionId, static_cast<uint8_t>(vehicleApproachID), static_cast<uint8_t>(vehicleLaneID));

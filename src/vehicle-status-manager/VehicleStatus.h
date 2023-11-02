@@ -12,7 +12,6 @@
 */
 
 #pragma once
-#include "string"
 
 struct VehicleStatus
 {
@@ -24,17 +23,19 @@ struct VehicleStatus
     double vehicleElevation;
     double vehicleHeading;
     double vehicleSpeed;
+    int vehicleSignalGroupState;
     
 
     void reset()
     {
         vehicleID = 0;
-        activeIntersectionId;
+        activeIntersectionId = 0;
         vehicleSignalGroup = 0;
         vehicleLatitude = 0.0;
         vehicleLongitude = 0.0;
         vehicleElevation = 0.0;
         vehicleHeading = 0.0;
         vehicleSpeed = 0.0;
+        vehicleSignalGroupState = 0;
     }
 };

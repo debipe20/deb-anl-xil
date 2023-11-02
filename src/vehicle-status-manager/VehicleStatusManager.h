@@ -18,15 +18,15 @@
 
 #define SignalGroupData_Time_Gap_Value 2.0
 
-
 enum msgType
 {
-    signalStatusData = 1,
+    signalGroupData = 1,
 };
 
 class VehicleStatusManager
 {
 private:
+    // int currentSignalStatus{};
     double signalGroupDataRequestSendingTime{0.0};
     vector<VehicleStatus>vehicleStatusList{};
 
@@ -37,6 +37,9 @@ public:
     int getMessageType(string jsonString);
     void manageVehicleStatusList(BasicVehicle basicVehicle);
     void updateVehicleStatusList(BsmManager bsmManager);
+    void manageSignalGroupData(string jsonString);
     bool checkSignalGroupDataRequestSendingStatus();
+    // bool checkCurrentSignalStatusDataSendingRequirement();
     string getSignalGroupDataRequestJsonString(BsmManager bsmManager);
+    string getCurrentSignalStatusDataJsonString();
 };

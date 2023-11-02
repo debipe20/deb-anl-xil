@@ -25,12 +25,12 @@ def main():
     while True:
         data, address = spatManagerSocket.recvfrom(2048)
         data = data.decode()
-        spatBytes = binascii.unhexlify(data)
-        receivedJsonString = v2x.MessageFrame.to_json(spatBytes, len(spatBytes))
-        receivedJsonString = json.loads(receivedJsonString)
+        # spatBytes = binascii.unhexlify(data)
+        # receivedJsonString = v2x.MessageFrame.to_json(spatBytes, len(spatBytes))
+        # receivedJsonString = json.loads(receivedJsonString)
 
-        # receivedMessage = json.loads(data)
-        # print("Decoded Json Message is :\n",receivedMessage)
+        receivedMessage = json.loads(data)
+        print("Decoded Json Message is :\n",receivedMessage)
         # if receivedMessage["MsgType"] == "SignalGroupDataRequest":
         #     requestedSignalGroupData = spatManager.getRequestedSignalGroupData()
         #     spatManagerSocket.sendto(requestedSignalGroupData.encode(), vehicleStatusManagerAddress)

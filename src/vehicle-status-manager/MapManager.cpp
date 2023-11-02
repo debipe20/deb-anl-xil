@@ -217,6 +217,7 @@ void MapManager::setActiveMapList(BasicVehicle basicVehicle)
                 activeMap.activeMapFileDirectory = fmap;
                 activeMapList.push_back(activeMap);
                 cout << "Active map is " << intersectionName << endl;
+                cout << "*****Got Active Map*****" << endl;
                 break;
             }
             delete plocAwareLib;

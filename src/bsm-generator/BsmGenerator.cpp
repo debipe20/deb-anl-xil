@@ -124,6 +124,7 @@ void BsmGenerator::getNearestGpsCoordinates()
         else if ((estimatedDistance >= travelDistance) && (estimatedDistanceNext >= travelDistance))
         {
             previousIndex = static_cast<int>(currentIndex);
+            previousTimeStamp = currentTime;
             currentLatitude = latitudeList[currentIndex];
             currentLongitude = longitudeList[currentIndex];
             currentElevation = elevationList[currentIndex];
@@ -134,6 +135,7 @@ void BsmGenerator::getNearestGpsCoordinates()
         else if ((estimatedDistance <= travelDistance) && (estimatedDistanceNext > travelDistance))
         {
             previousIndex = static_cast<int>(currentIndex);
+            previousTimeStamp = currentTime;
             currentLatitude = latitudeList[currentIndex];
             currentLongitude = longitudeList[currentIndex];
             currentElevation = elevationList[currentIndex];
@@ -144,6 +146,7 @@ void BsmGenerator::getNearestGpsCoordinates()
         else if ((estimatedDistance < travelDistance) && (estimatedDistanceNext >= travelDistance))
         {
             previousIndex = static_cast<int>(currentIndex + 1);
+            previousTimeStamp = currentTime;
             currentLatitude = latitudeList[currentIndex + 1];
             currentLongitude = longitudeList[currentIndex + 1];
             currentElevation = elevationList[currentIndex + 1];

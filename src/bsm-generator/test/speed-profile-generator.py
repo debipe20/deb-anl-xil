@@ -10,8 +10,8 @@ def getSpeed(previousSpeed):
 
     currentSpeed = previousSpeed * (random.randint(80,130)/100)
     
-    if(currentSpeed > 12.0):
-        currentSpeed = 10.0
+    if(currentSpeed > 10.0):
+        currentSpeed = 8.0
             
     return currentSpeed
     
@@ -31,7 +31,7 @@ def main():
 
     clientAddress = (clientIp, clientPort)
     
-    previousSpeed = 6.0
+    previousSpeed = 2.0
     previousTime = time.time()
 
     while True:

@@ -33,6 +33,9 @@ using std::ofstream;
 using std::string;
 using std::stringstream;
 using std::vector;
+using std::fixed;
+using std::setprecision;
+using std::showpoint;
 
 enum msgType
 {
@@ -43,6 +46,7 @@ class BsmGenerator
 {
 private:
     string vehicleId{};
+    int msgCount{};
     int previousIndex{0};
     double previousTimeStamp{};
     double currentLatitude{};
@@ -56,9 +60,10 @@ private:
     vector <double> elevationList{};
     vector <double> headingList{};
     fstream inputFile;
+    ofstream outputFile;
 
 public:
-    BsmGenerator(string logfile, string vehId);
+    BsmGenerator(string logfile);
     ~BsmGenerator();
 
     int getMessageType(string jsonString);
@@ -66,4 +71,7 @@ public:
     void getNearestGpsCoordinates();
     double haversineDistance(double lat1, double lon1,double lat2, double lon2);
     string BsmEncoder(string jsonString);
+    int getMsOfMinute();
+    void setMsgCount();
+    void loggingData();
 };

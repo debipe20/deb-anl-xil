@@ -26,15 +26,15 @@ int main()
 
     const string HostIP = jsonObject["HostIp"].asString();
     UdpSocket bsmGeneratorSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["BsmGenerator"].asInt()));
-    const int msgReceiverPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageReceiver"].asInt());
+    // const int msgReceiverPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageReceiver"].asInt());
+    const int dataConverterPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["DataConverter"].asInt());
 
     string bsmLogFile = jsonObject["BsmLogFileName"].asString();
-    string vehicleId = jsonObject["VehicleId"].asString();
     char receiveBuffer[2048];
     int msgType{};
     string sendingString{};
 
-    BsmGenerator bsmGenerator(bsmLogFile, vehicleId);
+    BsmGenerator bsmGenerator(bsmLogFile);
 
     while (true)
     {
@@ -46,7 +46,8 @@ int main()
         if (msgType == static_cast<int>(msgType::speedData))
         {
           sendingString = bsmGenerator.BsmEncoder(receivedJsonString);
-          cout << sendingString << endl;
+          // bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(msgReceiverPort), sendingString);
+          bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(dataConverterPort), sendingString);
         }
     }
 

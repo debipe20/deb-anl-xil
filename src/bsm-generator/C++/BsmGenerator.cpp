@@ -77,16 +77,16 @@ void BsmGenerator::readPreloadedCoordinates()
         {
             for (int index = 0; getline(strToSplit, subString, ','); index++)
             {
-                if (index == 5)
+                if (index == 3)
                     latitudeList.push_back(stod(subString));
 
-                else if (index == 6)
+                else if (index == 4)
                     longitudeList.push_back(stod(subString));
 
-                else if (index == 7)
+                else if (index == 5)
                     elevationList.push_back(stod(subString));
 
-                else if (index == 9)
+                else if (index == 7)
                 {
                     headingList.push_back(stod(subString));
                     break;
@@ -230,7 +230,7 @@ string BsmGenerator::BsmEncoder(string jsonString)
     }
 
     bsmMessagePayload = payloadstream.str();
-    loggingData();
+    // loggingData();
 
     return bsmMessagePayload;
 }

@@ -114,7 +114,7 @@ class BsmGenerator:
             "messageId": 20,
             "value": {
                 "coreData": {
-                    "msgCnt": 0,
+                    "msgCnt":self.msgCount,
                     "id": self.vehicleId,
                     "secMark": int(self.getMsOfMinute()),
                     "lat": int(self.currentLatitude * OneByTenMicroDegree_To_Degree),

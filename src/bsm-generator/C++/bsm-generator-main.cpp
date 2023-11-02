@@ -46,6 +46,7 @@ int main()
         if (msgType == static_cast<int>(msgType::speedData))
         {
           sendingString = bsmGenerator.BsmEncoder(receivedJsonString);
+          cout << "Following message will send:\n" << sendingString << endl;
           // bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(msgReceiverPort), sendingString);
           bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(dataConverterPort), sendingString);
         }

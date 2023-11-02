@@ -20,11 +20,10 @@ def main():
 
     while True:
         data, address = dataConverterSocket.recvfrom(1024)
-        encodedBsm = binascii.hexlify(data)
-        print("Encoded BSM is Following:\n", encodedBsm)
+        encodedBsm = binascii.unhexlify(data)
+        # print("Encoded BSM is Following:\n", encodedBsm)
         dataConverterSocket.sendto(encodedBsm, clientAddress)
-
-
+        
     dataConverterSocket.close()
 
 if __name__ == '__main__':

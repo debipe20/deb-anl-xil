@@ -44,12 +44,14 @@ int main()
         string receivedJsonString(receiveBuffer);
         msgType = vehicleStatusManager.getMessageType(receivedJsonString);
 
+
         if (msgType == MsgEnum::DSRCmsgID_bsm)
-        {
+        {   
+            // cout<<"Received Bsm is " << receivedJsonString << endl;;
             basicVehicle.json2BasicVehicle(receivedJsonString);
             bsmManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
             vehicleStatusManager.manageVehicleStatusList(basicVehicle);
-            cout<<"Signal group is " << bsmManager.getVehicleSignalGroup() << endl;;
+            cout<<"**************Signal group is " << bsmManager.getVehicleSignalGroup() << " **************" <<endl;;
 
             if (vehicleStatusManager.checkSignalGroupDataRequestSendingStatus())
             {

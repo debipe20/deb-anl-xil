@@ -1,19 +1,19 @@
 {
+    "MsgType": "BSM",
     "BasicVehicle": {
-        "heading_Degree": 269.82,
+        "temporaryID": 61498,
+        "type": "car",
+        "secMark_Second": 23.0,
         "position": {
-            "elevation_Meter": 740.158,
-            "latitude_DecimalDegree":  32.2360953,
-            "longitude_DecimalDegree": -110.9513268
+            "latitude_DecimalDegree": 42.3010965,
+            "longitude_DecimalDegree": -83.6979838,
+            "elevation_Meter": 238.0
         },
-        "secMark_Second": 56000,
+        "speed_MeterPerSecond": 83.4,
+        "heading_Degree": 180.025,
         "size": {
-            "length_cm": 1239.994,
-            "width_cm": 304.013
-        },
-        "speed_MeterPerSecond": 13.8,
-        "temporaryID": -1898502772,
-        "type": "Transit"
-    },
-    "MsgType": "BSM"
+            "length_cm": 1200.0,
+            "width_cm": 1200.0
+        }
+    }
 }

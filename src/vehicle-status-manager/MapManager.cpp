@@ -189,16 +189,18 @@ void MapManager::setActiveMapList(BasicVehicle basicVehicle)
             
             //Initialize mapengine library.
             LocAware *plocAwareLib = new LocAware(fmap, singleFrame);
+
             // Obtain vehicle information from bsm
             double vehicle_Latitude = basicVehicle.getLatitude_DecimalDegree();
             double vehicle_Longitude = basicVehicle.getLongitude_DecimalDegree();
-            double vehicle_Elevation = basicVehicle.getLongitude_DecimalDegree();
+            double vehicle_Elevation = basicVehicle.getElevation_Meter();
             double vehicle_Speed = basicVehicle.getSpeed_MeterPerSecond();
             double vehicle_Heading = basicVehicle.getHeading_Degree();
             // Initialize all struct require to locate vehicle in map by mapengine library.
             struct geoPoint_t geoPoint_t_1 = {vehicle_Latitude, vehicle_Longitude, vehicle_Elevation};
             struct motion_t motion_t_1 = {vehicle_Speed, vehicle_Heading};
-            struct intersectionTracking_t intersectionTracking_t_1 = {mapLocType::outside, 0, 0, 0};
+            // struct intersectionTracking_t intersectionTracking_t_1 = {mapLocType::outside, 0, 0, 0};
+            struct intersectionTracking_t intersectionTracking_t_1 = {mapLocType::onInbound, 0, 0, 0};
             struct projection_t projection_t_1 = {0.0, 0.0, 0.0};
             struct laneProjection_t laneProjection_t_1 = {0, projection_t_1};
             struct vehicleTracking_t vehicleTracking_t_1 = {intersectionTracking_t_1, laneProjection_t_1};

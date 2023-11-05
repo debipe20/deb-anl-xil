@@ -24,6 +24,13 @@ communicationInfo = (hostIp, vehicleStatusManagerPort)
 
 mapNo = 1
 
+# f = open(fileName, 'r')
+# data = f.read()
+# s.sendto(data.encode(),communicationInfo)
+# print("sent Map ", mapNo," at time", time.time())
+# mapNo = mapNo + 1
+# f.close()
+# time.sleep(0.998)
 while True:
 
     f = open(fileName, 'r')

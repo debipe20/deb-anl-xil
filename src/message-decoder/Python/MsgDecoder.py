@@ -114,18 +114,19 @@ class  MsgDecoder:
         bsmJsonString = json.dumps({
             "MsgType": "BSM",
             "BasicVehicle": {
-                "temporaryID": str(jsonString["value"]["coreData"]["id"]),
-                "secMark_Second": str(jsonString["value"]["coreData"]["secMark"]),
+                "temporaryID": int(str(jsonString["value"]["coreData"]["id"])[:4],16),
+                "type": str("car"),
+                "secMark_Second": float(jsonString["value"]["coreData"]["secMark"]),
                 "position": {
-                    "latitude_DecimalDegree":  str(jsonString["value"]["coreData"]["lat"] / OneByTenMicroDegree_To_Degree),
-                    "longitude_DecimalDegree": str(jsonString["value"]["coreData"]["long"] / OneByTenMicroDegree_To_Degree),
-                    "elevation_Meter": str(jsonString["value"]["coreData"]["elev"] / Deca_Conversion)
+                    "latitude_DecimalDegree":  float(jsonString["value"]["coreData"]["lat"] / OneByTenMicroDegree_To_Degree),
+                    "longitude_DecimalDegree": float(jsonString["value"]["coreData"]["long"] / OneByTenMicroDegree_To_Degree),
+                    "elevation_Meter": float(jsonString["value"]["coreData"]["elev"] / Deca_Conversion)
                 },
-                "speed_MeterPerSecond": str(jsonString["value"]["coreData"]["speed"] * 0.2),
-                "heading_Degree": str(jsonString["value"]["coreData"]["heading"] * 0.0125),
+                "speed_MeterPerSecond": float(jsonString["value"]["coreData"]["speed"] * 0.2),
+                "heading_Degree": float(jsonString["value"]["coreData"]["heading"] * 0.0125),
                 "size": {
-                    "length_cm": str(jsonString["value"]["coreData"]["size"]["length"]),
-                    "width_cm": str(jsonString["value"]["coreData"]["size"]["length"])
+                    "length_cm": float(jsonString["value"]["coreData"]["size"]["length"]),
+                    "width_cm": float(jsonString["value"]["coreData"]["size"]["length"])
                 }
             }
         })

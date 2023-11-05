@@ -83,7 +83,7 @@ bool VehicleStatusManager::checkSignalGroupDataRequestSendingStatus()
     bool signalGroupDataRequestSendingStatus{false};
     double currentTime = getPosixTimestamp();
 
-    if ((currentTime - signalGroupDataRequestSendingTime) >= SignalGroupData_Time_Gap_Value)
+    if (vehicleStatusList.at(0).vehicleSignalGroup != 0 && (currentTime - signalGroupDataRequestSendingTime) >= SignalGroupData_Time_Gap_Value)
     {
         signalGroupDataRequestSendingStatus = true;
         signalGroupDataRequestSendingTime = currentTime;

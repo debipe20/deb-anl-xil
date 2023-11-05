@@ -51,13 +51,14 @@ int main()
             basicVehicle.json2BasicVehicle(receivedJsonString);
             bsmManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
             vehicleStatusManager.manageVehicleStatusList(basicVehicle);
+            vehicleStatusManager.updateVehicleStatusList(bsmManager);
             cout<<"**************Signal group is " << bsmManager.getVehicleSignalGroup() << " **************" <<endl;;
 
             if (vehicleStatusManager.checkSignalGroupDataRequestSendingStatus())
             {
-                vehicleStatusManager.updateVehicleStatusList(bsmManager);
                 sendingJsonString = vehicleStatusManager.getSignalGroupDataRequestJsonString(bsmManager);
                 vehicleStatusManagerSocket.sendData(HostIP, static_cast<short unsigned int>(spatManagerPort), sendingJsonString);
+                cout << "Send Signal Group Data Request message" << endl;
             }
         }
 

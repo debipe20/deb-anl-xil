@@ -11,11 +11,20 @@ def main():
     configFile.close()
     
     hostIp = config["HostIp"]
-    port = config["PortNumber"]["MessageDecoder"]
+    port = config["PortNumber"]["SpatManager"]
     com_info = (hostIp, port)
     
     spatManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     spatManagerSocket.bind(com_info)
+
+    while True:
+        data, address = spatManagerSocket.recvfrom(10240)
+        bsmPayload = data.decode()
+        bsmBytes = binascii.unhexlify(bsmPayload)
+        receivedJsonString = v2x.MessageFrame.to_json(bsmBytes, len(bsmBytes))
+        receivedJsonString = json.loads(receivedJsonString)
+        print(receivedJsonString)
+
 
     spatManagerSocket.close()
 

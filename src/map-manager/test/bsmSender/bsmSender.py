@@ -6,16 +6,16 @@ import time
 fileName = "bsm.json"
 
 # Read a config file into a json object:
-configFile = open("/nojournal/bin/mmitss-phase3-master-config.json", 'r')
+configFile = open("/nojournal/bin/anl-master-config.json", 'r')
 config = (json.load(configFile))
 configFile.close()
 
 hostIp = config["HostIp"]
-port = config["PortNumber"]["HostBsmDecoder"]
+port = config["PortNumber"]["BsmGenerator"]
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind((hostIp,port))
 
-priorityRequestGeneratorPort = config["PortNumber"]["PriorityRequestGenerator"]
+priorityRequestGeneratorPort = config["PortNumber"]["MapManager"]
 communicationInfo = (hostIp, priorityRequestGeneratorPort)
 
 

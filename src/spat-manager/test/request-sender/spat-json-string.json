@@ -1,0 +1,93 @@
+{
+    "MsgType": "SPaT",
+    "IntersectionName": "MCity Test Intersection",
+    "IntersectionID": 1,
+    "MinuteOfYear": 440299,
+    "TimeStamp": 31095,
+    "SPaTData": [
+        {
+            "SignalGroup": 1,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 2,
+            "EventState": "protected-Movement-Allowed",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 5245
+        },
+        {
+            "SignalGroup": 22,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 3,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 4,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11750,
+            "MaxEndTime": 5245
+        },
+        {
+            "SignalGroup": 24,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 5,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 6,
+            "EventState": "protected-Movement-Allowed",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 5245
+        },
+        {
+            "SignalGroup": 26,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 7,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        },
+        {
+            "SignalGroup": 8,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11750,
+            "MaxEndTime": 5245
+        },
+        {
+            "SignalGroup": 28,
+            "EventState": "stop-And-Remain",
+            "StartTime": 0.0,
+            "MinEndTime": 11710,
+            "MaxEndTime": 11710
+        }
+    ]
+}

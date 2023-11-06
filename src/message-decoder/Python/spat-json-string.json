@@ -1,0 +1,93 @@
+{
+    "MsgType": "SPaT",
+    "IntersectionName": "MCity Test Intersection",
+    "IntersectionID": 1,
+    "MinuteOfYear": 440537,
+    "TimeStamp": 1698963455.29326,
+    "SPaTData": [
+        {
+            "SignalGroup": 1,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 2,
+            "EventState": 1,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 4087
+        },
+        {
+            "SignalGroup": 22,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 3,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 4,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10592,
+            "MaxEndTime": 4087
+        },
+        {
+            "SignalGroup": 24,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 5,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 6,
+            "EventState": 1,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 4087
+        },
+        {
+            "SignalGroup": 26,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 7,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        },
+        {
+            "SignalGroup": 8,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10592,
+            "MaxEndTime": 4087
+        },
+        {
+            "SignalGroup": 28,
+            "EventState": 3,
+            "StartTime": 0.0,
+            "MinEndTime": 10552,
+            "MaxEndTime": 10552
+        }
+    ]
+}

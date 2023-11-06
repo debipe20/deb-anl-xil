@@ -19,7 +19,9 @@ CMake*
 
 
 *.pyc
+*.cpython-38.pyc
 3rdparty/*.pyc
+/3rdparty/objective-systems/v2x_api_76201_lb/python/src/osys/__pycache__/*.cpython-38.pyc
 .DS_Store
 
 *OptimizationModel_EV.mod

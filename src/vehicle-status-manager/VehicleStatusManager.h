@@ -16,7 +16,7 @@
 #include "MapManager.h"
 #include "BsmManager.h"
 
-#define SignalGroupData_Time_Gap_Value 2.0
+#define SignalGroupData_Time_Gap_Value 0.25
 
 enum msgType
 {

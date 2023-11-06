@@ -57,6 +57,9 @@ int BsmGenerator::getMessageType(string jsonString)
     {
         if ((jsonObject["MsgType"]).asString() == "SpeedData")
             messageType = static_cast<int>(msgType::speedData);
+
+        else if ((jsonObject["MsgType"]).asString() == "CurrentSignalStatusData")
+            messageType = static_cast<int>(msgType::currentSignalStatusData);
     }
 
     return messageType;
@@ -202,11 +205,15 @@ string BsmGenerator::BsmEncoder(string jsonString)
 
     if(parsingSuccessful)
         currentSpeed = jsonObject["Speed"].asDouble();
-    
-    if(currentSignalStatus == 1)
-        getNearestGpsCoordinates();
 
-    else currentSpeed = 0;
+    if(currentSignalStatus != GREEN && vehicleDistanceFromStopBar <= 10.0)
+    {
+        currentSpeed = 0;
+        previousTimeStamp = getPosixTimestamp();
+    }
+
+    else
+        getNearestGpsCoordinates();
 
     setMsgCount();
 
@@ -222,7 +229,7 @@ string BsmGenerator::BsmEncoder(string jsonString)
     bsmIn.yawRate = 0;
     bsmIn.vehLen = 1200;
     bsmIn.vehWidth = 300;
-    bsmIn.speed = DsrcConstants::kph2unit<uint16_t>(currentSpeed * MPS_TO_KPH_CONVERSION);
+    bsmIn.speed = DsrcConstants::kph2unit<uint16_t>(currentSpeed);
     bsmIn.heading = DsrcConstants::heading2unit<uint16_t>(currentHeading);
 
     /// encode BSM payload
@@ -249,8 +256,12 @@ void BsmGenerator::setCurrentSignalStatus(string jsonString)
     bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
     delete reader;
 
+    cout << "Received Message is \n" << jsonString << endl;
     if(parsingSuccessful)
-        currentSignalStatus = jsonObject["EventSTate"].asInt();
+    {
+        currentSignalStatus = jsonObject["EventState"].asInt();
+        vehicleDistanceFromStopBar = jsonObject["DistanceFromStopBar"].asDouble();
+    }
 }
 
 /*

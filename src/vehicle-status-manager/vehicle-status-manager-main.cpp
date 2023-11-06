@@ -52,13 +52,13 @@ int main()
             bsmManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
             vehicleStatusManager.manageVehicleStatusList(basicVehicle);
             vehicleStatusManager.updateVehicleStatusList(bsmManager);
-            cout<<"**************Signal group is " << bsmManager.getVehicleSignalGroup() << " **************" <<endl;;
+            // cout<<"**************Signal group is " << bsmManager.getVehicleSignalGroup() << " **************" <<endl;;
 
             if (vehicleStatusManager.checkSignalGroupDataRequestSendingStatus())
             {
                 sendingJsonString = vehicleStatusManager.getSignalGroupDataRequestJsonString(bsmManager);
                 vehicleStatusManagerSocket.sendData(HostIP, static_cast<short unsigned int>(spatManagerPort), sendingJsonString);
-                cout << "Send Signal Group Data Request message" << endl;
+                // cout << "Send Signal Group Data Request message" << endl;
             }
         }
 
@@ -76,6 +76,8 @@ int main()
             vehicleStatusManager.manageSignalGroupData(receivedJsonString);
             sendingJsonString = vehicleStatusManager.getCurrentSignalStatusDataJsonString();
             vehicleStatusManagerSocket.sendData(HostIP, static_cast<short unsigned int>(bsmGeneratorPort), sendingJsonString);
+            // cout << "Received Signal Group Data from Spat Manager" << endl;
+            // cout << "Send Following Signal Group Data to Bsm Generator\n" << sendingJsonString << endl;
         }
     }
 

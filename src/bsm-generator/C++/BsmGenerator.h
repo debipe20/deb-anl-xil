@@ -37,6 +37,8 @@ using std::fixed;
 using std::setprecision;
 using std::showpoint;
 
+#define GREEN 1
+
 enum msgType
 {
     speedData = 1,
@@ -56,6 +58,7 @@ private:
     double currentElevation{};
     double currentSpeed{};
     double currentHeading{};
+    double vehicleDistanceFromStopBar{};
     bool previousTimeStampSetStatus{false};
     vector <double> latitudeList{};
     vector <double> longitudeList{};

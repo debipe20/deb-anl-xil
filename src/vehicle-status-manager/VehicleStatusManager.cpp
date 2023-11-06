@@ -72,6 +72,7 @@ void VehicleStatusManager::manageVehicleStatusList(BasicVehicle basicVehicle)
 void VehicleStatusManager::updateVehicleStatusList(BsmManager bsmManager)
 {
     vehicleStatusList.at(0).vehicleSignalGroup = bsmManager.getVehicleSignalGroup();
+    vehicleStatusList.at(0).vehicleDistanceFromStopBar = bsmManager.getVehicleDistanceFromStopBar();
     vehicleStatusList.at(0).activeIntersectionId = bsmManager.getVehicleIntersectionId(); 
 }
 
@@ -104,7 +105,7 @@ string VehicleStatusManager::getSignalGroupDataRequestJsonString(BsmManager bsmM
     jsonObject["MsgType"] = "SignalGroupDataRequest";
     jsonObject["IntersectionId"] = bsmManager.getVehicleIntersectionId();
     jsonObject["SignalGroup"] = bsmManager.getVehicleSignalGroup();
-
+    
     signalGroupDataRequestJsonString = Json::writeString(builder, jsonObject);
 
     return signalGroupDataRequestJsonString;
@@ -148,7 +149,8 @@ string VehicleStatusManager::getCurrentSignalStatusDataJsonString()
 
     jsonObject["MsgType"] = "CurrentSignalStatusData";
     jsonObject["SignalGroup"] = vehicleStatusList.at(0).vehicleSignalGroup;
-    jsonObject["EventSTate"] = vehicleStatusList.at(0).vehicleSignalGroupState;
+    jsonObject["EventState"] = vehicleStatusList.at(0).vehicleSignalGroupState;
+    jsonObject["DistanceFromStopBar"] = vehicleStatusList.at(0).vehicleDistanceFromStopBar;
 
     currentSignalStatusDataJsonString = Json::writeString(builder, jsonObject);
 

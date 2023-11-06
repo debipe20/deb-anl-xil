@@ -58,6 +58,8 @@ void BsmManager::getVehicleInformationFromMAP(MapManager mapManager, BasicVehicl
         struct geoPoint_t geoPoint_t_1 = {vehicleLatitude, vehicleLongitude, vehicleElevation};
         struct motion_t motion_t_1 = {vehicleSpeed, vehicleHeading};
         struct intersectionTracking_t intersectionTracking_t_1 = {mapLocType::onInbound, 0, 0, 0};
+        struct point2D_t point2D_t_1 = {0, 0};
+		struct point2D_t point2D_t_2 = {0, 0};
         struct projection_t projection_t_1 = {0.0, 0.0, 0.0};
         struct laneProjection_t laneProjection_t_1 = {0, projection_t_1};
         struct vehicleTracking_t vehicleTracking_t_1 = {intersectionTracking_t_1, laneProjection_t_1};
@@ -77,7 +79,8 @@ void BsmManager::getVehicleInformationFromMAP(MapManager mapManager, BasicVehicl
             int vehicleLaneID = plocAwareLib->getLaneIdByIndexes(unsigned(vehicleTracking_t_1.intsectionTrackingState.intersectionIndex), unsigned(vehicleTracking_t_1.intsectionTrackingState.approachIndex), unsigned(vehicleTracking_t_1.intsectionTrackingState.laneIndex));
             int vehicleApproachID = plocAwareLib->getApproachIdByLaneId(regionalId, intersectionId, static_cast<uint8_t>(vehicleLaneID));
             vehicleSignalGroup = plocAwareLib->getControlPhaseByIds(regionalId, intersectionId, static_cast<uint8_t>(vehicleApproachID), static_cast<uint8_t>(vehicleLaneID));
-
+            plocAwareLib->getPtDist2D(vehicleTracking_t_1, point2D_t_2);
+            vehicleDistanceFromStopBar = unsigned(point2D_t_1.distance2pt(point2D_t_2))/100.0; //unit of centimeters
         }
         // If vehicle is not on Map, clear the active map related information
         else
@@ -86,6 +89,7 @@ void BsmManager::getVehicleInformationFromMAP(MapManager mapManager, BasicVehicl
             activeMapList.clear();
             vehicleIntersectionId = 0;
             vehicleSignalGroup = 0;
+            vehicleDistanceFromStopBar = 0.0;
         }
         delete plocAwareLib;
     }
@@ -104,6 +108,11 @@ int BsmManager::getVehicleIntersectionId()
 int BsmManager::getVehicleSignalGroup()
 {
 	return vehicleSignalGroup;
+}
+
+double BsmManager::getVehicleDistanceFromStopBar()
+{
+	return vehicleDistanceFromStopBar;
 }
 
 vector<Map::ActiveMap> BsmManager::getActiveMapList(MapManager mapManager)

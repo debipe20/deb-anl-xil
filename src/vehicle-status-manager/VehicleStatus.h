@@ -24,7 +24,7 @@ struct VehicleStatus
     double vehicleHeading;
     double vehicleSpeed;
     int vehicleSignalGroupState;
-    
+    double vehicleDistanceFromStopBar;
 
     void reset()
     {
@@ -37,5 +37,6 @@ struct VehicleStatus
         vehicleHeading = 0.0;
         vehicleSpeed = 0.0;
         vehicleSignalGroupState = 0;
+        vehicleDistanceFromStopBar = 0.0;
     }
 };

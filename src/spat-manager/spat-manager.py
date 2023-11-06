@@ -30,8 +30,9 @@ def main():
         # print("Decoded Json Message is :\n",receivedMessage)
         
         if receivedMessage["MsgType"] == "SignalGroupDataRequest":
+            print("Received Message is:\n", receivedMessage)
             requestedSignalGroupData = spatManager.getRequestedSignalGroupData(receivedMessage)
-            print(requestedSignalGroupData)
+            print("Following data will be send\n",requestedSignalGroupData)
             spatManagerSocket.sendto(requestedSignalGroupData.encode(), vehicleStatusManagerAddress)
 
         elif receivedMessage["MsgType"] == "SPaT":

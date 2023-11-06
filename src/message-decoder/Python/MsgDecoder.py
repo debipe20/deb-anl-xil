@@ -63,6 +63,9 @@ class  MsgDecoder:
         decodedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))
         jsonString = json.loads(decodedJsonString)
         # print(jsonString)
+
+        # intersectionName = jsonString["value"]["intersections"][0]["name"]
+        # intersectionID = jsonString["value"]["intersections"][0]["id"]["id"]
         
         for data in jsonString["value"]["intersections"][0]["states"]:
             
@@ -91,7 +94,8 @@ class  MsgDecoder:
         spatJsonString = json.dumps({
             "MsgType": "SPaT",
             "IntersectionName": jsonString["value"]["intersections"][0]["name"],
-            "IntersectionID": jsonString["value"]["intersections"][0]["id"]["id"],
+            "IntersectionID": 2515,
+            # "IntersectionID": jsonString["value"]["intersections"][0]["id"]["id"],
             "MinuteOfYear": jsonString["value"]["intersections"][0]["moy"],
             # "TimeStamp": jsonString["value"]["intersections"][0]["timeStamp"],
             "TimeStamp": time.time(),
@@ -122,7 +126,8 @@ class  MsgDecoder:
                     "longitude_DecimalDegree": float(jsonString["value"]["coreData"]["long"] / OneByTenMicroDegree_To_Degree),
                     "elevation_Meter": float(jsonString["value"]["coreData"]["elev"] / Deca_Conversion)
                 },
-                "speed_MeterPerSecond": float(jsonString["value"]["coreData"]["speed"] * 0.2),
+                # "speed_MeterPerSecond": float(jsonString["value"]["coreData"]["speed"] * 0.2),
+                "speed_MeterPerSecond": float(jsonString["value"]["coreData"]["speed"] / 14),
                 "heading_Degree": float(jsonString["value"]["coreData"]["heading"] * 0.0125),
                 "size": {
                     "length_cm": float(jsonString["value"]["coreData"]["size"]["length"]),

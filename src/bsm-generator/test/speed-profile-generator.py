@@ -12,6 +12,8 @@ def getSpeed(previousSpeed):
     
     if(currentSpeed > 8.0):
         currentSpeed = 6.0
+
+    # currentSpeed = 3.0
             
     return currentSpeed
     

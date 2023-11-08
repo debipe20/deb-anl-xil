@@ -107,7 +107,10 @@ class BsmGenerator:
         """
         # "elev": int(self.currentElevation * Deca_Conversion),
         self.currentSpeed = currentSpeed
-        self.getNearestCoordinates()
+
+        if self.currentSpeed > 0:
+            self.getNearestCoordinates()
+        
         self.setMsgCount()
 
         bsmDictionary = {
@@ -126,7 +129,7 @@ class BsmGenerator:
                         "orientation": 65535
                     },
                     "transmission": "forwardGears",
-                    "speed": int(self.currentSpeed / 0.2),
+                    "speed": int(self.currentSpeed ),
                     "heading": int(self.currentHeading / 0.0125),
                     "angle": -1,
                     "accelSet": {

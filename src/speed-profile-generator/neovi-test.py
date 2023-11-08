@@ -27,7 +27,7 @@ def main():
         
         data, address = speedProfileGeneratorSocket.recvfrom(4096)
         print("Received data\n", data)
-        currentSpeed = int.from_bytes(data, byteorder='big')
+        currentSpeed = int.from_bytes(data, byteorder='big') * 0.277778
         count= count +1
         if count == 100:
             count = 1

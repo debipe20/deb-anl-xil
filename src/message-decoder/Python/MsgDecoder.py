@@ -61,8 +61,9 @@ class  MsgDecoder:
         
         unhexedPayload = binascii.unhexlify(spatPayload)
         decodedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))
+        print(decodedJsonString)
         jsonString = json.loads(decodedJsonString)
-        # print(jsonString)
+        print(jsonString)
 
         # intersectionName = jsonString["value"]["intersections"][0]["name"]
         # intersectionID = jsonString["value"]["intersections"][0]["id"]["id"]

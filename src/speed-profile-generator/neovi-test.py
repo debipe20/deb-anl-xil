@@ -22,21 +22,19 @@ def main():
     
     previousSpeed = 6.0
     previousTime = time.time()
-    count = 0
+
     while True:
         
         data, address = speedProfileGeneratorSocket.recvfrom(4096)
         print("Received data\n", data)
         currentSpeed = int.from_bytes(data, byteorder='big') * 0.277778
-        count= count +1
-        if count == 100:
-            count = 1
+  
         speedJsonString = json.dumps({
             "MsgType": "SpeedData",
             "Speed": currentSpeed
         })
         
-        print("Following message will send for : \n",count, speedJsonString)
+        print("Following message will send for : \n", speedJsonString)
         speedProfileGeneratorSocket.sendto(speedJsonString.encode(), clientAddress)
         
         

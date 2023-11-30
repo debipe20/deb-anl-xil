@@ -11,7 +11,7 @@
   <vehicles>   
     <vehicle name="CARMA-ANL" bsmid="f03ad610" type="vehicle.chevrolet.impala" owner="CARMA-ANL" material="Steel" lvcIndicator="Live">
       <initialTSPI>
-        <GeodeticPosition latitudeInDegrees="42.2994845" longitudeInDegrees="-83.6992433" heightAboveEllipsoidInMeters="243"> </GeodeticPosition>
+        <GeodeticPosition latitudeInDegrees="42.2994845" longitudeInDegrees="-83.6992433" heightAboveEllipsoidInMeters="232"> </GeodeticPosition>
         <Heading>187</Heading>
       </initialTSPI>
     </vehicle>

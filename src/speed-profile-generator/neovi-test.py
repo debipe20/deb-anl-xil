@@ -2,7 +2,7 @@ import socket
 import json
 import time
 
-
+KPH_TO_MPS = 0.277778
     
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", 'r')
@@ -27,7 +27,7 @@ def main():
         
         data, address = speedProfileGeneratorSocket.recvfrom(4096)
         print("Received data\n", data)
-        currentSpeed = int.from_bytes(data, byteorder='big') * 0.277778
+        currentSpeed = int.from_bytes(data, byteorder='big') * KPH_TO_MPS
   
         speedJsonString = json.dumps({
             "MsgType": "SpeedData",

@@ -27,7 +27,7 @@ class BsmGenerator:
         self.msgCount = 0
         self.timeStep = 0.0
         self.previousTimeStampSetStatus = False
-        self.latitudeList, self.longitudeList, self.elevation, self.headingList = (
+        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = (
             [] for i in range(4))
 
         self.bsmLogFile = config["BsmLogFileName"]
@@ -47,9 +47,13 @@ class BsmGenerator:
         dataFrame = pd.read_csv(self.bsmLogFile)
         self.latitudeList = dataFrame['latitude'].tolist()
         self.longitudeList = dataFrame['longitude'].tolist()
-        self.elevation = dataFrame['elevation'].tolist()
+        self.elevationList = dataFrame['elevation'].tolist()
         self.headingList = dataFrame['heading'].tolist()
-
+        
+        self.currentLatitude = self.latitudeList[0]
+        self.currentLongitude = self.longitudeList[0]
+        self.currentElevation = self.elevationList[0]
+        self.currentHeading = self.headingList[0]
         self.previousLatitude = self.latitudeList[0]
         self.previousLongitude = self.longitudeList[0]
 
@@ -85,7 +89,7 @@ class BsmGenerator:
                 self.previousIndex = index
                 self.currentLatitude = self.latitudeList[index]
                 self.currentLongitude = self.longitudeList[index]
-                self.currentElevation = self.elevation[index]
+                self.currentElevation = self.elevationList[index]
                 self.currentHeading = self.headingList[index]
                 break
 
@@ -96,7 +100,7 @@ class BsmGenerator:
                 self.previousTime = time.time()
                 self.currentLatitude = self.latitudeList[index+1]
                 self.currentLongitude = self.longitudeList[index+1]
-                self.currentElevation = self.elevation[index+1]
+                self.currentElevation = self.elevationList[index+1]
                 self.currentHeading = self.headingList[index+1]
 
                 break

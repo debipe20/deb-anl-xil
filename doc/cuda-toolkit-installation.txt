@@ -1,0 +1,14 @@
+Install Cuda Toolkit and CUDNN Library first
+	https://gist.github.com/neouranos/51dd12d9471eb73b2348d373b605b45a
+	https://praveenkrishna.medium.com/downgrade-cuda-for-tensorflow-gpu-17831db59099
+
+Install Nvidia Driver from Ubuntu & Software
+
+
+To install in Anaconda
+	https://www.vultr.com/docs/how-to-install-tensorflow-on-ubuntu-22-04-79647/
+	https://docs.anaconda.com/free/anaconda/applications/tensorflow/
+	https://anaconda.org/anaconda/tensorflow-gpu
+
+To solve "AttributeError: module ‘numpy’ has no attribute ‘typeDict’"
+	python3 -m pip install --upgrade h5py

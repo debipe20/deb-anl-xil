@@ -206,16 +206,21 @@ string BsmGenerator::BsmEncoder(string jsonString)
     if(parsingSuccessful)
         currentSpeed = jsonObject["Speed"].asDouble();
 
-    if(currentSignalStatus != GREEN && vehicleDistanceFromStopBar <= 10.0)
+    if (currentSignalStatus == 0 && currentSpeed > 0.0)
+        getNearestGpsCoordinates();
+
+    else if(currentSignalStatus != GREEN && vehicleDistanceFromStopBar <= 10.0)
     {
         currentSpeed = 0;
         previousTimeStamp = getPosixTimestamp();
     }
 
-    else
+    else if (currentSpeed > 0.0)
         getNearestGpsCoordinates();
 
     setMsgCount();
+
+    cout << previousIndex << " , "<< fixed << showpoint << setprecision(8) << currentLatitude << " , " << currentLongitude << " , " << fixed << showpoint << setprecision(2) << currentElevation << " , " << currentHeading << endl;
 
     /// manual input bsmIn
     dsrcFrameIn.dsrcMsgId = MsgEnum::DSRCmsgID_bsm;
@@ -256,7 +261,7 @@ void BsmGenerator::setCurrentSignalStatus(string jsonString)
     bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
     delete reader;
 
-    cout << "Received Message is \n" << jsonString << endl;
+    // cout << "Received Message is \n" << jsonString << endl;
     if(parsingSuccessful)
     {
         currentSignalStatus = jsonObject["EventState"].asInt();

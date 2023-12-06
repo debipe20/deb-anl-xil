@@ -32,28 +32,49 @@ except IndexError:
 
 bsmLogFile = open("BSM-Log.csv", 'w')
 bsmLogFile.write("Latitude,Longitude,Elevation\n")
+lattitude = 0.0
+lon = 0.0
+elev = 0.0
+heading  = 0.0
+
+def setData(lat1, lon1, elev1):
+
+    lat = lat1
+    lon = lon1
+    elev = elev1
+
 
 def gnss_callback(gnss):
-    print("enter in the function")
-    print(type(gnss))
     print("GNSS measure:\n"+str(gnss)+'\n')
-    # print(gnss.lat)
-    # print("type is ", type(gnss))
-    line = str(gnss)
-    splitByComma=line.split(',')
-    # print(splitByComma[2])
-    # fValue = splitByComma[2].replace('lat=', '').strip()
-    # print(fValue)    
+
+    gnssData = str(gnss)
+    splitGnssDataByComma = gnssData.split(',')
     
-    lat = splitByComma[2].replace('lat=', '').strip()
-    lon = splitByComma[3].replace('lon=', '').strip()
-    elev = splitByComma[4].replace('alt=', '').strip()
-    elev = elev.replace(')', '').strip()
-    csvRow = (lat + "," + lon + "," + elev + "\n")
-    bsmLogFile.write(csvRow)
+    lat = splitGnssDataByComma[2].replace('lat=', '').strip()
+    lon = splitGnssDataByComma[3].replace('lon=', '').strip()
+    elev = splitGnssDataByComma[4].replace('alt=', '').strip(')')
+    lattitude = lat
+    # elev = elev.replace(')', '').strip()
+   
+    print("Elevation is ", str(elev))
+
+    # csvRow = (lat + "," + lon + "," + elev + "\n")
+    # bsmLogFile.write(csvRow)
+    setData(str(lat), str(lon), str(elev)) 
 
 def imu_callback(imu):
-            print("IMU measure:\n"+str(imu)+'\n')   
+    print("IMU measure:\n"+str(imu)+'\n')
+
+    imuData = str(imu)
+    splitImuDataByComma = imuData.split(',')
+
+    heading = splitImuDataByComma[8].replace('compass=', '').strip(')')
+    # print("Heading is", heading)
+    print("Lattitude is ", lattitude)
+    print("elevation is ", str(elev))
+    csvRow = (str(lattitude) + "," + str(lon) + "," + str(elev) + "," + str(heading) + "\n")
+    bsmLogFile.write(csvRow)
+    # return str(heading)  
 
 def main():
 
@@ -84,19 +105,7 @@ def main():
         vehicle.apply_control(carla.VehicleControl(throttle=0.0, steer=0.0))
         actor_list.append(vehicle)
         print(vehicle.get_location())
-        
-        # gnss_bp = world.get_blueprint_library().find('sensor.other.gnss')
-        # gnss_location = carla.Location(0,0,0)
-        # gnss_rotation = carla.Rotation(0,0,0)
-        # gnss_transform = carla.Transform(gnss_location,gnss_rotation)
-        # # gnss = world.spawn_actor(gnss_bp,gnss_transform,attach_to=vehicle, attachment_type=carla.AttachmentType.Rigid)
-
-        # # actor_list.append(gnss)
-        # ego_gnss = world.spawn_actor(gnss_bp,gnss_transform,attach_to=vehicle, attachment_type=carla.AttachmentType.Rigid)
-        # # print("GNSS data: ", world.gnss_sensor.latitude)
-        # gnss_bp.set_attribute("sensor_tick",str(3.0))
-        # ego_gnss.listen(lambda gnss: gnss_callback(gnss))
-
+    
         gnss_bp = world.get_blueprint_library().find('sensor.other.gnss')
         gnss_location = carla.Location(0,0,0)
         gnss_rotation = carla.Rotation(0,0,0)
@@ -113,6 +122,9 @@ def main():
         imu_bp.set_attribute("sensor_tick",str(0.1))
         ego_imu = world.spawn_actor(imu_bp,imu_transform,attach_to=vehicle, attachment_type=carla.AttachmentType.Rigid)
         ego_imu.listen(lambda imu: imu_callback(imu))
+
+        # csvRow = (str(lattitude) + "," + str(longitude) + "," + str(elevation) + "," + str(heading) + "\n")
+        # bsmLogFile.write(csvRow)
         
         time.sleep(100)
         # transform = random.choice(world.get_map().get_spawn_points())

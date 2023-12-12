@@ -1,0 +1,81 @@
+{
+    "MsgType": "SPaT",
+    "Spat": {
+        "intersectionState": {
+            "intersectionID": 26379,
+            "regionalID": 0
+        },
+        "minuteOfYear": 409927,
+        "msOfMinute": 45879,
+        "msgCnt": 120,
+        "phaseState": [
+            {
+                "currState": "red",
+                "elapsedTime": -1,
+                "maxEndTime": 4659,
+                "minEndTime": 4659,
+                "phaseNo": 1,
+                "startTime": 0
+            },
+            {
+                "currState": "red",
+                "elapsedTime": -1,
+                "maxEndTime": 5038,
+                "minEndTime": 5038,
+                "phaseNo": 2,
+                "startTime": 0
+            },
+            {
+                "currState": "permissive_yellow",
+                "elapsedTime": -1,
+                "maxEndTime": 4998,
+                "minEndTime": 4998,
+                "phaseNo": 3,
+                "startTime": 0
+            },
+            {
+                "currState": "green",
+                "elapsedTime": -1,
+                "maxEndTime": 4998,
+                "minEndTime": 4998,
+                "phaseNo": 4,
+                "startTime": 0
+            },
+            {
+                "currState": "red",
+                "elapsedTime": -1,
+                "maxEndTime": 4659,
+                "minEndTime": 4659,
+                "phaseNo": 5,
+                "startTime": 0
+            },
+            {
+                "currState": "red",
+                "elapsedTime": -1,
+                "maxEndTime": 5038,
+                "minEndTime": 5038,
+                "phaseNo": 6,
+                "startTime": 0
+            },
+            {
+                "currState": "permissive_yellow",
+                "elapsedTime": -1,
+                "maxEndTime": 4998,
+                "minEndTime": 4998,
+                "phaseNo": 7,
+                "startTime": 0
+            },
+            {
+                "currState": "green",
+                "elapsedTime": -1,
+                "maxEndTime": 4998,
+                "minEndTime": 4998,
+                "phaseNo": 8,
+                "startTime": 0
+            }
+        ],
+        "status": "0000000000000100"
+    },
+    "Timestamp_posix": 1698706497.1864109,
+    "Timestamp_verbose": "2023-10-30 22:54:57.186"
+}

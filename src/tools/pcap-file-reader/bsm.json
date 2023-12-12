@@ -1,0 +1,97 @@
+{
+    "messageId": 20,
+    "value": {
+        "coreData": {
+            "msgCnt": 9,
+            "id": "ca62cd16",
+            "secMark": 37126,
+            "lat": 423005883,
+            "long": -836991568,
+            "elev": 2371,
+            "accuracy": {
+                "semiMajor": 10,
+                "semiMinor": 10,
+                "orientation": 0
+            },
+            "transmission": "unavailable",
+            "speed": 625,
+            "heading": 568,
+            "angle": 127,
+            "accelSet": {
+                "long": 0,
+                "lat": 0,
+                "vert": -127,
+                "yaw": 0
+            },
+            "brakes": {
+                "wheelBrakes": "00",
+                "traction": "unavailable",
+                "abs": "unavailable",
+                "scs": "unavailable",
+                "brakeBoost": "unavailable",
+                "auxBrakes": "unavailable"
+            },
+            "size": {
+                "width": 159,
+                "length": 314
+            }
+        },
+        "partII": [
+            {
+                "partII-Id": 0,
+                "partII-Value": {
+                    "pathHistory": {
+                        "crumbData": [
+                            {
+                                "latOffset": 5148,
+                                "lonOffset": 727,
+                                "elevationOffset": 17,
+                                "timeOffset": 473
+                            },
+                            {
+                                "latOffset": 11215,
+                                "lonOffset": 859,
+                                "elevationOffset": 41,
+                                "timeOffset": 4442
+                            },
+                            {
+                                "latOffset": 10653,
+                                "lonOffset": 875,
+                                "elevationOffset": 38,
+                                "timeOffset": 4452
+                            },
+                            {
+                                "latOffset": 7865,
+                                "lonOffset": -2558,
+                                "elevationOffset": 21,
+                                "timeOffset": 11740
+                            },
+                            {
+                                "latOffset": 6791,
+                                "lonOffset": -3343,
+                                "elevationOffset": 13,
+                                "timeOffset": 11850
+                            },
+                            {
+                                "latOffset": 6443,
+                                "lonOffset": -4258,
+                                "elevationOffset": 11,
+                                "timeOffset": 11921
+                            },
+                            {
+                                "latOffset": 6165,
+                                "lonOffset": -4856,
+                                "elevationOffset": 11,
+                                "timeOffset": 11971
+                            }
+                        ]
+                    },
+                    "pathPrediction": {
+                        "radiusOfCurve": 13628,
+                        "confidence": 198
+                    }
+                }
+            }
+        ]
+    }
+}

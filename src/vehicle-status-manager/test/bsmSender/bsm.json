@@ -1,0 +1,19 @@
+{
+    "MsgType": "BSM",
+    "BasicVehicle": {
+        "temporaryID": 61498,
+        "type": "car",
+        "secMark_Second": 23.0,
+        "position": {
+            "latitude_DecimalDegree": 42.3010965,
+            "longitude_DecimalDegree": -83.6979838,
+            "elevation_Meter": 238.0
+        },
+        "speed_MeterPerSecond": 83.4,
+        "heading_Degree": 180.025,
+        "size": {
+            "length_cm": 1200.0,
+            "width_cm": 1200.0
+        }
+    }
+}

@@ -1,0 +1,175 @@
+{
+    "messageId": 19,
+    "value": {
+        "intersections": [
+            {
+                "id": {
+                    "region": 0,
+                    "id": 1003
+                },
+                "revision": 3,
+                "status": "0000",
+                "moy": 120001,
+                "timeStamp": 50001,
+                "states": [
+                    {
+                        "signalGroup": 1,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 50,
+                                    "minEndTime": 100,
+                                    "maxEndTime": 150
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 2,
+                        "state-time-speed": [
+                            {
+                                "eventState": "protected-Movement-Allowed",
+                                "timing": {
+                                    "startTime": 150,
+                                    "minEndTime": 200,
+                                    "maxEndTime": 250
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 3,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 250,
+                                    "minEndTime": 300,
+                                    "maxEndTime": 350
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 4,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 350,
+                                    "minEndTime": 400,
+                                    "maxEndTime": 450
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 5,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 450,
+                                    "minEndTime": 500,
+                                    "maxEndTime": 550
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 6,
+                        "state-time-speed": [
+                            {
+                                "eventState": "protected-Movement-Allowed",
+                                "timing": {
+                                    "startTime": 550,
+                                    "minEndTime": 600,
+                                    "maxEndTime": 650
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 7,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 650,
+                                    "minEndTime": 700,
+                                    "maxEndTime": 750
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 8,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 750,
+                                    "minEndTime": 800,
+                                    "maxEndTime": 850
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 10,
+                        "state-time-speed": [
+                            {
+                                "eventState": "protected-clearance",
+                                "timing": {
+                                    "startTime": 850,
+                                    "minEndTime": 900,
+                                    "maxEndTime": 950
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 12,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 950,
+                                    "minEndTime": 1000,
+                                    "maxEndTime": 1050
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 14,
+                        "state-time-speed": [
+                            {
+                                "eventState": "protected-clearance",
+                                "timing": {
+                                    "startTime": 1050,
+                                    "minEndTime": 1100,
+                                    "maxEndTime": 1150
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 16,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "startTime": 1150,
+                                    "minEndTime": 1200,
+                                    "maxEndTime": 1250
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

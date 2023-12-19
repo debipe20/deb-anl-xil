@@ -7,8 +7,9 @@ class DataManager:
         self.config = config
         self.fileDirectory = self.config['FileDirectory']
         self.rawFileName = self.config["FileName"]
+        rawFileDirectory = self.fileDirectory + "/" + self.rawFileName
 
-        self.rawDataFrame = pd.read_csv(self.fileDirectory + "/" + self.rawFileName)
+        self.rawDataFrame = pd.read_csv(rawFileDirectory)
         print(self.rawDataFrame.head(5))
         
 
@@ -50,7 +51,7 @@ class DataManager:
 
         # logfile = open(self.fileDirectory + "/" + vehicleId + ".csv", "w")
         logFile = open(vehicleId + ".csv", "w")
-        logFile.write("Index,Time_Sent,Time_Received,Vehicle_Type,Vehicle_Speed,Grade\n")
+        logFile.write("Time_Sent,Time_Received,Vehicle_Type,Vehicle_Speed,Grade\n")
         
         for idx, row in dataFrame.loc[:].iterrows():
             
@@ -70,9 +71,9 @@ class DataManager:
                     vehicleSpeed = math.sqrt(pow(float(row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)']), 2) + 
                                         pow(float(row['tspi.velocity.ltpENU_asTransmitted.vyInMetersPerSecond,Float32 (optional)']), 2) + 
                                         pow(float(row['tspi.velocity.ltpENU_asTransmitted.vzInMetersPerSecond,Float32 (optional)']), 2))
-                
-                    csvRow = (str(row['rowID']) + "," 
-                    + str(row['Metadata,TimeOfCommit'] / (10**9)) + ","
+                    # str(row['rowID']) + "," 
+                    # + 
+                    csvRow = (str(row['Metadata,TimeOfCommit'] / (10**9)) + ","
                     + str(row['Metadata,TimeOfReceipt'] / (10**9)) + ","
                     + str(row['const^type,String']) + ","
                     + str(vehicleSpeed) + ","

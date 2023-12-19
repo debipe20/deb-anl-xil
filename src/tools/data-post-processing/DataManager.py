@@ -58,21 +58,10 @@ class DataManager:
             if row['const^identifier,String'] == vehicleId:
                 vel_X = row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)']
                 if (isinstance(vel_X, str) and self.is_float(vel_X)) or isinstance(vel_X, float):
-                # and (isinstance(vel_X, float) or (isinstance(vel_X, str) and vel_X.isnumeric()))
-                # print(isinstance(vel_X, float))
-                # print(isinstance(vel_X, str)) 
-                # print(float(vel_X))
-                # print(vel_X.isnumeric())                
-                # print("\nCurrent row is following:\n", row)
-                # print("\nVelocity in X direction: ", row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)'])
-                
-                # print("Data Type: ", type(row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)']))
-                # if row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)'].isnumeric():
                     vehicleSpeed = math.sqrt(pow(float(row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)']), 2) + 
                                         pow(float(row['tspi.velocity.ltpENU_asTransmitted.vyInMetersPerSecond,Float32 (optional)']), 2) + 
                                         pow(float(row['tspi.velocity.ltpENU_asTransmitted.vzInMetersPerSecond,Float32 (optional)']), 2))
-                    # str(row['rowID']) + "," 
-                    # + 
+
                     csvRow = (str(row['Metadata,TimeOfCommit'] / (10**9)) + ","
                     + str(row['Metadata,TimeOfReceipt'] / (10**9)) + ","
                     + str(row['const^type,String']) + ","

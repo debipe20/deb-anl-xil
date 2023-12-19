@@ -94,5 +94,6 @@ if __name__ == "__main__":
     config = json.load(configFile)
     # Close the config file:
     configFile.close()
+    
     dataManager = DataManager(config)
     dataManager.processRawData()

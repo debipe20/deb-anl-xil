@@ -10,7 +10,7 @@ Transportation and Power Systems Division
   
 Description:
 ------------
-  1. This script is contains 
+  1. This script contains methodology to generate csv files that can be fed to the Autonomie.
 """
 
 import json 

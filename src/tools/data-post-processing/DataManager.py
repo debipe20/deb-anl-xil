@@ -7,11 +7,7 @@ class DataManager:
         self.config = config
         self.fileDirectory = self.config['FileDirectory']
         self.rawFileName = self.config["FileName"]
-        rawFileDirectory = self.fileDirectory + "/" + self.rawFileName
-
-        self.rawDataFrame = pd.read_csv(rawFileDirectory)
-        print(self.rawDataFrame.head(5))
-        
+        self.rawDataFrame = pd.read_csv(self.fileDirectory + "/" + self.rawFileName)       
 
     def processRawData(self):
         """
@@ -81,7 +77,7 @@ class DataManager:
                     + "NA" + "\n")
                     
                     logFile.write(csvRow)
-                    
+
                 else:
                     print("\nsomething wrong for ", str(row['rowID']))
 

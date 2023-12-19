@@ -14,6 +14,10 @@ class DataManager:
         
 
     def processRawData(self):
+        """
+        Method to call function to get vehicle and site identifier list
+        This function calls a function to create csv file based on vehicle id
+        """
         self.vehicleIdentifierList, self.siteIdentifierList = self.getUniqueVehicleIdentifierList(self.rawDataFrame)
 
         print(self.vehicleIdentifierList)
@@ -25,7 +29,9 @@ class DataManager:
         self.getVehicleData(self.rawDataFrame, vehicleId)
 
     def getUniqueVehicleIdentifierList(self, dataFrame):
-
+        """
+        Method to identify unique vehicle id and site id
+        """
         uniqueVehicleIdentifierList = []
         uniqueSiteIndentifierList = []
 
@@ -41,14 +47,20 @@ class DataManager:
         return uniqueVehicleIdentifierList, uniqueSiteIndentifierList
     
     def is_float(self, data:str):
+        """
+        Method to verify if available speed data is or can be converted to float
+        """
         try:
             isinstance(data, str) and float(data)
             return True
+        
         except ValueError:
             return False
 
     def getVehicleData(self, dataFrame, vehicleId):
-
+        """
+        Method to obtain necessary vehicle for desired vehicle id and create a csv file
+        """
         # logfile = open(self.fileDirectory + "/" + vehicleId + ".csv", "w")
         logFile = open(vehicleId + ".csv", "w")
         logFile.write("Time_Sent,Time_Received,Vehicle_Type,Vehicle_Speed,Grade\n")
@@ -69,6 +81,7 @@ class DataManager:
                     + "NA" + "\n")
                     
                     logFile.write(csvRow)
+                    
                 else:
                     print("\nsomething wrong for ", str(row['rowID']))
 

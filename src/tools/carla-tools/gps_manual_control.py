@@ -136,6 +136,15 @@ except ImportError:
 bsmLogFile = open("BSM-Log.csv", 'w')
 bsmLogFile.write("Latitude,Longitude,Elevation\n")
 
+headingLogFile = open("heading-Log.csv", 'w')
+headingLogFile.write("Heading\n")
+
+# lat = 0.0
+# lon = 0.0
+# elev = 0.0
+# heading = 0.0
+
+
 # def gnss_callback(gnss):
 
 #     print("GNSS data is :\n"+str(gnss)+'\n')
@@ -806,8 +815,13 @@ class GnssSensor(object):
         self.lat = event.latitude
         self.lon = event.longitude        
         self.elev = event.altitude
+        
+        lat = event.latitude
+        lon = event.longitude        
+        elev = event.altitude
 
         csvRow = (str(self.lat) + "," + str(self.lon) + "," + str(self.elev) + "\n")
+        # csvRow = (str(self.lat) + "," + str(self.lon) + "," + str(self.elev) + ",")
         bsmLogFile.write(csvRow)
 
 
@@ -848,6 +862,10 @@ class IMUSensor(object):
             max(limits[0], min(limits[1], math.degrees(sensor_data.gyroscope.y))),
             max(limits[0], min(limits[1], math.degrees(sensor_data.gyroscope.z))))
         self.compass = math.degrees(sensor_data.compass)
+        
+        csvRow = (str(self.compass) + "\n")
+        
+        headingLogFile.write(csvRow)
 
 
 # ==============================================================================
@@ -1154,6 +1172,7 @@ def main():
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
         bsmLogFile.close()
+        headingLogFile.close()
 
 if __name__ == '__main__':
 

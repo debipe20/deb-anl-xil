@@ -1,4 +1,4 @@
-
+import os
 import pandas as pd
 import math
 
@@ -7,7 +7,8 @@ class DataManager:
         self.config = config
         self.fileDirectory = self.config['FileDirectory']
         self.rawFileName = self.config["FileName"]
-        self.rawDataFrame = pd.read_csv(self.fileDirectory + "/" + self.rawFileName)       
+        home_directory = os.path.expanduser( '~' )
+        self.rawDataFrame = pd.read_csv(home_directory + self.fileDirectory + "/" + self.rawFileName)       
 
     def processRawData(self):
         """
@@ -59,22 +60,27 @@ class DataManager:
         """
         # logfile = open(self.fileDirectory + "/" + vehicleId + ".csv", "w")
         logFile = open(vehicleId + ".csv", "w")
-        logFile.write("Time_Sent,Time_Received,Vehicle_Type,Vehicle_Speed,Grade\n")
-        
+        logFile.write("Time,VehicleType,VehicleSpeed,Grade\n")
+        previousTime = 0.0
         for idx, row in dataFrame.loc[:].iterrows():
             
             if row['const^identifier,String'] == vehicleId:
                 vel_X = row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)']
+                if previousTime == 0.0:
+                    previousTime =  row['Metadata,TimeOfCommit'] / (10**9)
+                
                 if (isinstance(vel_X, str) and self.is_float(vel_X)) or isinstance(vel_X, float):
                     vehicleSpeed = math.sqrt(pow(float(row['tspi.velocity.ltpENU_asTransmitted.vxInMetersPerSecond,Float32 (optional)']), 2) + 
                                         pow(float(row['tspi.velocity.ltpENU_asTransmitted.vyInMetersPerSecond,Float32 (optional)']), 2) + 
                                         pow(float(row['tspi.velocity.ltpENU_asTransmitted.vzInMetersPerSecond,Float32 (optional)']), 2))
+                    time = round((row['Metadata,TimeOfCommit'] / (10**9) - previousTime), 2)
+                    vehicleType = row['const^type,String']
+                    grade = 0.0
 
-                    csvRow = (str(row['Metadata,TimeOfCommit'] / (10**9)) + ","
-                    + str(row['Metadata,TimeOfReceipt'] / (10**9)) + ","
-                    + str(row['const^type,String']) + ","
+                    csvRow = (str(time) + ","
+                    + str(vehicleType) + ","
                     + str(vehicleSpeed) + ","
-                    + "NA" + "\n")
+                    + str(grade) + "\n")
                     
                     logFile.write(csvRow)
 

@@ -109,13 +109,13 @@ class BsmGenerator:
         """
 
         """
-        # "elev": int(self.currentElevation * Deca_Conversion),
         self.currentSpeed = currentSpeed
 
         if self.currentSpeed > 0:
             self.getNearestCoordinates()
         
         self.setMsgCount()
+        self.currentHeading = round(self.currentHeading, 2)
 
         bsmDictionary = {
             "messageId": 20,
@@ -126,7 +126,7 @@ class BsmGenerator:
                     "secMark": int(self.getMsOfMinute()),
                     "lat": int(self.currentLatitude * OneByTenMicroDegree_To_Degree),
                     "long": int(self.currentLongitude * OneByTenMicroDegree_To_Degree),
-                    "elev": int(self.currentElevation * Deca_Conversion),                    
+                    "elev": int(self.currentElevation * Deca_Conversion),                     
                     "accuracy": {
                         "semiMajor": 255,
                         "semiMinor": 255,

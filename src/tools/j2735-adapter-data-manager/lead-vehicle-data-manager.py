@@ -1,5 +1,6 @@
 import socket
 import json
+import binascii
 
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", 'r')
@@ -19,6 +20,8 @@ def main():
     while True:
         data, address = leadVehicleDataManagerSocket.recvfrom(2048)
         print("Received data:", data)
+        encodedBsm = binascii.unhexlify(data)
+        print("Enocded Bsm is following: \n", encodedBsm)
 
     leadVehicleDataManagerSocket.close()
 

@@ -7,6 +7,7 @@ RUN find /home/carla -type f -exec sed -i 's/XERCESC_VERSION=3.2.3/XERCESC_VERSI
 
 #Install the following
 sudo apt install libxcb-xinerama0
+sudo apt-get install libxerces-c3.2
 sudo apt-get install libboost-all-dev
 
 #Change the ownership/permission in the /opt/TENA directory

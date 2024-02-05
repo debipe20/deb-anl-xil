@@ -1,6 +1,6 @@
 import socket
 import json
-import pandas as pd
+# import pandas as pd
 import binascii
 import sys
 import argparse

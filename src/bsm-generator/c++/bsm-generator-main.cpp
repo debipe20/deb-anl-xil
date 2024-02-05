@@ -24,12 +24,12 @@ int main()
     reader->parse(configJsonString.c_str(), configJsonString.c_str() + configJsonString.size(), &jsonObject, &errors);        
     delete reader;
 
-    const string HostIP = jsonObject["HostIp"].asString();
+    const string HostIP = jsonObject["IPAddress"]["HostIp"].asString();
     UdpSocket bsmGeneratorSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["BsmGenerator"].asInt()));
     const int messageDecoderPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageDecoder"].asInt());
     const int dataConverterPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["DataConverter"].asInt());
 
-    string bsmLogFile = jsonObject["BsmLogFileName"].asString();
+    string bsmLogFile = jsonObject["VehicleInformation"]["BsmLogFileName"].asString();
     char receiveBuffer[2048];
     int msgType{};
     string sendingString{};

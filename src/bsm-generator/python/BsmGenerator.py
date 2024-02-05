@@ -14,7 +14,7 @@ SECOND_MILISECOND_CONVERSION = 1000
 class BsmGenerator:
     def __init__(self, config):
         self.config = config
-        self.vehicleId = config["VehicleId"]
+        self.vehicleId = config["VehicleInformation"]["HostVehicleId"]
         self.currentLatitude = 0.0
         self.currentLongitude = 0.0
         self.currentElevation = 0.0
@@ -30,7 +30,7 @@ class BsmGenerator:
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = (
             [] for i in range(4))
 
-        self.bsmLogFile = config["BsmLogFileName"]
+        self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
         self.logFile = open("Estimate-BSM-Log.csv", 'w')
         self.logFile.write(
             "timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
@@ -172,7 +172,7 @@ class BsmGenerator:
         bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
         # print("BSM Dictionary is following:\n", bsmDictionary)
 
-        self.logCoordinates()
+        # self.logCoordinates()
 
         return bsmJsonString
 

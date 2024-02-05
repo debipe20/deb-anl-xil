@@ -1,12 +1,8 @@
 import socket
 import json
 import pandas as pd
-import haversine
 import binascii
-
 import sys
-import time
-import socket
 import argparse
 import os
 import signal
@@ -20,9 +16,9 @@ def main():
     config = (json.load(configFile))
     configFile.close()
 
-    hostIp = config["HostIp"]
+    hostIp = config["IPAddress"]["HostIp"]
     port = config["PortNumber"]["BsmGenerator"]
-    clientIp = config["V2XHubIp"]
+    clientIp = config["IPAddress"]["V2XHubIp"]
     clientPort = config["PortNumber"]["MessageReceiver"]
     com_info = (hostIp, port)
     clientAddress = (clientIp, clientPort)

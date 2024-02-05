@@ -10,12 +10,12 @@ def main():
     config = (json.load(configFile))
     configFile.close()
 
-    # hostIp = config["HostIp"]
+    # hostIp = config["IPAddress"]["HostIp"]
     hostIp = "169.254.137.176"
     # hostIp = "172.16.200.101"
     # port = config["PortNumber"]["SpeedProfileGenerator"]
     port = 50002
-    clientIp = config["HostIp"]
+    clientIp = config["IPAddress"]["HostIp"]
     clientPort = config["PortNumber"]["BsmGenerator"]
     com_info = (hostIp, port)
     

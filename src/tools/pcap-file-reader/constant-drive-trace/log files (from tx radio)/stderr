@@ -1,0 +1,248 @@
+[1692891202.958079059 UNK:0] Log_Init: SVN_info: ^/branches/Release/common/stack	134186
+[1692891203.300745347 UNK:0] libPlat_Init: LOG info: D_LEVEL 4, D_MASTER 1, D_LOCAL 255, d_level 255, Cohda_DebugLevel 4
+Cannot find device "wave-data"
+[1692891203.341412234 UNK:4] Dot4_QTIV2XInit FNSTART: (0xffff866aea68)
+[1692891203.341685257 UNK:3] Dot4_QTIGetMACAddress: Unable to retreive MAC address from '/sys/class/net/rmnet_data1/address' No such file or directory
+[1692891203.341765888 UNK:4] Dot4_QTIV2XInit: MAC address scanning from conf (-2)
+[1692891203.341954404 UNK:2] Dot4_QTIV2XInit: QTI API Version#1, built on <May  6 2021> @ 08:04:59, "unknown build info"
+[1692891203.404710131 UNK:4] Dot4_QTIRadioInitCnf: status 0 ctx 0xffff866aea68 
+[1692891203.466017486 UNK:4] Dot4_QTIV2XInit FNEND: (0xffff866aea68) = 0
+[1692891203.466836180 UNK:4] Dot4_QTIRxThread FNSTART: (0xffff866aea68) @ 1692891203.466834
+[1692891203.497987149 UNK:4] VState_ThreadInit: VSTATE in GPS ONLY mode, faking CAN messages
+[1692891203.500728377 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891203.500845137 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891203.500870889 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891203.500891391 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891203.500911893 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891203.500932144 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891203.500952896 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+OBERx_LoadConfig(592): config_lookup(Example.OBE) failed
+OBERx_ReadHMIAlert(209): Custom FCW alert:
+	 SeverityLow: 0
+	 SeverityHigh: 85
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/FCW/FCW_track.gif
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: 
+	     Text: Forward Collision Warning
+ConfIni: Cohda_GPSD_Watch = 0
+[1692891203.512088698 UNK:4] GPSRX_GpsOpen: Setting Cohda_GPSD_Watch = 0 in configuration: 0
+[1692891203.513569322 UNK:4] P1609WBSS_ProviderSetNetworkInfo ERROR: Failed to find 'wave-data' global address
+[1692891203.515204083 UNK:4] UBQ_WriteBufferCommit: new writer for 0xaaaae3c0daf0: 2216816656 -> 2148176288
+[1692891203.515399974 UNK:4] UBQ_WriteBufferCommit: new writer for 0xaaaae3c0e980: 2216816656 -> 2148975008
+OBERx_ReadHMIAlert(209): Custom FCW alert:
+	 SeverityLow: 86
+	 SeverityHigh: 90
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/FCW/FCW_mid.gif
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/FCW/FCW.wav
+	     Text: Forward Collision Warning
+[1692891203.526188873 UNK:4] P1609WBSS_ProviderSetNetworkInfo: Gateway IPv6 Address fe80::b88a:acff:fe79:5b47 
+[1692891203.529488022 UNK:4] P1609RX_ThreadInit: P1609RX in Live mode
+[1692891203.531085781] Dot3_SetCallbackWMEWSASignReq: ()
+[1692891203.531259295] Dot3_SetCallbackWMEWSAVerifyReq: ()
+OBERx_ReadHMIAlert(209): Custom FCW alert:
+	 SeverityLow: 91
+	 SeverityHigh: 95
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/FCW/FCW_high.gif
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/FCW/FCW.wav
+	     Text: Forward Collision Warning
+OBERx_ReadHMIAlert(209): Custom VRU alert:
+	 SeverityLow: 0
+	 SeverityHigh: 85
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/VRU/VRU.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/VRU/VRU.wav
+	     Text: Vulnerable Road User
+OBERx_ReadHMIAlert(209): Custom EEBL alert:
+	 SeverityLow: 0
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/EEBL/EEBL.gif
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/EEBL/EEBL.wav
+	     Text: BRAKE!
+OBERx_ReadHMIAlert(209): Custom ICW alert:
+	 SeverityLow: 0
+	 SeverityHigh: 50
+	 LeftIcon: 
+	RightIcon: 
+	     Icon: 
+	 LeftAudio: 
+	RightAudio: 
+	     Audio: 
+	     Text: Oncoming %s Vehicle
+OBERx_ReadHMIAlert(209): Custom ICW alert:
+	 SeverityLow: 51
+	 SeverityHigh: 255
+	 LeftIcon: ./ui/dvi/icw_left.png
+	RightIcon: ./ui/dvi/icw_right.png
+	     Icon: ./ui/dvi/red_wrnga.png
+	 LeftAudio: ./ui/dvi/highbeep.wav
+	RightAudio: ./ui/dvi/highbeep.wav
+	     Audio: ./ui/dvi/highbeep.wav
+	     Text: Oncoming %s Vehicle
+OBERx_ReadHMIAlert(209): Custom SVA alert:
+	 SeverityLow: 0
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/LCW/LCW.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/ping.wav
+	     Text: Lane Change Warning
+OBERx_ReadHMIAlert(209): Custom LCW alert:
+	 SeverityLow: 0
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/LCW/LCW.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/ping.wav
+	     Text: Lane Change Warning
+OBERx_ReadHMIAlert(209): Custom DNPW alert:
+	 SeverityLow: 0
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/LCW/LCW.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/ping.wav
+	     Text: Lane Change Warning
+OBERx_ReadHMIAlert(209): Custom LTA alert:
+	 SeverityLow: 0
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/Other/Other.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/dvi/highbeep.wav
+	     Text: 
+OBERx_ReadHMIAlert(209): Custom HLW alert:
+	 SeverityLow: 0
+	 SeverityHigh: 190
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/Other/Other.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/Other/Other.wav
+	     Text: Warning
+OBERx_ReadHMIAlert(209): Custom EVW alert:
+	 SeverityLow: 50
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/EVW/EVW.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/EVW/EVW.wav
+	     Text: 
+OBERx_ReadHMIAlert(209): Custom SVW alert:
+	 SeverityLow: 50
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/RLW/EVW.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/FCW/FCW.wav
+	     Text: STOP!
+[1692891203.939181393 UNK:4] HMI_AddAlertConfig ERROR: Failed to do immediate push of custom alert resources - will be retried in periodic thread later...
+OBERx_ReadHMIAlert(209): Custom GREEN_PHASE alert:
+	 SeverityLow: 50
+	 SeverityHigh: 250
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/GLOSA/GLOSA_Green.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: 
+	     Text: 
+OBERx_ReadHMIAlert(209): Custom YELLOW_PHASE alert:
+	 SeverityLow: 50
+	 SeverityHigh: 250
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/GLOSA/GLOSA_Yellow.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: 
+	     Text: 
+OBERx_ReadHMIAlert(209): Custom RED_PHASE alert:
+	 SeverityLow: 50
+	 SeverityHigh: 250
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/GLOSA/GLOSA_Red.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: 
+	     Text: 
+OBERx_ReadHMIAlert(209): Custom RWW alert:
+	 SeverityLow: 0
+	 SeverityHigh: 190
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/RWW/RWW.png
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/ping.wav
+	     Text: Roadwork
+[1692891203.995208309 UNK:3] OBERx_ReadCustomHMIAlert FNSTART: (0xffffcb030da0, 0xaaaae3c217c0, Example.HMI.Custom)
+[1692891203.995370823 UNK:4] OBERx_ReadCustomHMIAlert: Custom alert:
+	 SeverityLow: 0
+	 SeverityHigh: 255
+	 LeftIcon: (unspecified)
+	RightIcon: (unspecified)
+	     Icon: ./ui/dvi/ice.gif
+	 LeftAudio: (unspecified)
+	RightAudio: (unspecified)
+	     Audio: ./ui/dvi/ice.wav
+	     Text: Icy Road Ahead
+	 ITISCode: 5912
+[1692891204.001681598 UNK:4] Time_SyncAction: TxTimer_Start() is going to be called
+OBERx_Open(506): Successfully started the obe-rx
+OBERx_ThreadProc(1016): Started thread
+OBERx_ThreadProc(1035): Registered Callback!
+[1692891204.042393739 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891204.080825939 UNK:4] libPlat_Running: RUNNING...
+[1692891208.124286693 UNK:4] UBQ_ReadBufferGet: new reader for 0xaaaae3c0ea50{0xaaaae3c0e980}: 2216816656 -> 2147910048
+[1692891208.124614221 UNK:4] UBQ_ReadBufferGet: new reader for 0xaaaae3c145e0{0xaaaae3c14520}: 2216816656 -> 2147910048
+[1692891292.933128964 UNK:3] TIM_Deinit: TIM is not initialised. Exit!
+[1692891292.934951741 UNK:3] TC_CatchupClient: pPurge(ffff4f31fffe, 0xfffeec000e30)
+[1692891292.935309771 UNK:4] Util_SetShutdownFlagBecause: (App Exit)
+[1692891292.939399862 UNK:3] TC_CatchupClient: pPurge(ffff4f31fffe, 0xfffeec000df0)
+[1692891292.972996287 UNK:4] TC_ThreadProc: Shutting down thread.
+[1692891294.042548815 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.042873467 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.042932222 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.042964350 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.042994602 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.043024105 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.043053607 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.043082984 UNK:3] CANRx_SetFilter: (): can socket not open(yet?)
+[1692891294.071864758] Dot3_SetCallbackWMEWSASignReq: ()
+[1692891294.071967516] Dot3_SetCallbackWMEWSAVerifyReq: ()
+[1692891294.154872924 UNK:4] Util_SetShutdownFlagBecause: (Plat Stop): redundant
+[1692891294.157391383] IEEE1609DeInit: ()
+[1692891294.172620777 UNK:4] Dot4_WaveRawRx: Dot3Handle == NULL
+example1609[290224]: QCCI qmi_cci_xport_recv: txn not found. svc_id: 1

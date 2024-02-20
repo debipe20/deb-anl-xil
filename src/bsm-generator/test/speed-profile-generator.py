@@ -3,8 +3,8 @@ import socket
 import json
 import time
 
-speedProfileLogFile = open("Speed-Profile-Log.csv", 'w')
-speedProfileLogFile.write("TimeStamp,TimeStep,Speed\n")
+# speedProfileLogFile = open("Speed-Profile-Log.csv", 'w')
+# speedProfileLogFile.write("TimeStamp,TimeStep,Speed\n")
 
 def getSpeed(previousSpeed):
 
@@ -22,9 +22,9 @@ def main():
     config = (json.load(configFile))
     configFile.close()
 
-    hostIp = config["HostIp"]
+    hostIp = config["IPAddress"]["HostIp"]
     port = config["PortNumber"]["SpeedProfileGenerator"]
-    clientIp = config["HostIp"]
+    clientIp = config["IPAddress"]["HostIp"]
     clientPort = config["PortNumber"]["BsmGenerator"]
     com_info = (hostIp, port)
     
@@ -57,6 +57,7 @@ def main():
         
         time.sleep(0.0997)
     speedProfileGeneratorSocket.close()
+    # speedProfileLogFile.close()
 
 
 if __name__ == '__main__':

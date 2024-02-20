@@ -1,0 +1,71 @@
+# SVN  : 134186
+# PPID : 290025
+# PID  : 290224
+# epoch: 1692891203
+
+	#  (a925ce0cb8af057f)
+ProtocolMode = 1 # != -1
+SecurityEnable = 0 # != 1
+SendUnsecuredDot2Header = 1 # != 0
+WSMP_ChannelNumber = 183 # != 172
+WSMP_TxPower = 23 # != 24
+BSMUnsecurePSID = 0x20 # != 0x0
+WSMP_LLIF = 4 # != 1
+ChannelMode = 4 # != 0
+ContinuousChanNum = 183 # != 172
+ForcedSerChanNum = 183 # != 184
+ForcedControlChanNum = 183 # != 178
+HeadingUseDefault = 1 # != 0
+TxALogEnableFlag = 0 # != 1
+TxBLogEnableFlag = 0 # != 1
+RxALogEnableFlag = 0 # != 1
+RxBLogEnableFlag = 0 # != 1
+WBSS_Service_0_PSID = 0xff # != 0xeffffffe
+WBSS_Service_1_PSID = 0xff # != 0x23
+TxNoPosAvailable = 1 # != 0
+Cohda_DebugTimeLevel = 1 # != 2
+Cohda_DebugInfoLevel = 2 # != 0
+Cohda_P1609RxLogEnableFlag = 1 # != 0
+Cohda_P1609TxLogEnableFlag = 1 # != 0
+Cohda_LogCaptureSTDOUT = 1 # != 0
+Cohda_GPSD_HostName = 192.168.26.111 # localhost
+Cohda_GPSD_Port = 3000 # != 2947
+Cohda_GPSThreshold_mode = 2 # != 3
+Cohda_Crypto_AeroConfigDir = ./aerolink/active/config # 
+Cohda_Crypto_AeroStateDir = ./aerolink/active/state # 
+Cohda_Crypto_AeroLogging = all # 
+Cohda_Crypto_TestCountryCode = 840 # != 0
+Dot2_MessageContextName = exampleobe.wsc # 
+Cohda_VS.VehLength = 314 # != 0
+Cohda_VS.VehWidth = 159 # != 0
+Cohda_UBX.DEV_FILE = /dev/ttyLP2 # /dev/ttymxc4
+Cohda_HMI.Destination = 192.168.26.111 # 127.0.0.1
+Cohda_HMI.Port = 7000 # 9100
+Cohda_HMI.Interface = eth0 # lo
+Cohda_ADR.ENABLE = 1 # != 0
+Cohda_ADR.LogEnableFlag = 1 # != 0
+Cohda_SPATMAP.spat_rx.DebugLevel = 5 # NOTICE != -1
+Cohda_SPATMAP.MaxIntersectionAge_ms = 5000 # != 10000
+Cohda_SPATMAP.TimeMarkScheduling = 1 # != 0
+Cohda_SPATMAP.EnforcePhaseCheck = 0 # != 1
+
+	# Example1609. (25385c0b91443cdc)
+
+	## Unparsed
+## Cohda_App_GLOSA.AdvisedSpeedFromSPAT = 0
+## Cohda_App_GLOSA.ENABLE = 1
+## Cohda_App_GLOSA.HV_INHIBIT_MASK = 0x0
+## Cohda_App_GLOSA.LaneSelectionPolicy = 1
+## Cohda_App_GLOSA.MaxIntersectionAge_ms = 5000
+## Cohda_App_GLOSA.REC_ALERT_LOGIC = 0
+## Cohda_App_GLOSA.REC_DIST_LIGHT_MAX = 100
+## Cohda_App_GLOSA.REC_DIST_TRACE_MAX = 5000
+## Cohda_App_GLOSA.REC_ENABLE = 1
+## Cohda_App_GLOSA.REC_HMI_TIME_MAX = 5000
+## Cohda_App_GLOSA.REC_RECOM_MINSPEED = 0
+## Cohda_App_GLOSA.RX.DebugLevel = 5
+
+	#% ConfFile
+#% /mnt/rw/example1609/obu.conf
+#% /mnt/rw/example1609/board/board.conf
+#% /mnt/rw/obu.conf.simulation

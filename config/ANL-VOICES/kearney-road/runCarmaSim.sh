@@ -10,7 +10,10 @@ function cleanup {
 
 . node_info.config
 
-if [[ $carmaID == "CARMA-TFHRC" ]]
+if [[ $carmaID == "CARMA-ANL" ]]
+then
+       SPAWN_PT="21.9, 988.04, 232.24, 1.23, -92.48, 0.0"
+elif [[ $carmaID == "CARMA-TFHRC" ]]
 then
        SPAWN_PT="-195.3, -503.3, 38, 0, 0, 55"
 elif [[ $carmaID == "CARMA-SPR" ]]

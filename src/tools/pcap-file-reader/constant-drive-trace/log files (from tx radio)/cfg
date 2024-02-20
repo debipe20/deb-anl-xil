@@ -1,0 +1,227 @@
+Example : 
+{
+  APP : 
+  {
+    Watchdog = false;
+    RSATx = false;
+    RSARx = false;
+    RawTx = false;
+    EVWTx = false;
+    SPATTx = false;
+    MAPTx = false;
+    SDSMTx = false;
+    TIMGenericRx = false;
+    OBERx = true;
+    CANVState = true;
+    TCClient = false;
+    CANVSC3 = true;
+    PosExt = false;
+  };
+  RSARx : 
+  {
+    RxInterval = 500;
+  };
+  RSATx : 
+  {
+    TxInterval = 500;
+    WSMP : 
+    {
+      PSID = 0xE0525341;
+      Priority = 2;
+      DataRate = 12;
+      TxPower = 24;
+      ExpiryTime = 0;
+    };
+    TypeEvent = 0xC0DA;
+    Description = [ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 ];
+    Priority = 0x0;
+    Heading = 0xFFFF;
+    Extent = 0x5;
+    Position = [ ];
+    FurtherInfo = "50";
+  };
+  RawTx : 
+  {
+    NotApplicable = 0;
+  };
+  TIMRx : 
+  {
+    RxInterval = 500;
+  };
+  TIMGenericRx : 
+  {
+    SeverityMax = 95;
+    SeverityMin = 81;
+    ITISCodes = [ 0, 0, 0, 0, 0 ];
+  };
+  CANVState : 
+  {
+    PollingInterval = 500;
+  };
+  TCClient : 
+  {
+  };
+  HMI : 
+  {
+    FCW = ( 
+      {
+        SeverityRange = [ 0, 85 ];
+        Icon = "./ui/FCW/FCW_track.gif";
+        Audio = "";
+        Text = "Forward Collision Warning";
+      }, 
+      {
+        SeverityRange = [ 86, 90 ];
+        Icon = "./ui/FCW/FCW_mid.gif";
+        Audio = "./ui/FCW/FCW.wav";
+        Text = "Forward Collision Warning";
+      }, 
+      {
+        SeverityRange = [ 91, 95 ];
+        Icon = "./ui/FCW/FCW_high.gif";
+        Audio = "./ui/FCW/FCW.wav";
+        Text = "Forward Collision Warning";
+      } );
+    VRU = ( 
+      {
+        SeverityRange = [ 0, 85 ];
+        Icon = "./ui/VRU/VRU.png";
+        Audio = "./ui/VRU/VRU.wav";
+        Text = "Vulnerable Road User";
+      } );
+    EEBL = ( 
+      {
+        SeverityRange = [ 0, 255 ];
+        Icon = "./ui/EEBL/EEBL.gif";
+        Audio = "./ui/EEBL/EEBL.wav";
+        Text = "BRAKE!";
+      } );
+    ICW = ( 
+      {
+        SeverityRange = [ 0, 50 ];
+        Icon = "";
+        LeftIcon = "";
+        RightIcon = "";
+        Audio = "";
+        LeftAudio = "";
+        RightAudio = "";
+        Text = "Oncoming %s Vehicle";
+      }, 
+      {
+        SeverityRange = [ 51, 255 ];
+        Icon = "./ui/dvi/red_wrnga.png";
+        LeftIcon = "./ui/dvi/icw_left.png";
+        RightIcon = "./ui/dvi/icw_right.png";
+        Audio = "./ui/dvi/highbeep.wav";
+        LeftAudio = "./ui/dvi/highbeep.wav";
+        RightAudio = "./ui/dvi/highbeep.wav";
+        Text = "Oncoming %s Vehicle";
+      } );
+    CSW = ( 
+      {
+        SeverityRange = [ 0, 125 ];
+        Icon = "./ui/dvi/csw_left_low.png";
+        LeftIcon = "./ui/dvi/csw_left_low.png";
+        RightIcon = "./ui/dvi/csw_right_low.png";
+        Audio = "";
+        LeftAudio = "";
+        RightAudio = "";
+        Text = "%ukm/h %s Curve Ahead";
+      }, 
+      {
+        SeverityRange = [ 126, 255 ];
+        Icon = "./ui/dvi/csw_left_high.png";
+        LeftIcon = "./ui/dvi/csw_left_high.png";
+        RightIcon = "./ui/dvi/csw_right_high.png";
+        Audio = "./ui/dvi/lowbeep.wav";
+        LeftAudio = "./ui/dvi/lowbeep.wav";
+        RightAudio = "./ui/dvi/lowbeep.wav";
+        Text = "Over Speed %ukm/h on %s Curve";
+      } );
+    Custom = ( 
+      {
+        SeverityRange = [ 0, 255 ];
+        ITIS = 5912;
+        Icon = "./ui/dvi/ice.gif";
+        Audio = "./ui/dvi/ice.wav";
+        Text = "Icy Road Ahead";
+      } );
+    SVA = ( 
+      {
+        SeverityRange = [ 0, 255 ];
+        Icon = "./ui/Other/Other.png";
+        Audio = "./ui/ping.wav";
+        Text = "";
+      } );
+    LCW = ( 
+      {
+        SeverityRange = [ 0, 255 ];
+        Icon = "./ui/LCW/LCW.png";
+        Audio = "./ui/ping.wav";
+        Text = "Lane Change Warning";
+      } );
+    DNPW = ( 
+      {
+        SeverityRange = [ 0, 255 ];
+        Icon = "./ui/DNPW/DNPW.png";
+        Audio = "./ui/ping.wav";
+        Text = "Do not pass";
+      } );
+    LTA = ( 
+      {
+        SeverityRange = [ 0, 255 ];
+        Icon = "./ui/Other/Other.png";
+        Audio = "./ui/dvi/highbeep.wav";
+        Text = "";
+      } );
+    HLW = ( 
+      {
+        SeverityRange = [ 0, 190 ];
+        Icon = "./ui/Other/Other.png";
+        Audio = "./ui/Other/Other.wav";
+        Text = "Warning";
+      } );
+    EVW = ( 
+      {
+        SeverityRange = [ 50, 255 ];
+        Icon = "./ui/EVW/EVW.png";
+        Audio = "./ui/EVW/EVW.wav";
+        Text = "";
+      } );
+    SVW = ( 
+      {
+        SeverityRange = [ 50, 255 ];
+        Icon = "./ui/RLW/EVW.png";
+        Audio = "./ui/FCW/FCW.wav";
+        Text = "STOP!";
+      } );
+    GREEN_PHASE = ( 
+      {
+        SeverityRange = [ 50, 250 ];
+        Icon = "./ui/GLOSA/GLOSA_Green.png";
+        Audio = "";
+        Text = "";
+      } );
+    YELLOW_PHASE = ( 
+      {
+        SeverityRange = [ 50, 250 ];
+        Icon = "./ui/GLOSA/GLOSA_Yellow.png";
+        Audio = "";
+        Text = "";
+      } );
+    RED_PHASE = ( 
+      {
+        SeverityRange = [ 50, 250 ];
+        Icon = "./ui/GLOSA/GLOSA_Red.png";
+        Audio = "";
+        Text = "";
+      } );
+    RWW = ( 
+      {
+        SeverityRange = [ 0, 190 ];
+        Icon = "./ui/RWW/RWW.png";
+        Audio = "./ui/ping.wav";
+        Text = "Roadwork";
+      } );
+  };
+};

@@ -46,7 +46,7 @@ def main():
     config = (json.load(configFile))
     configFile.close()
 
-    hostIp = config["HostIp"]
+    hostIp = config["IPAddress"]["HostIp"]
     port = config["PortNumber"]["MessageDecoder"]
     com_info = (hostIp, port)
 

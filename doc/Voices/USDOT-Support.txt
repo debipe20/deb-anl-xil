@@ -55,7 +55,8 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	- Run add_v2xhub_user.bash script
 	- Set V2X-Hub login credential
 		- username: amtl
-		- password: Anl-123
+		- password: Amtl@1234 
+		- passowrd: Anl-123 (pervious version)
 	- Navigate to https://<v2x-hub ip>:19760
 		192.168.26.100:19760
 	- open a new tab-> https://192.168.26.101:19760/ -> advance -> accept the risk
@@ -84,4 +85,19 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 			<param name="wave_cfg_file" value="$(arg wave_cfg_file)" />
 		    </node>
 		</launch>
+# Carla on Ubunutu 22.04
+	- Setup environment by following https://usdot-carma.atlassian.net/wiki/spaces/CRMPLT/pages/486178841/Setup+CARMA+Platform+Prerequisites
+	- Download Carla
+	- Install Anaconda if Python version doesn't match with Carla Egg
+		- Follow https://docs.anaconda.com/free/anaconda/install/linux/
+		- conda config --set auto_activate_base False
+	- Execute following to avoid "libGL error: MESA-LOADER: failed to open iris: /usr/lib/dri/iris_dri.so: ..." error
+		- conda install -c conda-forge libstdcxx-ng
+	-Install  nvidia-container-toolkit from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html to avoid following error
+		- Error response from daemon: could not select device driver "nvidia" with capabilities: [[gpu]]
+	- After installing nvidia-container-toolkit execute  following
+		- systemctl restart docker
 
+		
+		
+		

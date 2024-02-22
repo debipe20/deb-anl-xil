@@ -28,11 +28,11 @@ def main():
 
     while True:
         data, address = leadVehicleDataManagerSocket.recvfrom(2048)
-        print("Received data:", data)
+        print("Received data is following:\n", data)
         encodedBsm = binascii.hexlify(data)
         print("Enocoded Bsm is following: \n", encodedBsm)
         receivedJsonString = v2x.MessageFrame.to_json(data, len(data))
-        print(receivedJsonString)
+        print("Decoded Data is following:\n",receivedJsonString)
 
     leadVehicleDataManagerSocket.close()
 

@@ -1,0 +1,59 @@
+<?xml version="1.0.0" encoding="UTF-8"?>
+<scenario>
+  <identifier>
+    <name> ScenarioVersion1</name>
+  </identifier>
+  <OpenDrive>
+    <MapFileName name="mcity_map_v2.xodr">
+      <MapOrigin latitudeInDegrees="42.30059341574939" longitudeInDegrees="-83.69928318881136" heightAboveEllipsoidInMeters="0"> </MapOrigin>
+    </MapFileName>
+  </OpenDrive>
+  <vehicles>   
+    <vehicle name="CARMA-ANL" bsmid="f03ad610" type="vehicle.chevrolet.impala" owner="CARMA-ANL" material="Steel" lvcIndicator="Live">
+      <initialTSPI>
+        <GeodeticPosition latitudeInDegrees="42.2994845" longitudeInDegrees="-83.6992433" heightAboveEllipsoidInMeters="232"> </GeodeticPosition>
+        <Heading>187</Heading>
+      </initialTSPI>
+    </vehicle>
+  </vehicles>
+  <intersectionSignalControllers>
+    <intersectionSignalController name="MCity Test Intersection" adapterType="spat-adapter" adapterName="SPAT-1" lvcIndicator="Live">
+      <userData>
+        <CARLA>
+          <controllers>
+            <controller name="ctrl549" id="549"/>
+          </controllers>    
+        </CARLA>
+      </userData>
+    </intersectionSignalController>
+  </intersectionSignalControllers>
+  <phaseSignalMappings>
+        <configuration name="MCity Test Intersection Configuration" intersectionName="MCity Test Intersection">
+      <!-- <controller name="ctrl549-502A" id="549">
+        <control signalId="9956" type="">
+          <userData><phase>2</phase></userData>
+        </control>
+      </controller> -->
+      <controller name="ctrl549-497A" id="549">
+        <control signalId="9953" type="">
+          <userData><phase>1</phase></userData>
+        </control>
+      </controller>
+      <!-- <controller name="ctrl549-508A" id="549">
+        <control signalId="9954" type="">
+          <userData><phase>6</phase></userData>
+        </control>
+      </controller> -->
+      <controller name="ctrl549-504A" id="549">
+        <control signalId="9955" type="">
+          <userData><phase>1</phase></userData>
+        </control>
+      </controller>
+    </configuration>  
+  </phaseSignalMappings>
+  <simulations>
+    <simulation name="CARLA-ANL" type="CARLA">
+      <WeatherState>ClearNoon</WeatherState>
+    </simulation>
+  </simulations>
+</scenario>

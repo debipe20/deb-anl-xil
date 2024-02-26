@@ -22,11 +22,17 @@ class LeadVehicleDataManager:
         print(encodedBsm)
         receivedJsonString = v2x.MessageFrame.to_json(data, len(data))
         print(receivedJsonString)
+        
         receivedJsonString = json.loads(receivedJsonString)
+        print("Vehicle Id: ", receivedJsonString["value"]["coreData"]["id"])
+        
         if self.leadVehicleId == receivedJsonString["value"]["coreData"]["id"]:
             self.leadVehicleLattitude = receivedJsonString["value"]["coreData"]["lat"] / OneByTenMicroDegree_To_Degree
             self.leadVehicleLongitude = receivedJsonString["value"]["coreData"]["long"] / OneByTenMicroDegree_To_Degree
             self.leadVehicleElevation = receivedJsonString["value"]["coreData"]["elev"] / Deca_Conversion
             self.leadVehicleHeading = receivedJsonString["value"]["coreData"]["heading"] / Heading_Coneversion
-            self.leadVehicleSpeed = receivedJsonString["value"]["coreData"]["speed"] / Speed_Conversion
-            print(self.leadVehicleSpeed)
+            self.leadVehicleSpeed = receivedJsonString["value"]["coreData"]["speed"] * Speed_Conversion
+            if (self.leadVehicleSpeed > 0.0):
+                print("Vehicle Speed is: ",self.leadVehicleSpeed)
+        
+            return receivedJsonString

@@ -28,6 +28,7 @@ int main()
     UdpSocket bsmGeneratorSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["BsmGenerator"].asInt()));
     const int messageDecoderPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageDecoder"].asInt());
     const int dataConverterPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["DataConverter"].asInt());
+    const int messageReceiverPort = static_cast<short unsigned int>(jsonObject["PortNumber"]["MessageDecoder"].asInt());
 
     string bsmLogFile = jsonObject["VehicleInformation"]["BsmLogFileName"].asString();
     char receiveBuffer[2048];
@@ -46,7 +47,7 @@ int main()
         if (msgType == static_cast<int>(msgType::speedData))
         {
           sendingString = bsmGenerator.BsmEncoder(receivedJsonString);
-          // cout << "Following message will send:\n" << sendingString << endl;
+          cout << "Following message will send:\n" << sendingString << endl;
           bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(messageDecoderPort), sendingString);
           bsmGeneratorSocket.sendData(HostIP, static_cast<short unsigned int>(dataConverterPort), sendingString);
         }

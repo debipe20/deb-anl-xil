@@ -1,6 +1,7 @@
 import socket
 import json
 import binascii
+import struct
 from osys import v2x
 from LeadVehicleDataManager import LeadVehicleDataManager
 
@@ -21,29 +22,16 @@ def main():
     
     leadVehicleDataManager = LeadVehicleDataManager(config)
 
-    # data = b'\x00\x14%\x00<\x0e\xb5\x89$"\'m\xcc\xc1\x9c\xb3L!\x0c\xb0\x00\x00\x00\x00 \x007\xe8~}\x07\xd0\x7f\x7f\xff\x80\x00\x01\x80\x08'
-
-    # encodedBsm = binascii.hexlify(data)
-    # print(encodedBsm)
-    # receivedJsonString = v2x.MessageFrame.to_json(data, len(data))
-    # print(receivedJsonString)
-    # leadVehicleSpeed = leadVehicleDataManager.getLeadVehicleInformation(data)
-    # leadVehicleSpeed = 2.0
-    # sendingData = str(leadVehicleSpeed).encode()
-    # print(sendingData)
-
-
     while True:
         data, address = leadVehicleDataManagerSocket.recvfrom(2048)
-        print("Received data is following:\n", data)
+        # print("Received data is following:\n", data)
+        # print("Received data type is following:\n", type(data))
+        # deocded_data = struct.unpack("!d", data)[0]
+        # print("Data length type1 is:",len(data))
+        # print(deocded_data)
+        # decoded_data_length = struct.calcsize("!d")
+        # print("Length of decoded data:", decoded_data_length)
         
-        # encodedBsm = binascii.unhexlify(data)
-        
-        # # print("Enocoded Bsm is following: \n", encodedBsm)
-        # print("Converted bytes is following:\n", encodedBsm)
-        # receivedJsonString = v2x.MessageFrame.to_json(encodedBsm, len(encodedBsm))
-        # # receivedJsonString = v2x.MessageFrame.to_json(data, len(data))
-        # print("Decoded Data is following:\n",receivedJsonString)
         hexPacket = binascii.hexlify(data)
         print("Hexed Data:\n ", hexPacket)
         packetString = str(hexPacket, encoding='utf-8')

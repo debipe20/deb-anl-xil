@@ -35,4 +35,4 @@ class LeadVehicleDataManager:
             # if (self.leadVehicleSpeed > 0.0):
             #     print("Vehicle Speed is: ",self.leadVehicleSpeed)
         
-            return receivedJsonString
+            return self.leadVehicleLattitude, self.leadVehicleLongitude, self.leadVehicleSpeed

@@ -31,7 +31,7 @@ class LeadVehicleDataManager:
             self.leadVehicleLongitude = receivedJsonString["value"]["coreData"]["long"] / OneByTenMicroDegree_To_Degree
             self.leadVehicleElevation = receivedJsonString["value"]["coreData"]["elev"] / Deca_Conversion
             self.leadVehicleHeading = receivedJsonString["value"]["coreData"]["heading"] / Heading_Coneversion
-            self.leadVehicleSpeed = receivedJsonString["value"]["coreData"]["speed"] * Speed_Conversion  * 3.6
+            self.leadVehicleSpeed = receivedJsonString["value"]["coreData"]["speed"] * Speed_Conversion
             # if (self.leadVehicleSpeed > 0.0):
             #     print("Vehicle Speed is: ",self.leadVehicleSpeed)
         

@@ -26,14 +26,23 @@ class BsmGenerator:
         self.previousTime = time.time()
         self.msgCount = 0
         self.timeStep = 0.0
+        self.travelDistance = 0.0
         self.extraDistance = 0.0
         self.step = 0
+        self.calculatedDistance = 0.0
+        self.calculatedDistanceNext = 0.0
         self.previousTimeStampSetStatus = False
-        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
+        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = (
+            [] for i in range(4)
+        )
 
         self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
         self.logFile = open("Estimate-BSM-Log.csv", "w")
-        self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
+        self.logFile.write(
+            "step,timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading,timeStep,travelDistance, distanceNow, distanceNext\n"
+        )
+
+        self.tempLogfile = open("log-data.log", "w")
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -67,32 +76,46 @@ class BsmGenerator:
             self.previousTimeStampSetStatus == True
 
         self.timeStep = currentTime - self.previousTime
-        travelDistance = self.currentSpeed * self.timeStep
-        
-        if self.extraDistance >= travelDistance:
+        self.travelDistance = self.currentSpeed * self.timeStep
+        msg = (
+            "\n["
+            + str(time.time())
+            + "]: ***Before Iteration*** \nTime Gap: "
+            + str(self.timeStep)
+            + "\nCurrent Speed: "
+            + str(self.currentSpeed)
+            + "\nTravel Distance: "
+            + str(self.travelDistance)
+            + "\nExtra Distance: "
+            + str(self.extraDistance)
+            + "\n"
+        )
+        self.tempLogfile.write(msg)
+
+        if self.extraDistance >= self.travelDistance:
             self.previousTime = time.time()
-            self.extraDistance = self.extraDistance - travelDistance
+            self.extraDistance = self.extraDistance - self.travelDistance
 
         else:
-            travelDistance = travelDistance - self.extraDistance
+            self.travelDistance = self.travelDistance - self.extraDistance
 
             for index in range(self.previousIndex + 1, len(self.latitudeList) - 2):
-                calculatedDistance = haversine.haversine(
+                self.calculatedDistance = haversine.haversine(
                     (self.previousLatitude, self.previousLongitude),
                     (self.latitudeList[index], self.longitudeList[index]),
                     unit=haversine.Unit.METERS,
                 )
 
-                calculatedDistanceNext = haversine.haversine(
+                self.calculatedDistanceNext = haversine.haversine(
                     (self.previousLatitude, self.previousLongitude),
                     (self.latitudeList[index + 1], self.longitudeList[index + 1]),
                     unit=haversine.Unit.METERS,
                 )
 
-                if (calculatedDistance <= travelDistance) and (calculatedDistanceNext <= travelDistance):
+                if (self.calculatedDistance <= self.travelDistance) and (self.calculatedDistanceNext <= self.travelDistance):
                     continue
 
-                elif (calculatedDistance >= travelDistance) and (calculatedDistanceNext > travelDistance):
+                elif (self.calculatedDistance >= self.travelDistance) and (self.calculatedDistanceNext > self.travelDistance):
                     self.previousLatitude = self.latitudeList[index]
                     self.previousLongitude = self.longitudeList[index]
                     self.previousTime = time.time()
@@ -102,10 +125,10 @@ class BsmGenerator:
                     self.currentElevation = self.elevationList[index]
                     self.currentHeading = self.headingList[index]
                     self.step = index
-                    self.extraDistance = calculatedDistance - travelDistance
+                    self.extraDistance = self.calculatedDistance - self.travelDistance
                     break
 
-                elif (calculatedDistance < travelDistance) and (calculatedDistanceNext >= travelDistance):
+                elif (self.calculatedDistance < self.travelDistance) and (self.calculatedDistanceNext >= self.travelDistance):
                     self.previousLatitude = self.latitudeList[index + 1]
                     self.previousLongitude = self.longitudeList[index + 1]
                     self.previousIndex = index + 1
@@ -115,8 +138,24 @@ class BsmGenerator:
                     self.currentElevation = self.elevationList[index + 1]
                     self.currentHeading = self.headingList[index + 1]
                     self.step = index + 1
-                    self.extraDistance = calculatedDistanceNext - travelDistance
+                    self.extraDistance = self.calculatedDistanceNext - self.travelDistance
                     break
+        msg = (
+            "\n["
+            + str(time.time())
+            + "]: ***After Iteration*** \nTravel Distance: "
+            + str(self.travelDistance)
+            + "\nExtra Distance: "
+            + str(self.extraDistance)
+            + "\nCalculated Distance: "
+            + str(self.calculatedDistance)
+            + "\nCalculated Distance Next: "
+            + str(self.calculatedDistanceNext)
+            + "\nSelected Index: "
+            + str(self.previousIndex)
+            + "\n"
+        )
+        self.tempLogfile.write(msg)
 
     def getBsmJsonString(self, currentSpeed):
         """ """
@@ -144,7 +183,7 @@ class BsmGenerator:
                         "orientation": 65535,
                     },
                     "transmission": "forwardGears",
-                    "speed": int(self.currentSpeed / 0.2),
+                    "speed": int(self.currentSpeed),
                     "heading": int(self.currentHeading / 0.0125),
                     "angle": -1,
                     "accelSet": {"long": 0, "lat": 0, "vert": 0, "yaw": 0},
@@ -198,6 +237,7 @@ class BsmGenerator:
 
     def logCoordinates(self):
 
+        step = str(self.step)
         timestamp_verbose = str(time.time())
         timeStep = str(self.timeStep)
         msgCount = str(self.msgCount)
@@ -206,19 +246,44 @@ class BsmGenerator:
         latitude = str(self.currentLatitude)
         longitude = str(self.currentLongitude)
         elevation = str(self.currentElevation)
-        speed = str(round(self.currentSpeed, 2))
-        heading = str(round(self.currentHeading,2))
+        speed = str(self.currentSpeed)
+        heading = str(self.currentHeading)
+        timeStep = str(round(self.timeStep, 2))
+        distance = str(round(self.travelDistance, 2))
+        distanceNow = str(round(self.calculatedDistance, 2))
+        distanceNext = str(round(self.calculatedDistanceNext, 2))
 
-        csvRow = (timestamp_verbose + ","
-            + timeStep + ","
-            + msgCount + ","
-            + temporaryId + ","
-            + secMark + ","
-            + latitude + ","
-            + longitude + ","
-            + elevation + ","
-            + speed + ","
-            + heading + "\n"
+        csvRow = (
+            step
+            + ","
+            + timestamp_verbose
+            + ","
+            + timeStep
+            + ","
+            + msgCount
+            + ","
+            + temporaryId
+            + ","
+            + secMark
+            + ","
+            + latitude
+            + ","
+            + longitude
+            + ","
+            + elevation
+            + ","
+            + speed
+            + ","
+            + heading
+            + ","
+            + timeStep
+            + ","
+            + distance
+            + ","
+            + distanceNow
+            + ","
+            + distanceNext
+            + "\n"
         )
 
         self.logFile.write(csvRow)

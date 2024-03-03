@@ -70,12 +70,12 @@ def main():
             # decoded_data = struct.unpack("d", data)[0]
             decodedCounter, decodedSpeed = struct.unpack("dd", data)
             # print("Decoded data is: ", decodedSpeed)
-            print("Decoded data is: ", decodedSpeed, " counter is: ", decodedCounter)
+            print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
             hostVehicleLat, hostVehicleLon, hostVehicleSpeed , bsmJsonString =  bsmGenerator.getBsmJsonString(decodedSpeed)
-            # encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            # print("Encoded BSM is Following:\n", encodedBsm)
+            encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
+            print("Encoded BSM is Following:\n", encodedBsm)
 
-            # dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+            dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
 
             # print(decoded_data)
             # decoded_data_length = struct.calcsize("!d")

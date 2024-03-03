@@ -32,8 +32,8 @@ class BsmGenerator:
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
 
         self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
-        self.logFile = open("Estimate-BSM-Log.csv", "w")
-        self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
+        # self.logFile = open("Estimate-BSM-Log.csv", "w")
+        # self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -168,9 +168,10 @@ class BsmGenerator:
         }
 
         bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
-        # print("BSM Dictionary is following:\n", bsmDictionary)
+        # print("Index is", self.previousIndex)
+        print("BSM Dictionary is following:\n", bsmDictionary)
 
-        self.logCoordinates()
+        # self.logCoordinates()
 
         return (
             self.currentLatitude,

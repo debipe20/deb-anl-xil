@@ -99,9 +99,9 @@ def main():
                 encodedSpeed = struct.pack("d", relativeSpeed)
                 encodedCounter = struct.pack("d", counter)
                 encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
-                print("Lat and Lon is following:", hostVehicleLat, hostVehicleLon, leadVehicleLat, leadVehicleLon)
+                # print("Lat and Lon is following:", hostVehicleLat, hostVehicleLon, leadVehicleLat, leadVehicleLon)
                 print("Sending relative distance & speed, counter, and speed:\n ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
-                print("Time Gap is: ", timeGap)
+                # print("Time Gap is: ", timeGap)
                 sendingData = encodedDistance + encodedSpeed + encodedCounter + encodedSpeedOriginal
                 dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
 

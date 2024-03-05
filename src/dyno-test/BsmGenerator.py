@@ -169,7 +169,7 @@ class BsmGenerator:
 
         bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
         # print("Index is", self.previousIndex)
-        print("BSM Dictionary is following:\n", bsmDictionary)
+        # print("BSM Dictionary is following:\n", bsmDictionary)
 
         # self.logCoordinates()
 

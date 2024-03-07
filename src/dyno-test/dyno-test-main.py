@@ -41,7 +41,7 @@ def main():
     receivedTime = time.time()
 
     counter = 0.0
-    # logfile = open("log-data.log", "w")
+
     hostVehicleLogFile = open("host-vehicle-log.csv", "w")
     leadVehicleLogFile = open("lead-vehicle-log.csv", "w")
 
@@ -56,54 +56,31 @@ def main():
         # print("Received data is following:\n", data)
 
         dataLength = len(data)
-        # # print("Received data length: ", len(data))
 
         if dataLength == SpeedDataLength:
-            # decoded_data = struct.unpack("d", data)[0]
             decodedCounter, decodedSpeed = struct.unpack("dd", data)
-            # print("Decoded data is: ", decodedSpeed)
-            print(
-                "Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter
-            )
-            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (
-                bsmGenerator.getBsmJsonString(decodedSpeed)
-            )
+            print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
+            
+            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
+            
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            # print("Encoded BSM is Following:\n", encodedBsm)
-
             dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
 
-            # msg = (
-            #     "\n["
-            #     + str(round(time.time(),4))
-            #     + "]: ***Follwing Data is received*** \nCounter: "
-            #     + str(counter)
-            #     + "\nDecoded Speed: "
-            #     + str(round(decodedSpeed, 2))
-            #     + "\n"
-            # )
-            # logfile.write(msg)
             csvrow = (str(round(time.time(), 4)) + "," 
                       + str(round(counter, 0)) + "," 
                       + str(round(decodedSpeed, 2)) + "\n")
             hostVehicleLogFile.write(csvrow)
 
-            # decoded_data_length = struct.calcsize("!d")
-            # print("Length of decoded data:", decoded_data_length)
-
         else:
 
             hexPacket = binascii.hexlify(data)
-            # print("Hexed Data:\n ", hexPacket)
             packetString = str(hexPacket, encoding="utf-8")
             bsmIdentifier = packetString.find("0014")
 
             if bsmIdentifier >= 0:
                 timeGap = time.time() - receivedTime
                 receivedTime = time.time()
-                leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (
-                    leadVehicleDataManager.getLeadVehicleInformation(data)
-                )
+                leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
                 relativeDistance = haversine.haversine(
                     (leadVehicleLat, leadVehicleLon),
                     (hostVehicleLat, hostVehicleLon),
@@ -116,14 +93,8 @@ def main():
                 encodedCounter = struct.pack("d", counter)
                 encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
 
-                print(
-                    "Sending relative distance & speed, counter, and speed:\n ",
-                    relativeDistance,
-                    relativeSpeed,
-                    counter,
-                    leadVehicleSpeed,
-                    hostVehicleSpeed,
-                )
+                print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
+                    relativeDistance, relativeSpeed, counter, leadVehicleSpeed,hostVehicleSpeed,)
 
                 sendingData = (
                     encodedDistance
@@ -132,21 +103,6 @@ def main():
                     + encodedSpeedOriginal
                 )
                 dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-
-                # msg = (
-                #     "\n["
-                #     + str(time.time())
-                #     + "]: ***Follwing Data is sent*** \nRelative Distance: "
-                #     + str(relativeDistance)
-                #     + "\nRelative Speed: "
-                #     + str(relativeSpeed)
-                #     + "\nCounter: "
-                #     + str(counter)
-                #     + "\nCurrent Speed: "
-                #     + str(leadVehicleSpeed)
-                #     + "\n"
-                # )
-                # logfile.write(msg)
 
                 csvrow = (
                     str(round(time.time(), 4))
@@ -166,7 +122,6 @@ def main():
                 continue
 
     dynoTestDataManagerSocket.close()
-    # logfile.close()
     hostVehicleLogFile.close()
     leadVehicleLogFile.close()
 

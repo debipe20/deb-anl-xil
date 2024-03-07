@@ -97,6 +97,9 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 		- Error response from daemon: could not select device driver "nvidia" with capabilities: [[gpu]]
 	- After installing nvidia-container-toolkit execute  following
 		- systemctl restart docker
+		
+# Start MITRE Portal
+	- sudo openvpn3 session-start --config voices-openvpn-config.ovpn
 
 		
 		

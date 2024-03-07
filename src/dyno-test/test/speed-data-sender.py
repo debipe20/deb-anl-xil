@@ -20,7 +20,8 @@ def main():
     configFile.close()
 
     hostIp = config["IPAddress"]["HostIp"]
-    port = config["PortNumber"]["VehicleController"]
+    # port = config["PortNumber"]["VehicleController"]
+    port = 50001
     hostAddress = (hostIp, port)
 
     clientIp = config["IPAddress"]["HostIp"]

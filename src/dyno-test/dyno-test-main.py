@@ -35,11 +35,8 @@ def main():
     bsmGenerator = BsmGenerator(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
 
-    hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 42.2994845, -83.6992433, 0.0
+    hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
     leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 0.0, 0.0, 0.0
-
-    receivedTime = time.time()
-
     counter = 0.0
 
     hostVehicleLogFile = open("host-vehicle-log.csv", "w")
@@ -78,45 +75,45 @@ def main():
             bsmIdentifier = packetString.find("0014")
 
             if bsmIdentifier >= 0:
-                timeGap = time.time() - receivedTime
-                receivedTime = time.time()
-                leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
-                relativeDistance = haversine.haversine(
-                    (leadVehicleLat, leadVehicleLon),
-                    (hostVehicleLat, hostVehicleLon),
-                    unit=haversine.Unit.METERS,
-                )
-                relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
-                counter = counter + 1.0
-                encodedDistance = struct.pack("d", relativeDistance)
-                encodedSpeed = struct.pack("d", relativeSpeed)
-                encodedCounter = struct.pack("d", counter)
-                encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
+                leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
+                
+                if leadVehicleInformationStatus == True:
+                    relativeDistance = haversine.haversine(
+                        (leadVehicleLat, leadVehicleLon),
+                        (hostVehicleLat, hostVehicleLon),
+                        unit=haversine.Unit.METERS,
+                    )
+                    relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
+                    counter = counter + 1.0
+                    encodedDistance = struct.pack("d", relativeDistance)
+                    encodedSpeed = struct.pack("d", relativeSpeed)
+                    encodedCounter = struct.pack("d", counter)
+                    encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
 
-                print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
-                    relativeDistance, relativeSpeed, counter, leadVehicleSpeed,hostVehicleSpeed,)
+                    print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
+                        relativeDistance, relativeSpeed, counter, leadVehicleSpeed,hostVehicleSpeed,)
 
-                sendingData = (
-                    encodedDistance
-                    + encodedSpeed
-                    + encodedCounter
-                    + encodedSpeedOriginal
-                )
-                dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                    sendingData = (
+                        encodedDistance
+                        + encodedSpeed
+                        + encodedCounter
+                        + encodedSpeedOriginal
+                    )
+                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
 
-                csvrow = (
-                    str(round(time.time(), 4))
-                    + ","
-                    + str(round(counter, 0))
-                    + ","
-                    + str(round(relativeDistance, 3))
-                    + ","
-                    + str(round(relativeSpeed, 2))
-                    + ","
-                    + str(round(leadVehicleSpeed, 2))
-                    + "\n"
-                )
-                leadVehicleLogFile.write(csvrow)
+                    csvrow = (
+                        str(round(time.time(), 4))
+                        + ","
+                        + str(round(counter, 0))
+                        + ","
+                        + str(round(relativeDistance, 3))
+                        + ","
+                        + str(round(relativeSpeed, 2))
+                        + ","
+                        + str(round(leadVehicleSpeed, 2))
+                        + "\n"
+                    )
+                    leadVehicleLogFile.write(csvrow)
 
             else:
                 continue

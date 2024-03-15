@@ -10,6 +10,38 @@ from LeadVehicleDataManager import LeadVehicleDataManager
 
 SpeedDataLength = 16
 
+hostVehicleLogFile = open("host-vehicle-log.csv", "w")
+leadVehicleLogFile = open("lead-vehicle-log.csv", "w")
+
+hostHeader = ("TimeStamp, Counter, HostVehicleSpeed\n")
+leadHeader = ("TimeStamp, Counter, RelativeDistance, RelativeSpeed, LeadVehicleSpeed\n")
+
+hostVehicleLogFile.write(hostHeader)
+leadVehicleLogFile.write(leadHeader)
+
+def logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed):
+    csvrow = (
+            str(round(time.time(), 4)) + ","
+            + str(round(counter, 0))  + ","
+            + str(round(relativeDistance, 3)) + ","
+            + str(round(relativeSpeed, 2)) + ","
+            + str(round(leadVehicleSpeed, 2)) + "\n")
+    leadVehicleLogFile.write(csvrow)
+    
+def logHostVehicleData(counter, decodedSpeed):
+    csvrow = (str(round(time.time(), 4)) + "," 
+            + str(round(counter, 0)) + "," 
+            + str(round(decodedSpeed, 2)) + "\n")
+    hostVehicleLogFile.write(csvrow)
+
+def getSafeDynoOperationData(counter, relativeDistance):
+    
+    relativeDistance = relativeDistance - 5.0
+    relativeSpeed, leadVehicleSpeed = 0.0, 0.0
+    counter = counter + 1.0        
+    
+    return relativeDistance, relativeSpeed, counter, leadVehicleSpeed
+
 
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", "r")
@@ -37,16 +69,8 @@ def main():
 
     hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
     leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 0.0, 0.0, 0.0
-    counter = 0.0
-
-    hostVehicleLogFile = open("host-vehicle-log.csv", "w")
-    leadVehicleLogFile = open("lead-vehicle-log.csv", "w")
-
-    hostHeader = ("TimeStamp, Counter, HostVehicleSpeed\n")
-    leadHeader = ("TimeStamp, Counter, RelativeDistance, RelativeSpeed, LeadVehicleSpeed\n")
-
-    hostVehicleLogFile.write(hostHeader)
-    leadVehicleLogFile.write(leadHeader)
+    relativeDistance, relativeSpeed, counter = 200.0, 0.0, 0.0
+    leadVehicleDataReceivedTime = time.time()
 
     while True:
         data, address = dynoTestDataManagerSocket.recvfrom(2048)
@@ -55,18 +79,24 @@ def main():
         dataLength = len(data)
 
         if dataLength == SpeedDataLength:
-            decodedCounter, decodedSpeed = struct.unpack("dd", data)
-            print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
-            
+            decodedCounter, decodedSpeed = struct.unpack("dd", data)            
             hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
             dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+            
+            logHostVehicleData(decodedCounter, decodedSpeed)
+            print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
+            
+            if time.time() - leadVehicleDataReceivedTime > 1.0:
+                while relativeDistance > 10:
+                    relativeDistance, relativeSpeed, counter, leadVehicleSpeed = getSafeDynoOperationData(counter, relativeDistance)
+                    sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
 
-            csvrow = (str(round(time.time(), 4)) + "," 
-                      + str(round(counter, 0)) + "," 
-                      + str(round(decodedSpeed, 2)) + "\n")
-            hostVehicleLogFile.write(csvrow)
+                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                    
+                    logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
+                    print("Sending relative distance & speed, counter, and lead and host vehicle speed for safe operation:\n ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
         else:
 
@@ -78,42 +108,27 @@ def main():
                 leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
                 
                 if leadVehicleInformationStatus == True:
-                    relativeDistance = haversine.haversine(
-                        (leadVehicleLat, leadVehicleLon),
-                        (hostVehicleLat, hostVehicleLon),
-                        unit=haversine.Unit.METERS,
-                    )
+                    relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
+                    
+                    # if relativeDistance >= 80.0:
+                    #     relativeDistance = 10.0
+                        
+                    leadVehicleDataReceivedTime = time.time()
                     relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
                     counter = counter + 1.0
-                    encodedDistance = struct.pack("d", relativeDistance)
-                    encodedSpeed = struct.pack("d", relativeSpeed)
-                    encodedCounter = struct.pack("d", counter)
-                    encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
+                    
+                    # encodedDistance = struct.pack("d", relativeDistance)
+                    # encodedSpeed = struct.pack("d", relativeSpeed)
+                    # encodedCounter = struct.pack("d", counter)
+                    # encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
 
-                    print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
-                        relativeDistance, relativeSpeed, counter, leadVehicleSpeed,hostVehicleSpeed,)
-
-                    sendingData = (
-                        encodedDistance
-                        + encodedSpeed
-                        + encodedCounter
-                        + encodedSpeedOriginal
-                    )
+                    # sendingData = (encodedDistance + encodedSpeed + encodedCounter + encodedSpeedOriginal)
+                    sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
+                    
                     dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-
-                    csvrow = (
-                        str(round(time.time(), 4))
-                        + ","
-                        + str(round(counter, 0))
-                        + ","
-                        + str(round(relativeDistance, 3))
-                        + ","
-                        + str(round(relativeSpeed, 2))
-                        + ","
-                        + str(round(leadVehicleSpeed, 2))
-                        + "\n"
-                    )
-                    leadVehicleLogFile.write(csvrow)
+                    logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
+                    print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
+                        relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
             else:
                 continue

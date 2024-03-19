@@ -226,7 +226,7 @@ string BsmGenerator::BsmEncoder(string jsonString)
     dsrcFrameIn.dsrcMsgId = MsgEnum::DSRCmsgID_bsm;
     BSM_element_t &bsmIn = dsrcFrameIn.bsm;
     bsmIn.msgCnt = static_cast<uint8_t>(msgCount);
-    bsmIn.id = 0xf03ad610;
+    bsmIn.id = 0xf03ad623;
     bsmIn.timeStampSec = static_cast<int16_t>(getMsOfMinute() / SECOND_MILISECOND_CONVERSION);
     bsmIn.latitude = DsrcConstants::unit2damega<int32_t>(currentLatitude);
     bsmIn.longitude = DsrcConstants::unit2damega<int32_t>(currentLongitude);

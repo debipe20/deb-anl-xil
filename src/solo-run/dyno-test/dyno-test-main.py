@@ -72,21 +72,24 @@ def main():
     port = config["PortNumber"]["LeadVehicleDataManager"]
     hostAddress = (hostIp, port)
 
-    MessageReceiverIp = config["IPAddress"]["V2XHubIp"]
-    MessageReceiverPort = config["PortNumber"]["MessageReceiver"]
-    MessageReceiverAddress = (MessageReceiverIp, MessageReceiverPort)
+    messageReceiverIp = config["IPAddress"]["V2XHubIp"]
+    messageReceiverPort = config["PortNumber"]["MessageReceiver"]
+    messageReceiverAddress = (messageReceiverIp, messageReceiverPort)
 
     vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
     # vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
+    
+    vehicleStatusManagerPort = config["PortNumber"]["VehicleStatusManager"]
+    vehicleStatusManagerAddress = (hostIp, vehicleStatusManagerPort)
 
     dynoTestDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     dynoTestDataManagerSocket.bind(hostAddress)
     
     # Get logging and console output variables
-    consoleStatus = config["ConsoleOutput"]
-    loggingStatus = config["Logging"]
+    consoleStatus = config["GeneralInformation"]["ConsoleOutput"]
+    loggingStatus = config["GeneralInformation"]["Logging"]
 
     bsmGenerator = BsmGenerator(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
@@ -101,16 +104,32 @@ def main():
 
     while True:
         data, address = dynoTestDataManagerSocket.recvfrom(2048)
-        # print("Received data is following:\n", data)
+        print("Received data is following:\n", data)
 
         dataLength = len(data)
-
-        if dataLength == SpeedDataLength:
-            decodedCounter, decodedSpeed = struct.unpack("dd", data)            
-            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
+        print(dataLength)
+        print(type(data))
+        
+        # hex = binascii.unhexlify(data)
+        # print(hex)
+        # dataLength = len(hex)
+        # print(dataLength)
+        # print(type(hex))
+        
+        
+        if dataLength == 24:
+            hexxed_data = binascii.unhexlify(data)
+            decodedSignalGroup, decodedDistanceToStopBar = struct.unpack("<id", hexxed_data)
+            print(decodedSignalGroup, decodedDistanceToStopBar)
             
+        elif dataLength == SpeedDataLength:
+            decodedCounter, decodedSpeed = struct.unpack("dd", data)            
+            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = bsmGenerator.getBsmJsonString(decodedSpeed)
+            basicVehicleJsonString = bsmGenerator.getBasicVehicleJsonString()
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+            
+            dynoTestDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
+            dynoTestDataManagerSocket.sendto(basicVehicleJsonString, vehicleStatusManagerAddress)
             
             logHostVehicleData(decodedCounter, decodedSpeed)
             print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)

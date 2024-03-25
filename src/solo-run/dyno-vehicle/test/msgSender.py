@@ -14,8 +14,8 @@ def main():
     hostAddress = (hostIp, port)
 
     clientIp = config["IPAddress"]["HostIp"]
-    clinetPort = config["PortNumber"]["LeadVehicleDataManager"]
-    clientAddress = (clientIp, clinetPort)
+    clientPort = config["PortNumber"]["HostVehicleDataManager"]
+    clientAddress = (clientIp, clientPort)
     
     msgSenderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     msgSenderSocket.bind(hostAddress)

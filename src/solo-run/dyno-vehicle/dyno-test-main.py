@@ -72,8 +72,8 @@ def main():
     MessageReceiverPort = config["PortNumber"]["MessageReceiver"]
     MessageReceiverAddress = (MessageReceiverIp, MessageReceiverPort)
 
-    vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
-    # vehicleControllerIp = config["IPAddress"]["HostIp"]
+    # vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
+    vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
     
@@ -87,14 +87,14 @@ def main():
     spatManager = SpatManager(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
 
-    hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
-    leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 0.0, 0.0, 0.0
+    hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 42.3025391192385, -83.69779345760013, 0.0
+    leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 42.30245402283134, -83.69784540965374, 0.0
     relativeDistance, relativeSpeed, counter = 200.0, 0.0, 0.0
     leadVehicleDataReceivedTime = time.time()
 
     while True:
         data, address = hostVehicleDatamanagerSocket.recvfrom(2048)
-        print("Received data is following:\n", data)
+        # print("Received data is following:\n", data)
 
         dataLength = len(data)
 
@@ -137,7 +137,7 @@ def main():
 
             hexPacket = binascii.hexlify(data)
             packetString = str(hexPacket, encoding="utf-8")
-            print("Hexed packet is following:\n", hexPacket)
+            # print("Hexed packet is following:\n", hexPacket)
             # bsmIdentifier = packetString.find("0014")
             
             msgIdentifier = packetString.find('001')

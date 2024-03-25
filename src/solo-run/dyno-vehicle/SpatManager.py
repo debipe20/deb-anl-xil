@@ -22,14 +22,18 @@ class SpatManager:
         unhexedPayload = binascii.unhexlify(payload)
         receivedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))        
         receivedJsonString = json.loads(receivedJsonString)
-        print("Received SPaT json string is following: \n", receivedJsonString)
+        # print("Received SPaT json string is following: \n", receivedJsonString)
         intersectionId = receivedJsonString["value"]["intersections"][0]["id"]["id"]
         
         for data in receivedJsonString["value"]["intersections"][0]["states"]:
-            if data["signalGroup"] == self.desiredSignalGroup and data["state-time-speed"][0]["eventState"] == "protected-Movement-Allowed":
+            if data["signalGroup"] == self.desiredSignalGroup and (data["state-time-speed"][0]["eventState"] == "protected-Movement-Allowed" or
+                                                                   data["state-time-speed"][0]["eventState"] == "permissive-Movement-Allowed"):
                 self.eventState = GREEN
                 
-            elif data["signalGroup"] == self.desiredSignalGroup and data["state-time-speed"][0]["eventState"] == "protected-clearance":
+                
+                
+            elif data["signalGroup"] == self.desiredSignalGroup and (data["state-time-speed"][0]["eventState"] == "protected-clearance" or 
+                                                                    data["state-time-speed"][0]["eventState"] == "permissive-clearance"):
                 self.eventState = YELLOW
                 
             elif data["signalGroup"] == self.desiredSignalGroup and data["state-time-speed"][0]["eventState"] == "stop-And-Remain":
@@ -46,7 +50,7 @@ class SpatManager:
         unhexedPayload = binascii.unhexlify(payload)
         receivedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))        
         receivedJsonString = json.loads(receivedJsonString)
-        print("Received SPaT json string is following: \n", receivedJsonString)
+        # print("Received SPaT json string is following: \n", receivedJsonString)
         intersectionId = receivedJsonString["value"]["intersections"][0]["id"]["id"]
 
         for data in receivedJsonString["value"]["intersections"][0]["states"]:
@@ -80,7 +84,7 @@ class SpatManager:
             phaseDataList.append(phaseDataDictionary)
         
         self.spatDataDictionary.update({str(intersectionId): {"PhaseData": phaseDataList}})
-        print("Spat Dictionary is following:\n", self.spatDataDictionary)
+        # print("Spat Dictionary is following:\n", self.spatDataDictionary)
         
     def getRequestedSignalGroupData(self, receivedJsonString):
         """

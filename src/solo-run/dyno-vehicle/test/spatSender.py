@@ -14,7 +14,7 @@ def main():
     hostAddress = (hostIp, port)
 
     clientIp = config["IPAddress"]["HostIp"]
-    clientPort = config["PortNumber"]["HostVehicleDatamanager"]
+    clientPort = config["PortNumber"]["HostVehicleDataManager"]
     clientAddress = (clientIp, clientPort)
     
     spatSenderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

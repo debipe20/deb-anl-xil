@@ -17,23 +17,24 @@ class LeadVehicleDataManager:
         self.config = config
         self.leadVehicleId = config["VehicleInformation"]["LeadVehicleId"]
         self.trafficSignalState = GREEN
+        self.stoppedAtIntersection = False
         self.currentSpeed = 0.0
         self.distanceToFinalWayPoints = 50.0
-        self.previousIndex = 20
+        self.previousIndex = 10
         self.previousTime = time.time()
         self.timeStep = 0.0
         self.extraDistance = 0.0
         self.step = 0
         self.previousTimeStampSetStatus = False
-        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = (
-            [] for i in range(4)
-        )
+        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4))
+        self.intersectionLattitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Latitude_DecimalDegree"]
+        self.intersectionLongitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Longitude_DecimalDegree"]
         self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
         self.logFile = open("lead-vehicle-bsm-log.csv", "w")
-        self.logFile.write("timestamp_verbose,timeStep,latitude,longitude,elevation,speed,heading,distanceToFinalWaypoints\n")
-        self.readPreloadedCoordinates()
+        self.logFile.write("timestamp_verbose,timeStep,latitude,longitude,elevation,speed,heading,distanceToFinalWaypoints,distanceToIntersection\n")
+        self.readWayPoints()
 
-    def readPreloadedCoordinates(self):
+    def readWayPoints(self):
         """
         - Method to get all the coordinates from preload waypoints/BSMs
         """
@@ -44,25 +45,41 @@ class LeadVehicleDataManager:
         self.elevationList = dataFrame["elevation"].tolist()
         self.headingList = dataFrame["heading"].tolist()
 
-        self.currentLatitude = self.latitudeList[20]
-        self.currentLongitude = self.longitudeList[20]
-        self.currentElevation = self.elevationList[20]
-        self.currentHeading = self.headingList[20]
-        self.previousLatitude = self.latitudeList[20]
-        self.previousLongitude = self.longitudeList[20]
+        self.currentLatitude = self.latitudeList[self.previousIndex]
+        self.currentLongitude = self.longitudeList[self.previousIndex]
+        self.currentElevation = self.elevationList[self.previousIndex]
+        self.currentHeading = self.headingList[self.previousIndex]
+        self.previousLatitude = self.latitudeList[self.previousIndex]
+        self.previousLongitude = self.longitudeList[self.previousIndex]
         self.finalLatitude = self.latitudeList[-1]
         self.finalLongitude = self.longitudeList[-1]
+        
+        self.distanceToIntersection = haversine.haversine(
+            (self.currentLatitude, self.currentLongitude),
+            (self.intersectionLattitude, self.intersectionLongitude),
+            unit=haversine.Unit.METERS)
+        
+        self.distanceToFinalWayPoints = haversine.haversine(
+            (self.currentLatitude, self.currentLongitude),
+            (self.finalLatitude, self.finalLongitude),
+            unit=haversine.Unit.METERS)
 
     def setTrafficSignalState(self, evenState):
 
         self.trafficSignalState = evenState
         
-        if self.previousIndex > 140:
+        if self.previousIndex > 130:
             self.trafficSignalState = GREEN
 
     def getLeadVehicleSpeed(self):
-
-        if (self.trafficSignalState == GREEN and self.distanceToFinalWayPoints <= 25):
+                
+        if self.previousIndex < 130 and self.stoppedAtIntersection == False:
+            distance = self.distanceToIntersection
+            
+        else:
+            distance = self.distanceToFinalWayPoints
+            
+        if (self.trafficSignalState == GREEN and distance <= 20):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
         
         elif self.trafficSignalState == GREEN and self.currentSpeed < STEADY_STATE_SPEED:
@@ -74,14 +91,17 @@ class LeadVehicleDataManager:
         elif (self.trafficSignalState == GREEN and self.currentSpeed > STEADY_STATE_SPEED):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)   
             
-        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and self.distanceToFinalWayPoints <= 25 and self.currentSpeed >= STEADY_STATE_SPEED):
+        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance <= 20 and self.currentSpeed >= 0):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
             
-        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and self.distanceToFinalWayPoints > 25 and self.currentSpeed < STEADY_STATE_SPEED):
+        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance > 20 and self.currentSpeed < STEADY_STATE_SPEED):
             self.currentSpeed = self.currentSpeed + (ACCELERATION * TIME_STEP)
         
         if self.currentSpeed < 0.0:
             self.currentSpeed = 0.0
+        
+        if self.distanceToIntersection < 10 and self.trafficSignalState == GREEN and self.currentSpeed == 0:
+            self.stoppedAtIntersection = True
 
     def getLeadVehicleInformation(self):
         """
@@ -94,7 +114,7 @@ class LeadVehicleDataManager:
 
         if self.previousTimeStampSetStatus == False:
             self.previousTime = currentTime - 0.1
-            self.previousTimeStampSetStatus == True
+            self.previousTimeStampSetStatus = True
 
         self.timeStep = currentTime - self.previousTime
         travelDistance = self.currentSpeed * self.timeStep
@@ -146,18 +166,23 @@ class LeadVehicleDataManager:
                     self.extraDistance = calculatedDistanceNext - travelDistance
                     break
 
+        self.distanceToIntersection = haversine.haversine(
+            (self.currentLatitude, self.currentLongitude),
+            (self.intersectionLattitude, self.intersectionLongitude),
+            unit=haversine.Unit.METERS)
+        
         self.distanceToFinalWayPoints = haversine.haversine(
             (self.currentLatitude, self.currentLongitude),
             (self.finalLatitude, self.finalLongitude),
             unit=haversine.Unit.METERS)
         
-        if self.previousIndex < 140:
+        if self.previousIndex < 130 and self.trafficSignalState == GREEN:
             self.distanceToFinalWayPoints = 50
         
-        print("Distance to final waypoints: ", self.distanceToFinalWayPoints)
+        print("Previous Index, Current speed, Distance to intersection, & Distance to final waypoints: \n", self.previousIndex, self. currentSpeed, self.distanceToIntersection, self.distanceToFinalWayPoints)
         self.logCoordinates()
         
-        return round(self.currentLatitude,8), round(self.currentLongitude,8), round(self.currentSpeed,2)
+        return round(self.currentLatitude,10), round(self.currentLongitude,10), round(self.currentSpeed,2)
        
         
     def logCoordinates(self):
@@ -169,7 +194,8 @@ class LeadVehicleDataManager:
         elevation = str(self.currentElevation)
         speed = str(round(self.currentSpeed, 2))
         heading = str(round(self.currentHeading, 2))
-        distance = str(round(self.distanceToFinalWayPoints, 2))
+        wayPointsDistance = str(round(self.distanceToFinalWayPoints, 2))
+        intersectionDistance = str(round(self.distanceToIntersection, 2))
 
         csvRow = (timestamp_verbose + ","
             + timeStep + ","
@@ -178,7 +204,8 @@ class LeadVehicleDataManager:
             + elevation + ","
             + speed + ","
             + heading + ","
-            + distance + "\n"
+            + wayPointsDistance + ","
+            + intersectionDistance + "\n"
         )
 
         self.logFile.write(csvRow)

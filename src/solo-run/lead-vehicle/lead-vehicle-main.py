@@ -29,7 +29,7 @@ def main():
         try:
             data, address = leadVehicleDataManagerSocket.recvfrom(1024)
             decodedTrafficSignalState = struct.unpack("i", data)[0]
-            print("Received traffic signal state is :", decodedTrafficSignalState)
+            print("\nReceived traffic signal state is :", decodedTrafficSignalState)
             leadVehicleDataManager.setTrafficSignalState(decodedTrafficSignalState)
             
         except:

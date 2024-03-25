@@ -43,6 +43,20 @@ def getSafeDynoOperationData(counter, relativeDistance):
     return relativeDistance, relativeSpeed, counter, leadVehicleSpeed
 
 
+def getMessageType(self, string):
+    messageType = ""
+
+    if (string[:4]) == "0012":
+        messageType = "MAP"
+
+    elif (string[:4]) == "0013":
+        messageType = "SPaT"
+
+    elif (string[:4]) == "0014":
+        messageType = "BSM"
+
+    return messageType
+
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", "r")
     config = json.load(configFile)
@@ -102,10 +116,15 @@ def main():
 
             hexPacket = binascii.hexlify(data)
             packetString = str(hexPacket, encoding="utf-8")
-            bsmIdentifier = packetString.find("0014")
+            # bsmIdentifier = packetString.find("0014")
+            
+            msgIdentifier = packetString.find('001')
+            payload = packetString[msgIdentifier:].strip()
+            msgType = getMessageType(payload)
 
-            if bsmIdentifier >= 0:
-                leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
+            # if bsmIdentifier >= 0:
+            if msgType == "BSM":
+                leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(payload))
                 
                 if leadVehicleInformationStatus == True:
                     relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)

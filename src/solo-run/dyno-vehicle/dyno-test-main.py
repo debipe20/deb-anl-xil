@@ -149,12 +149,12 @@ def main():
                     print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
                         relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
-            else:
-                continue
+            elif msgType == "SPaT":
+                pass
 
-    dynoTestDataManagerSocket.close()
-    hostVehicleLogFile.close()
-    leadVehicleLogFile.close()
+        dynoTestDataManagerSocket.close()
+        hostVehicleLogFile.close()
+        leadVehicleLogFile.close()
 
 
 if __name__ == "__main__":

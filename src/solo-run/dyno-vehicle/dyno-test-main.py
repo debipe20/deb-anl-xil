@@ -4,12 +4,9 @@ import binascii
 import struct
 import haversine
 import time
-import atexit
 from osys import v2x
 from BsmGenerator import BsmGenerator
 from LeadVehicleDataManager import LeadVehicleDataManager
-from SpatManager import SpatManager
-from Logger import Logger
 
 SpeedDataLength = 16
 
@@ -45,57 +42,30 @@ def getSafeDynoOperationData(counter, relativeDistance):
     
     return relativeDistance, relativeSpeed, counter, leadVehicleSpeed
 
-def getMessageType(string):
-    messageType = ""
 
-    if (string[:4]) == "0012":
-        messageType = "MAP"
-
-    elif (string[:4]) == "0013":
-        messageType = "SPaT"
-
-    elif (string[:4]) == "0014":
-        messageType = "BSM"
-            
-    return messageType
-
-def destruct_logger(logger:Logger):
-    logger.loggingAndConsoleDisplayString("Message Decoder is shutting down now!")
-    del logger
-    
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", "r")
     config = json.load(configFile)
     configFile.close()
 
     hostIp = config["IPAddress"]["HostIp"]
-    port = config["PortNumber"]["LeadVehicleDataManager"]
+    port = config["PortNumber"]["HostVehicleDatamanager"]
     hostAddress = (hostIp, port)
 
-    messageReceiverIp = config["IPAddress"]["V2XHubIp"]
-    messageReceiverPort = config["PortNumber"]["MessageReceiver"]
-    messageReceiverAddress = (messageReceiverIp, messageReceiverPort)
+    MessageReceiverIp = config["IPAddress"]["V2XHubIp"]
+    MessageReceiverPort = config["PortNumber"]["MessageReceiver"]
+    MessageReceiverAddress = (MessageReceiverIp, MessageReceiverPort)
 
     vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
     # vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
-    
-    vehicleStatusManagerPort = config["PortNumber"]["VehicleStatusManager"]
-    vehicleStatusManagerAddress = (hostIp, vehicleStatusManagerPort)
 
     dynoTestDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     dynoTestDataManagerSocket.bind(hostAddress)
-    
-    # Get logging and console output variables
-    consoleStatus = config["GeneralInformation"]["ConsoleOutput"]
-    loggingStatus = config["GeneralInformation"]["Logging"]
 
     bsmGenerator = BsmGenerator(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
-    spatManager = SpatManager()
-    logger = Logger(consoleStatus, loggingStatus)
-    atexit.register(lambda: destruct_logger(logger))
 
     hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
     leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 0.0, 0.0, 0.0
@@ -104,32 +74,16 @@ def main():
 
     while True:
         data, address = dynoTestDataManagerSocket.recvfrom(2048)
-        print("Received data is following:\n", data)
+        # print("Received data is following:\n", data)
 
         dataLength = len(data)
-        print(dataLength)
-        print(type(data))
-        
-        # hex = binascii.unhexlify(data)
-        # print(hex)
-        # dataLength = len(hex)
-        # print(dataLength)
-        # print(type(hex))
-        
-        
-        if dataLength == 24:
-            hexxed_data = binascii.unhexlify(data)
-            decodedSignalGroup, decodedDistanceToStopBar = struct.unpack("<id", hexxed_data)
-            print(decodedSignalGroup, decodedDistanceToStopBar)
-            
-        elif dataLength == SpeedDataLength:
+
+        if dataLength == SpeedDataLength:
             decodedCounter, decodedSpeed = struct.unpack("dd", data)            
-            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = bsmGenerator.getBsmJsonString(decodedSpeed)
-            basicVehicleJsonString = bsmGenerator.getBasicVehicleJsonString()
-            encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
+            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
-            dynoTestDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
-            dynoTestDataManagerSocket.sendto(basicVehicleJsonString, vehicleStatusManagerAddress)
+            encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
+            dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
             
             logHostVehicleData(decodedCounter, decodedSpeed)
             print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
@@ -147,12 +101,10 @@ def main():
         else:
 
             hexPacket = binascii.hexlify(data)
-            payload = str(hexPacket, encoding="utf-8")
-            msgIdentifier = payload.find('001')
-            payload = payload[msgIdentifier:].strip()
-            msgType = getMessageType(payload)
+            packetString = str(hexPacket, encoding="utf-8")
+            bsmIdentifier = packetString.find("0014")
 
-            if msgType == "BSM":
+            if bsmIdentifier >= 0:
                 leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
                 
                 if leadVehicleInformationStatus == True:
@@ -164,16 +116,22 @@ def main():
                     leadVehicleDataReceivedTime = time.time()
                     relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
                     counter = counter + 1.0
+                    
+                    # encodedDistance = struct.pack("d", relativeDistance)
+                    # encodedSpeed = struct.pack("d", relativeSpeed)
+                    # encodedCounter = struct.pack("d", counter)
+                    # encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
+
+                    # sendingData = (encodedDistance + encodedSpeed + encodedCounter + encodedSpeedOriginal)
                     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
                     
                     dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
                     print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
                         relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
-            
-            elif msgType == "SPaT":
-                logger.consoleDisplayString("Received SPaT")
-                spatJsonString = spatManager.getSpatJsonString(data)
+
+            else:
+                continue
 
     dynoTestDataManagerSocket.close()
     hostVehicleLogFile.close()

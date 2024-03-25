@@ -1,0 +1,115 @@
+{
+    "messageId": 19,
+    "value": {
+        "timeStamp": 149436,
+        "intersections": [
+            {
+                "id": {
+                    "id": 0
+                },
+                "revision": 0,
+                "status": "0408",
+                "moy": 149436,
+                "timeStamp": 46177,
+                "states": [
+                    {
+                        "signalGroup": 2,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 22181,
+                                    "maxEndTime": 22181
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 4,
+                        "state-time-speed": [
+                            {
+                                "eventState": "permissive-Movement-Allowed",
+                                "timing": {
+                                    "minEndTime": 22141,
+                                    "maxEndTime": 22141
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 6,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 22181,
+                                    "maxEndTime": 22181
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 8,
+                        "state-time-speed": [
+                            {
+                                "eventState": "permissive-Movement-Allowed",
+                                "timing": {
+                                    "minEndTime": 22141,
+                                    "maxEndTime": 22141
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 9,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 22181,
+                                    "maxEndTime": 36000
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 10,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 22141,
+                                    "maxEndTime": 36000
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 11,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 22181,
+                                    "maxEndTime": 36000
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 12,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 22141,
+                                    "maxEndTime": 36000
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

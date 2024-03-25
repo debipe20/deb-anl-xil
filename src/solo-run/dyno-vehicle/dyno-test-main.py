@@ -6,6 +6,7 @@ import haversine
 import time
 from osys import v2x
 from BsmGenerator import BsmGenerator
+from SpatManager import SpatManager
 from LeadVehicleDataManager import LeadVehicleDataManager
 
 SpeedDataLength = 16
@@ -43,7 +44,7 @@ def getSafeDynoOperationData(counter, relativeDistance):
     return relativeDistance, relativeSpeed, counter, leadVehicleSpeed
 
 
-def getMessageType(self, string):
+def getMessageType(string):
     messageType = ""
 
     if (string[:4]) == "0012":
@@ -79,6 +80,7 @@ def main():
     dynoTestDataManagerSocket.bind(hostAddress)
 
     bsmGenerator = BsmGenerator(config)
+    spatManager = SpatManager()
     leadVehicleDataManager = LeadVehicleDataManager(config)
 
     hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
@@ -116,6 +118,7 @@ def main():
 
             hexPacket = binascii.hexlify(data)
             packetString = str(hexPacket, encoding="utf-8")
+            print("Hexed packet is following:\n", hexPacket)
             # bsmIdentifier = packetString.find("0014")
             
             msgIdentifier = packetString.find('001')
@@ -124,33 +127,24 @@ def main():
 
             # if bsmIdentifier >= 0:
             if msgType == "BSM":
-                leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(payload))
+                pass
+                # leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(payload))
                 
-                if leadVehicleInformationStatus == True:
-                    relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
+                # if leadVehicleInformationStatus == True:
+                #     relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
+ 
+                #     leadVehicleDataReceivedTime = time.time()
+                #     relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
+                #     counter = counter + 1.0
+                #     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
                     
-                    # if relativeDistance >= 80.0:
-                    #     relativeDistance = 10.0
-                        
-                    leadVehicleDataReceivedTime = time.time()
-                    relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
-                    counter = counter + 1.0
-                    
-                    # encodedDistance = struct.pack("d", relativeDistance)
-                    # encodedSpeed = struct.pack("d", relativeSpeed)
-                    # encodedCounter = struct.pack("d", counter)
-                    # encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
-
-                    # sendingData = (encodedDistance + encodedSpeed + encodedCounter + encodedSpeedOriginal)
-                    sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
-                    
-                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-                    logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
-                    print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
-                        relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
+                #     dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                #     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
+                #     print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
+                #         relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
             elif msgType == "SPaT":
-                pass
+                spatManager.manageSpatData(payload)
 
         dynoTestDataManagerSocket.close()
         hostVehicleLogFile.close()

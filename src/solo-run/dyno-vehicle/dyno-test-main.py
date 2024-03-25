@@ -10,6 +10,7 @@ from SpatManager import SpatManager
 from LeadVehicleDataManager import LeadVehicleDataManager
 
 SpeedDataLength = 16
+LEAD_VEHICLE_DATA_LENGTH = 24
 
 hostVehicleLogFile = open("host-vehicle-log.csv", "w")
 leadVehicleLogFile = open("lead-vehicle-log.csv", "w")
@@ -64,7 +65,7 @@ def main():
     configFile.close()
 
     hostIp = config["IPAddress"]["HostIp"]
-    port = config["PortNumber"]["HostVehicleDatamanager"]
+    port = config["PortNumber"]["HostVehicleDataManager"]
     hostAddress = (hostIp, port)
 
     MessageReceiverIp = config["IPAddress"]["V2XHubIp"]
@@ -75,12 +76,15 @@ def main():
     # vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
+    
+    leadVehicleDataManagerPort = config["PortNumber"]["LeadVehicleDataManager"]
+    leadVehicleDataManagerAddress = (hostIp, leadVehicleDataManagerPort)
 
-    dynoTestDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    dynoTestDataManagerSocket.bind(hostAddress)
+    hostVehicleDatamanagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    hostVehicleDatamanagerSocket.bind(hostAddress)
 
     bsmGenerator = BsmGenerator(config)
-    spatManager = SpatManager()
+    spatManager = SpatManager(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
 
     hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
@@ -89,8 +93,8 @@ def main():
     leadVehicleDataReceivedTime = time.time()
 
     while True:
-        data, address = dynoTestDataManagerSocket.recvfrom(2048)
-        # print("Received data is following:\n", data)
+        data, address = hostVehicleDatamanagerSocket.recvfrom(2048)
+        print("Received data is following:\n", data)
 
         dataLength = len(data)
 
@@ -99,7 +103,7 @@ def main():
             hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+            hostVehicleDatamanagerSocket.sendto(encodedBsm, MessageReceiverAddress)
             
             logHostVehicleData(decodedCounter, decodedSpeed)
             print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
@@ -109,10 +113,25 @@ def main():
                     relativeDistance, relativeSpeed, counter, leadVehicleSpeed = getSafeDynoOperationData(counter, relativeDistance)
                     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
 
-                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                    hostVehicleDatamanagerSocket.sendto(sendingData, vehicleControllerAddress)
                     
                     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
                     print("Sending relative distance & speed, counter, and lead and host vehicle speed for safe operation:\n ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
+
+        elif dataLength == LEAD_VEHICLE_DATA_LENGTH:
+            leadVehicleLat, leadVehicleLon, leadVehicleSpeed = struct.unpack("ddd", data)
+            print("Received lead vehicle data is following: \n", leadVehicleLat, leadVehicleLon, leadVehicleSpeed)
+            relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
+ 
+            leadVehicleDataReceivedTime = time.time()
+            relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
+            counter = counter + 1.0
+            sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
+            
+            hostVehicleDatamanagerSocket.sendto(sendingData, vehicleControllerAddress)
+            logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
+            print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
+                relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
         else:
 
@@ -126,8 +145,8 @@ def main():
             msgType = getMessageType(payload)
 
             # if bsmIdentifier >= 0:
-            if msgType == "BSM":
-                pass
+            # if msgType == "BSM":
+            #     pass
                 # leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(payload))
                 
                 # if leadVehicleInformationStatus == True:
@@ -138,17 +157,21 @@ def main():
                 #     counter = counter + 1.0
                 #     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
                     
-                #     dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                #     hostVehicleDatamanagerSocket.sendto(sendingData, vehicleControllerAddress)
                 #     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
                 #     print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
                 #         relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
-            elif msgType == "SPaT":
-                spatManager.manageSpatData(payload)
-
-        dynoTestDataManagerSocket.close()
-        hostVehicleLogFile.close()
-        leadVehicleLogFile.close()
+            if msgType == "SPaT":
+                trafficSignalState = spatManager.getDesiredSignalGroupState(payload)
+                sendingData =  struct.pack("i", trafficSignalState)
+                hostVehicleDatamanagerSocket.sendto(sendingData, leadVehicleDataManagerAddress)
+                print("Sent traffic signal state", trafficSignalState)
+                
+                
+    hostVehicleDatamanagerSocket.close()
+    hostVehicleLogFile.close()
+    leadVehicleLogFile.close()
 
 
 if __name__ == "__main__":

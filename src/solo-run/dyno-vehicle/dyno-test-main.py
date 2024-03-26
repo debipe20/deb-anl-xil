@@ -80,8 +80,8 @@ def main():
     leadVehicleDataManagerPort = config["PortNumber"]["LeadVehicleDataManager"]
     leadVehicleDataManagerAddress = (hostIp, leadVehicleDataManagerPort)
 
-    hostVehicleDatamanagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    hostVehicleDatamanagerSocket.bind(hostAddress)
+    hostVehicleDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    hostVehicleDataManagerSocket.bind(hostAddress)
 
     bsmGenerator = BsmGenerator(config)
     spatManager = SpatManager(config)
@@ -93,7 +93,7 @@ def main():
     leadVehicleDataReceivedTime = time.time()
 
     while True:
-        data, address = hostVehicleDatamanagerSocket.recvfrom(2048)
+        data, address = hostVehicleDataManagerSocket.recvfrom(2048)
         # print("Received data is following:\n", data)
 
         dataLength = len(data)
@@ -103,7 +103,7 @@ def main():
             hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            hostVehicleDatamanagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+            hostVehicleDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
             
             logHostVehicleData(decodedCounter, decodedSpeed)
             print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
@@ -113,7 +113,7 @@ def main():
                     relativeDistance, relativeSpeed, counter, leadVehicleSpeed = getSafeDynoOperationData(counter, relativeDistance)
                     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
 
-                    hostVehicleDatamanagerSocket.sendto(sendingData, vehicleControllerAddress)
+                    hostVehicleDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     
                     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
                     print("Sending relative distance & speed, counter, and lead and host vehicle speed for safe operation:\n ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
@@ -128,7 +128,7 @@ def main():
             counter = counter + 1.0
             sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
             
-            hostVehicleDatamanagerSocket.sendto(sendingData, vehicleControllerAddress)
+            hostVehicleDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
             logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
             print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
                 relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
@@ -157,7 +157,7 @@ def main():
                 #     counter = counter + 1.0
                 #     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
                     
-                #     hostVehicleDatamanagerSocket.sendto(sendingData, vehicleControllerAddress)
+                #     hostVehicleDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
                 #     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
                 #     print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
                 #         relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
@@ -165,11 +165,11 @@ def main():
             if msgType == "SPaT":
                 trafficSignalState = spatManager.getDesiredSignalGroupState(payload)
                 sendingData =  struct.pack("i", trafficSignalState)
-                hostVehicleDatamanagerSocket.sendto(sendingData, leadVehicleDataManagerAddress)
+                hostVehicleDataManagerSocket.sendto(sendingData, leadVehicleDataManagerAddress)
                 print("Sent traffic signal state", trafficSignalState)
                 
                 
-    hostVehicleDatamanagerSocket.close()
+    hostVehicleDataManagerSocket.close()
     hostVehicleLogFile.close()
     leadVehicleLogFile.close()
 

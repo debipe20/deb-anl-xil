@@ -6,10 +6,12 @@ import pandas as pd
 GREEN = 1
 YELLOW = 2
 RED = 3
-STEADY_STATE_SPEED = 8.0
+STEADY_STATE_SPEED = 4.5
+DISTANCE_GAP = 10
 TIME_STEP = 0.1
 ACCELERATION = 1.0
 DECELERATION = -2.0
+INTERSECTION_INDEX = 130
 
 
 class LeadVehicleDataManager:
@@ -20,7 +22,8 @@ class LeadVehicleDataManager:
         self.stoppedAtIntersection = False
         self.currentSpeed = 0.0
         self.distanceToFinalWayPoints = 50.0
-        self.previousIndex = 10
+        self.previousIndex = 1
+        
         self.previousTime = time.time()
         self.timeStep = 0.0
         self.extraDistance = 0.0
@@ -68,19 +71,20 @@ class LeadVehicleDataManager:
 
         self.trafficSignalState = evenState
         
-        if self.previousIndex > 130:
+        if self.previousIndex > INTERSECTION_INDEX:
             self.trafficSignalState = GREEN
 
     def getLeadVehicleSpeed(self):
                 
-        if self.previousIndex < 130 and self.stoppedAtIntersection == False:
+        if self.previousIndex < INTERSECTION_INDEX and self.stoppedAtIntersection == False:
             distance = self.distanceToIntersection
             
         else:
             distance = self.distanceToFinalWayPoints
             
-        if (self.trafficSignalState == GREEN and distance <= 20):
+        if (self.trafficSignalState == GREEN and distance <= DISTANCE_GAP):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
+            print("\nSlowing down since signal is green and distance is less than 10 m") 
         
         elif self.trafficSignalState == GREEN and self.currentSpeed < STEADY_STATE_SPEED:
             self.currentSpeed = self.currentSpeed + (ACCELERATION * TIME_STEP)
@@ -89,19 +93,22 @@ class LeadVehicleDataManager:
             self.currentSpeed = STEADY_STATE_SPEED
 
         elif (self.trafficSignalState == GREEN and self.currentSpeed > STEADY_STATE_SPEED):
-            self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)   
-            
-        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance <= 20 and self.currentSpeed >= 0):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
+            print("\nSlowing down since signal is green and speed is greater than steady state speed")   
             
-        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance > 20 and self.currentSpeed < STEADY_STATE_SPEED):
+        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance <= DISTANCE_GAP and self.currentSpeed >= 0):
+            self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
+            print("\nSlowing down since signal is red or yellow and speed is greater than zero") 
+            
+        elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance > DISTANCE_GAP and self.currentSpeed < STEADY_STATE_SPEED):
             self.currentSpeed = self.currentSpeed + (ACCELERATION * TIME_STEP)
         
         if self.currentSpeed < 0.0:
             self.currentSpeed = 0.0
         
-        if self.distanceToIntersection < 10 and self.trafficSignalState == GREEN and self.currentSpeed == 0:
+        if self.distanceToIntersection < 5 and self.trafficSignalState == GREEN and self.currentSpeed == 0:
             self.stoppedAtIntersection = True
+            print("Setting stopped at intersection flag true as distance to intersection is ", self.distanceToIntersection)
 
     def getLeadVehicleInformation(self):
         """
@@ -176,7 +183,7 @@ class LeadVehicleDataManager:
             (self.finalLatitude, self.finalLongitude),
             unit=haversine.Unit.METERS)
         
-        if self.previousIndex < 130 and self.trafficSignalState == GREEN:
+        if self.previousIndex < INTERSECTION_INDEX and self.trafficSignalState == GREEN:
             self.distanceToFinalWayPoints = 50
         
         print("Previous Index, Current speed, Distance to intersection, & Distance to final waypoints: \n", self.previousIndex, self. currentSpeed, self.distanceToIntersection, self.distanceToFinalWayPoints)

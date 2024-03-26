@@ -64,7 +64,7 @@ class BsmGenerator:
 
         if self.previousTimeStampSetStatus == False:
             self.previousTime = currentTime - 0.1
-            self.previousTimeStampSetStatus == True
+            self.previousTimeStampSetStatus = True
 
         self.timeStep = currentTime - self.previousTime
         travelDistance = self.currentSpeed * self.timeStep

@@ -72,8 +72,8 @@ def main():
     MessageReceiverPort = config["PortNumber"]["MessageReceiver"]
     MessageReceiverAddress = (MessageReceiverIp, MessageReceiverPort)
 
-    # vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
-    vehicleControllerIp = config["IPAddress"]["HostIp"]
+    vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
+    # vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
     

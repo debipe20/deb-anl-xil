@@ -49,7 +49,7 @@ def main():
     configFile.close()
 
     hostIp = config["IPAddress"]["HostIp"]
-    port = config["PortNumber"]["LeadVehicleDataManager"]
+    port = config["PortNumber"]["HostVehicleDataManager"]
     hostAddress = (hostIp, port)
 
     MessageReceiverIp = config["IPAddress"]["V2XHubIp"]

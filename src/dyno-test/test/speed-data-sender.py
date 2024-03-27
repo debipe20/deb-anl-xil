@@ -25,7 +25,7 @@ def main():
     hostAddress = (hostIp, port)
 
     clientIp = config["IPAddress"]["HostIp"]
-    clinetPort = config["PortNumber"]["LeadVehicleDataManager"]
+    clinetPort = config["PortNumber"]["HostVehicleDataManager"]
     clientAddress = (clientIp, clinetPort)
     
     speedDataSenderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

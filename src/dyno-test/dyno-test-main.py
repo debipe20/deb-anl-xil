@@ -63,76 +63,88 @@ def main():
 
     dynoTestDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     dynoTestDataManagerSocket.bind(hostAddress)
+    dynoTestDataManagerSocket.settimeout(0)
 
     bsmGenerator = BsmGenerator(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
 
     hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 0.0, 0.0, 0.0
     leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 0.0, 0.0, 0.0
-    relativeDistance, relativeSpeed, counter = 200.0, 0.0, 0.0
+    relativeDistance, relativeSpeed, counter = 10.0, 0.0, 0.0
     leadVehicleDataReceivedTime = time.time()
+    msgSendingTime = time.time()
+    
+    sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
+    checkCounter = 1
 
     while True:
-        data, address = dynoTestDataManagerSocket.recvfrom(2048)
-        # print("Received data is following:\n", data)
+        try:
+            data, address = dynoTestDataManagerSocket.recvfrom(2048)
+            # print("Received data is following:\n", data)
 
-        dataLength = len(data)
+            dataLength = len(data)
 
-        if dataLength == SpeedDataLength:
-            decodedCounter, decodedSpeed = struct.unpack("dd", data)            
-            hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
-            
-            encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
-            
-            logHostVehicleData(decodedCounter, decodedSpeed)
-            print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
-            
-            if time.time() - leadVehicleDataReceivedTime > 1.0:
-                while relativeDistance > 10:
-                    relativeDistance, relativeSpeed, counter, leadVehicleSpeed = getSafeDynoOperationData(counter, relativeDistance)
-                    sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
-
-                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-                    
-                    logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
-                    print("Sending relative distance & speed, counter, and lead and host vehicle speed for safe operation:\n ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
-
-        else:
-
-            hexPacket = binascii.hexlify(data)
-            packetString = str(hexPacket, encoding="utf-8")
-            bsmIdentifier = packetString.find("0014")
-
-            if bsmIdentifier >= 0:
-                leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
+            if dataLength == SpeedDataLength:
+                decodedCounter, decodedSpeed = struct.unpack("dd", data)            
+                hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
                 
-                if leadVehicleInformationStatus == True:
-                    relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
-                    
-                    # if relativeDistance >= 80.0:
-                    #     relativeDistance = 10.0
-                        
-                    leadVehicleDataReceivedTime = time.time()
-                    relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
-                    counter = counter + 1.0
-                    
-                    # encodedDistance = struct.pack("d", relativeDistance)
-                    # encodedSpeed = struct.pack("d", relativeSpeed)
-                    # encodedCounter = struct.pack("d", counter)
-                    # encodedSpeedOriginal = struct.pack("d", leadVehicleSpeed)
+                encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
+                dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+                
+                logHostVehicleData(decodedCounter, decodedSpeed)
+                print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
+                
+                if time.time() - leadVehicleDataReceivedTime > 1.0:
+                    while relativeDistance > 10:
+                        relativeDistance, relativeSpeed, counter, leadVehicleSpeed = getSafeDynoOperationData(counter, relativeDistance)
+                        sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
 
-                    # sendingData = (encodedDistance + encodedSpeed + encodedCounter + encodedSpeedOriginal)
-                    sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
-                    
-                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-                    logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
-                    print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
-                        relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
+                        dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                        
+                        logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
+                        print("Sending relative distance & speed, counter, and lead and host vehicle speed for safe operation:\n ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
             else:
-                continue
 
+                hexPacket = binascii.hexlify(data)
+                packetString = str(hexPacket, encoding="utf-8")
+                bsmIdentifier = packetString.find("0014")
+
+                if bsmIdentifier >= 0:
+                    leadVehicleInformationStatus, leadVehicleLat, leadVehicleLon, leadVehicleSpeed = (leadVehicleDataManager.getLeadVehicleInformation(data))
+                    
+                    if leadVehicleInformationStatus == True:
+                        relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
+                        
+                        if relativeDistance >= 80.0:
+                            relativeDistance = 10.0
+                            
+                        leadVehicleDataReceivedTime = time.time()
+                        msgSendingTime = time.time()
+                        relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
+                        counter = counter + 1.0
+                        checkCounter = 1
+                        
+                        sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
+                        
+                        
+                        dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                        logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed)
+                        print("Sending relative distance & speed, counter, and lead and host vehicle speed:\n ",
+                            relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
+
+                # else:
+                #     continue
+        except:
+            timeGap = time.time() - msgSendingTime
+            if timeGap >= 0.01:
+                msgSendingTime = time.time()
+                dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                checkCounter = checkCounter + 1
+                print("[ " + str(time.time()) + " ]: at time gap: " + str(timeGap) + " Check counter value is ", checkCounter)
+                if checkCounter == 10:
+                    checkCounter = 1
+                
     dynoTestDataManagerSocket.close()
     hostVehicleLogFile.close()
     leadVehicleLogFile.close()

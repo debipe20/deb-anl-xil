@@ -22,7 +22,7 @@ class LeadVehicleDataManager:
         self.stoppedAtIntersection = False
         self.currentSpeed = 0.0
         self.distanceToFinalWayPoints = 50.0
-        self.previousIndex = 1
+        self.previousIndex = 10
         
         self.previousTime = time.time()
         self.timeStep = 0.0

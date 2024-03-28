@@ -1,4 +1,4 @@
-import time
+import time, datetime
 import haversine
 import pandas as pd
 
@@ -8,6 +8,7 @@ YELLOW = 2
 RED = 3
 STEADY_STATE_SPEED = 4.5
 DISTANCE_GAP = 10
+MIN_GAP_TO_INTERSECTION = 5
 TIME_STEP = 0.1
 ACCELERATION = 1.0
 DECELERATION = -2.0
@@ -32,8 +33,10 @@ class LeadVehicleDataManager:
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4))
         self.intersectionLattitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Latitude_DecimalDegree"]
         self.intersectionLongitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Longitude_DecimalDegree"]
-        self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
-        self.logFile = open("lead-vehicle-bsm-log.csv", "w")
+        # self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
+        self.bsmLogFile = config["VehicleInformation"]["LeadBsmLogFileName"] 
+        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))       
+        self.logFile = open("/nojournal/bin/log/solo-run/lead_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")
         self.logFile.write("timestamp_verbose,timeStep,latitude,longitude,elevation,speed,heading,distanceToFinalWaypoints,distanceToIntersection\n")
         self.readWayPoints()
 
@@ -82,9 +85,10 @@ class LeadVehicleDataManager:
         else:
             distance = self.distanceToFinalWayPoints
             
-        if (self.trafficSignalState == GREEN and distance <= DISTANCE_GAP):
+        # if (self.trafficSignalState == GREEN and distance <= self.distanceToFinalWayPoints):
+        if (self.trafficSignalState == GREEN and distance <= DISTANCE_GAP and self.stoppedAtIntersection == True):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
-            print("\nSlowing down since signal is green and distance is less than 10 m") 
+            print("\nSlowing down since signal is green and distance is less than " + str(self.distanceToFinalWayPoints) + " m") 
         
         elif self.trafficSignalState == GREEN and self.currentSpeed < STEADY_STATE_SPEED:
             self.currentSpeed = self.currentSpeed + (ACCELERATION * TIME_STEP)
@@ -106,7 +110,7 @@ class LeadVehicleDataManager:
         if self.currentSpeed < 0.0:
             self.currentSpeed = 0.0
         
-        if self.distanceToIntersection < 5 and self.trafficSignalState == GREEN and self.currentSpeed == 0:
+        if self.distanceToIntersection < MIN_GAP_TO_INTERSECTION and self.trafficSignalState == GREEN and self.currentSpeed == 0:
             self.stoppedAtIntersection = True
             print("Setting stopped at intersection flag true as distance to intersection is ", self.distanceToIntersection)
 

@@ -34,6 +34,8 @@ class BsmGenerator:
         self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
         # self.logFile = open("Estimate-BSM-Log.csv", "w")
         # self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
+        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
+        self.logFile = open("/nojournal/bin/log/eco-driving/host_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -144,7 +146,7 @@ class BsmGenerator:
                         "orientation": 65535,
                     },
                     "transmission": "forwardGears",
-                    "speed": int(self.currentSpeed / 0.2),
+                    "speed": int(self.currentSpeed / 0.02),
                     "heading": int(self.currentHeading / 0.0125),
                     "angle": -1,
                     "accelSet": {"long": 0, "lat": 0, "vert": 0, "yaw": 0},
@@ -171,7 +173,7 @@ class BsmGenerator:
         # print("Index is", self.previousIndex)
         # print("BSM Dictionary is following:\n", bsmDictionary)
 
-        # self.logCoordinates()
+        self.logCoordinates()
 
         return (
             self.currentLatitude,

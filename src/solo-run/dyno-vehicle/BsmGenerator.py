@@ -32,7 +32,8 @@ class BsmGenerator:
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
 
         self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
-        self.logFile = open("host-vehicle-bsm-log.csv", "w")
+        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
+        self.logFile = open("/nojournal/bin/log/solo-run/host_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")
         self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
         self.readPreloadedCoordinates()
 
@@ -144,7 +145,7 @@ class BsmGenerator:
                         "orientation": 65535,
                     },
                     "transmission": "forwardGears",
-                    "speed": int(self.currentSpeed / 0.2),
+                    "speed": int(self.currentSpeed / 0.02),
                     "heading": int(self.currentHeading / 0.0125),
                     "angle": -1,
                     "accelSet": {"long": 0, "lat": 0, "vert": 0, "yaw": 0},

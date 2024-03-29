@@ -33,9 +33,10 @@ class BsmGenerator:
 
         self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
         # self.logFile = open("Estimate-BSM-Log.csv", "w")
-        # self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
+        
         initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
         self.logFile = open("/nojournal/bin/log/eco-driving/host_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")
+        self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -55,6 +56,13 @@ class BsmGenerator:
         self.currentHeading = self.headingList[0]
         self.previousLatitude = self.latitudeList[0]
         self.previousLongitude = self.longitudeList[0]
+        
+        # self.currentLatitude = self.latitudeList[self.previousIndex]
+        # self.currentLongitude = self.longitudeList[self.previousIndex]
+        # self.currentElevation = self.elevationList[self.previousIndex]
+        # self.currentHeading = self.headingList[self.previousIndex]
+        # self.previousLatitude = self.latitudeList[self.previousIndex]
+        # self.previousLongitude = self.longitudeList[self.previousIndex]
 
     def getNearestCoordinates(self):
         """

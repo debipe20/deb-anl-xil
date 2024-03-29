@@ -98,13 +98,20 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	- After installing nvidia-container-toolkit execute  following
 		- systemctl restart docker
 		
-# Start MITRE Portal
+# Connect MITRE Portal
 	- sudo openvpn3 session-start --config voices-openvpn-config.ovpn
+	
+# Disconnect MITRE Portal
+	- sudo openvpn3 session-list
+	- sudo openvpn3 session-manage --session-path </net/openvpn/v3/sessions/a17b15e5s160bs4044saec5s9aeb18c331d8> --disconnect
 # Camera view:
 	- docker exec -it voices bash
 	- cd voices-poc/scripts/carla_python_scripts 
-	- python3 follow_vehicle_dash_cam.py --follow_vehicle ANL-DYNO-1
-	- python3 destroy_vehicles.py -e ANL-DYNO-1,UCLA-OPENCDA 
+	
+	- python3 destroy_vehicles.py -e ANL-DYNO-1,UCLA-OPENCDA,ORNL-AUTO-1,carma_1,MCITY-CAV-01,MCITY-TERASIM-01,MCITY-TERASIM-02
+	
+	- python3 follow_vehicle_dash_cam.py --follow_vehicle ANL-DYNO-1 --res 300x300
+	
 # Logging tcpdump data:
 	- sudo tcpdump -i lo port <V2X Hub Message Receiver Port> -w anl_bsm.pcap
 		

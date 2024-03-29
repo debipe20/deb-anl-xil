@@ -58,8 +58,8 @@ def main():
     MessageReceiverPort = config["PortNumber"]["MessageReceiver"]
     MessageReceiverAddress = (MessageReceiverIp, MessageReceiverPort)
 
-    # vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
-    vehicleControllerIp = config["IPAddress"]["HostIp"]
+    vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
+    # vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
 
@@ -120,8 +120,8 @@ def main():
                 if leadVehicleInformationStatus == True:
                     relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
                     
-                    if relativeDistance >= 80.0:
-                        relativeDistance = 10.0
+                    # if relativeDistance >= 80.0:
+                    #     relativeDistance = 10.0
                         
                     leadVehicleDataReceivedTime = time.time()
                     # msgSendingTime = time.time()

@@ -58,6 +58,8 @@ def getMessageType(string):
 
     elif (string[:4]) == "0014":
         messageType = "BSM"
+        
+    else: messageType = "Unknown"
 
     return messageType
 
@@ -141,9 +143,6 @@ def main():
 
             hexPacket = binascii.hexlify(data)
             packetString = str(hexPacket, encoding="utf-8")
-            # print("Hexed packet is following:\n", hexPacket)
-            # bsmIdentifier = packetString.find("0014")
-            
             msgIdentifier = packetString.find('001')
             payload = packetString[msgIdentifier:].strip()
             msgType = getMessageType(payload)

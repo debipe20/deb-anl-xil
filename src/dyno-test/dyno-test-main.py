@@ -65,7 +65,6 @@ def main():
 
     dynoTestDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     dynoTestDataManagerSocket.bind(hostAddress)
-    # dynoTestDataManagerSocket.settimeout(0)
 
     bsmGenerator = BsmGenerator(config)
     leadVehicleDataManager = LeadVehicleDataManager(config)
@@ -74,13 +73,11 @@ def main():
     leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 0.0, 0.0, 0.0
     relativeDistance, relativeSpeed, counter = 10.0, 0.0, 0.0
     leadVehicleDataReceivedTime = time.time()
-    # msgSendingTime = time.time()
     
     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
-    # checkCounter = 1
+
 
     while True:
-        # try:
         data, address = dynoTestDataManagerSocket.recvfrom(2048)
         # print("Received data is following:\n", data)
 
@@ -124,31 +121,16 @@ def main():
                     #     relativeDistance = 10.0
                         
                     leadVehicleDataReceivedTime = time.time()
-                    # msgSendingTime = time.time()
                     relativeSpeed = leadVehicleSpeed - hostVehicleSpeed
                     counter = counter + 1.0
-                    # checkCounter = 1
                     
                     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
-                    
                     
                     dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed)
                     print("Sending relative distance & speed, counter, and lead and host vehicle speed: ",
                         relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
 
-            # else:
-            #     continue
-        # except:
-        #     timeGap = time.time() - msgSendingTime
-        #     if timeGap >= 0.01:
-        #         msgSendingTime = time.time()
-        #         dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-        #         checkCounter = checkCounter + 1
-        #         print("[ " + str(time.time()) + " ]: at time gap: " + str(timeGap) + " Check counter value is ", checkCounter)
-        #         if checkCounter == 10:
-        #             checkCounter = 1
-                
     dynoTestDataManagerSocket.close()
     hostVehicleLogFile.close()
     leadVehicleLogFile.close()

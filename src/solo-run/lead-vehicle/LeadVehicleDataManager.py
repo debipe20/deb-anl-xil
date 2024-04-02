@@ -23,8 +23,7 @@ class LeadVehicleDataManager:
         self.stoppedAtIntersection = False
         self.currentSpeed = 0.0
         self.distanceToFinalWayPoints = 50.0
-        self.previousIndex = 10
-        
+        self.previousIndex = 10        
         self.previousTime = time.time()
         self.timeStep = 0.0
         self.extraDistance = 0.0
@@ -118,8 +117,13 @@ class LeadVehicleDataManager:
         """
         - Method to find the estimated location based on the travel time
             - Haversine distance is calculated
+        - Distance between two waypoints may greater than the actual distance travel by the vehicle
+            - extraDistance variable stores the difference between waypoints distance and vehicle travel distance
+            - if extraDistance is greater than vehicle's travel distance, no neeed to iterate
+            - if extraDistance is greater than vehicle's travel distance, deduct extraDistance from vehicle's travel distance
         - Iterate until haversine distance for current coordinate is close to the estimated distance compare to next coordinate
         """
+        
         self.getLeadVehicleSpeed()
         currentTime = time.time()
 
@@ -220,3 +224,6 @@ class LeadVehicleDataManager:
         )
 
         self.logFile.write(csvRow)
+        
+    def __del__(self):
+        self.logFile.close()

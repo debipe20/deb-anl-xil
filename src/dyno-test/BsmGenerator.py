@@ -3,11 +3,12 @@ import pandas as pd
 import haversine
 import time, datetime
 
-MaxMsgCount = 127
-MinMsgCount = 1
-OneByTenMicroDegree_To_Degree = 10000000
-Deca_Conversion = 10
-# kph2unit = 0.277778/0.2
+MAX_MSG_COUNT = 127
+MIN_MSG_COUNT = 1
+ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE = 10000000
+DECA_CONVERSION = 10
+HEADING_CONVERSION = 0.0125
+SPEED_CONVERSION = 0.02
 SECOND_MILISECOND_CONVERSION = 1000
 
 
@@ -20,7 +21,7 @@ class BsmGenerator:
         self.currentElevation = 0.0
         self.currentSpeed = 0.0
         self.currentHeading = 0.0
-        self.previousLatitude = (41.7007424,)  # ANL
+        self.previousLatitude = 41.7007424 
         self.previousLongitude = -87.9915918
         self.previousIndex = 0
         self.previousTime = time.time()
@@ -56,18 +57,15 @@ class BsmGenerator:
         self.currentHeading = self.headingList[0]
         self.previousLatitude = self.latitudeList[0]
         self.previousLongitude = self.longitudeList[0]
-        
-        # self.currentLatitude = self.latitudeList[self.previousIndex]
-        # self.currentLongitude = self.longitudeList[self.previousIndex]
-        # self.currentElevation = self.elevationList[self.previousIndex]
-        # self.currentHeading = self.headingList[self.previousIndex]
-        # self.previousLatitude = self.latitudeList[self.previousIndex]
-        # self.previousLongitude = self.longitudeList[self.previousIndex]
 
     def getNearestCoordinates(self):
         """
         - Method to find the estimated location based on the travel time
             - Haversine distance is calculated
+        - Distance between two waypoints may greater than the actual distance travel by the vehicle
+            - extraDistance variable stores the difference between waypoints distance and vehicle travel distance
+            - if extraDistance is greater than vehicle's travel distance, no neeed to iterate
+            - if extraDistance is greater than vehicle's travel distance, deduct extraDistance from vehicle's travel distance
         - Iterate until haversine distance for current coordinate is close to the estimated distance compare to next coordinate
         """
         currentTime = time.time()
@@ -90,14 +88,12 @@ class BsmGenerator:
                 calculatedDistance = haversine.haversine(
                     (self.previousLatitude, self.previousLongitude),
                     (self.latitudeList[index], self.longitudeList[index]),
-                    unit=haversine.Unit.METERS,
-                )
+                    unit=haversine.Unit.METERS)
 
                 calculatedDistanceNext = haversine.haversine(
                     (self.previousLatitude, self.previousLongitude),
                     (self.latitudeList[index + 1], self.longitudeList[index + 1]),
-                    unit=haversine.Unit.METERS,
-                )
+                    unit=haversine.Unit.METERS)
 
                 if (calculatedDistance <= travelDistance) and (calculatedDistanceNext <= travelDistance):
                     continue
@@ -129,7 +125,9 @@ class BsmGenerator:
                     break
 
     def getBsmJsonString(self, currentSpeed):
-        """ """
+        """ 
+        - Method to generate bsm json string using objective systems
+        """
         self.currentSpeed = currentSpeed
 
         if self.currentSpeed > 0:
@@ -138,48 +136,51 @@ class BsmGenerator:
         self.setMsgCount()
         self.currentHeading = round(self.currentHeading, 2)
 
-        bsmDictionary = {
-            "messageId": 20,
-            "value": {
-                "coreData": {
-                    "msgCnt": self.msgCount,
-                    "id": self.vehicleId,
-                    "secMark": int(self.getMsOfMinute()),
-                    "lat": int(self.currentLatitude * OneByTenMicroDegree_To_Degree),
-                    "long": int(self.currentLongitude * OneByTenMicroDegree_To_Degree),
-                    "elev": int(self.currentElevation * Deca_Conversion),
-                    "accuracy": {
-                        "semiMajor": 255,
-                        "semiMinor": 255,
-                        "orientation": 65535,
+        try:
+            bsmDictionary = {
+                "messageId": 20,
+                "value": {
+                    "coreData": {
+                        "msgCnt": self.msgCount,
+                        "id": self.vehicleId,
+                        "secMark": int(self.getMsOfMinute()),
+                        "lat": int(self.currentLatitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE),
+                        "long": int(self.currentLongitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE),
+                        "elev": int(self.currentElevation * DECA_CONVERSION),
+                        "accuracy": {
+                            "semiMajor": 255,
+                            "semiMinor": 255,
+                            "orientation": 65535,
+                        },
+                        "transmission": "forwardGears",
+                        "speed": int(self.currentSpeed / SPEED_CONVERSION),
+                        "heading": int(self.currentHeading / HEADING_CONVERSION),
+                        "angle": -1,
+                        "accelSet": {"long": 0, "lat": 0, "vert": 0, "yaw": 0},
+                        "brakes": {
+                            "wheelBrakes": "00",
+                            "traction": "unavailable",
+                            "abs": "unavailable",
+                            "scs": "unavailable",
+                            "brakeBoost": "unavailable",
+                            "auxBrakes": "unavailable",
+                        },
+                        "size": {"width": 230, "length": 600},
                     },
-                    "transmission": "forwardGears",
-                    "speed": int(self.currentSpeed / 0.02),
-                    "heading": int(self.currentHeading / 0.0125),
-                    "angle": -1,
-                    "accelSet": {"long": 0, "lat": 0, "vert": 0, "yaw": 0},
-                    "brakes": {
-                        "wheelBrakes": "00",
-                        "traction": "unavailable",
-                        "abs": "unavailable",
-                        "scs": "unavailable",
-                        "brakeBoost": "unavailable",
-                        "auxBrakes": "unavailable",
-                    },
-                    "size": {"width": 230, "length": 600},
+                    "partII": [
+                        {
+                            "partII-Id": 0,
+                            "partII-Value": {"events": {"value": "c000", "length": 13}},
+                        }
+                    ],
                 },
-                "partII": [
-                    {
-                        "partII-Id": 0,
-                        "partII-Value": {"events": {"value": "c000", "length": 13}},
-                    }
-                ],
-            },
-        }
+            }
 
-        bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
-        # print("Index is", self.previousIndex)
-        # print("BSM Dictionary is following:\n", bsmDictionary)
+            bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
+            
+        except Exception as e:
+            print("Following error occurred:\n", str(e))
+ 
 
         self.logCoordinates()
 
@@ -194,11 +195,11 @@ class BsmGenerator:
         """
         Method to get the msgCount
         """
-        if self.msgCount < MaxMsgCount:
+        if self.msgCount < MAX_MSG_COUNT:
             self.msgCount += 1
 
         else:
-            self.msgCount = MinMsgCount
+            self.msgCount = MIN_MSG_COUNT
 
     def getMsOfMinute(self):
 
@@ -233,3 +234,6 @@ class BsmGenerator:
         )
 
         self.logFile.write(csvRow)
+        
+    def __del__(self):
+        self.logFile.close()

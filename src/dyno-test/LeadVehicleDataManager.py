@@ -2,6 +2,7 @@ import json
 import binascii
 from osys import v2x
 import datetime
+from Logger import Logger
 
 ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE = 10000000
 DECA_CONVERSION = 10
@@ -9,12 +10,10 @@ HEADING_CONVERSION = 0.0125
 SPEED_CONVERSION = 0.02
 
 class LeadVehicleDataManager:
-    def __init__(self, config) -> None:
+    def __init__(self, config, logger: Logger) -> None:
+        self.logger = logger
         self.config = config
         self.leadVehicleId = config["VehicleInformation"]["LeadVehicleId"]
-        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
-        self.logFile = open("/nojournal/bin/log/error_log_" + initializationTimestamp + ".log", "w")
-        # self.logFile = open("/nojournal/bin/log/error_log.log", "w")
         self.leadVehicleLattitude = 0.0
         self.leadVehicleLongitude = 0.0
         self.leadVehicleElevation = 0.0
@@ -29,11 +28,11 @@ class LeadVehicleDataManager:
         - this method decodeds received bsm and checks if vehicle id matches with lead vehicle id
             - if vehicle id match obtain lead vehicle information
         """
-               
+        self.leadVehicleInformationStatus = False
+              
         try:
             receivedJsonString = v2x.MessageFrame.to_json(data, len(data))        
             receivedJsonString = json.loads(receivedJsonString)
-            # print("Vehicle Id: ", receivedJsonString["value"]["coreData"]["id"])
             
             if self.leadVehicleId == receivedJsonString["value"]["coreData"]["id"]:
                 self.leadVehicleLattitude = receivedJsonString["value"]["coreData"]["lat"] / ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE
@@ -45,12 +44,11 @@ class LeadVehicleDataManager:
             
         except Exception as e:
             hexData = binascii.hexlify(data)
-            self.logFile.write("Following error occurred:\n" + str(e) + "\n")
-            self.logFile.write("Hexed Data in Lead Vehicle Data Manager class is:\n" + str(hexData) + "\n")
+            self.logger.logErrorData(e, hexData)
             self.leadVehicleInformationStatus = False
 
         
         return self.leadVehicleInformationStatus, self.leadVehicleLattitude, self.leadVehicleLongitude, self.leadVehicleSpeed
     
     def __del__(self):
-        self.logFile.close()
+        self.logger.consoleDisplay("Closing Lead Vehicle Manager Application")

@@ -1,7 +1,7 @@
 import time, datetime
 import haversine
 import pandas as pd
-
+from Logger import Logger
 
 GREEN = 1
 YELLOW = 2
@@ -16,7 +16,8 @@ INTERSECTION_INDEX = 130
 
 
 class LeadVehicleDataManager:
-    def __init__(self, config) -> None:
+    def __init__(self, config, logger: Logger) -> None:
+        self.logger = logger
         self.config = config
         self.leadVehicleId = config["VehicleInformation"]["LeadVehicleId"]
         self.trafficSignalState = GREEN
@@ -32,11 +33,8 @@ class LeadVehicleDataManager:
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4))
         self.intersectionLattitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Latitude_DecimalDegree"]
         self.intersectionLongitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Longitude_DecimalDegree"]
-        # self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
-        self.bsmLogFile = config["VehicleInformation"]["LeadBsmLogFileName"] 
-        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))       
-        self.logFile = open("/nojournal/bin/log/solo-run/lead_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")
-        self.logFile.write("timestamp_verbose,timeStep,latitude,longitude,elevation,speed,heading,distanceToFinalWaypoints,distanceToIntersection\n")
+        
+        self.wayPointsLogFile = config["VehicleInformation"]["LeadBsmLogFileName"] 
         self.readWayPoints()
 
     def readWayPoints(self):
@@ -44,7 +42,7 @@ class LeadVehicleDataManager:
         - Method to get all the coordinates from preload waypoints/BSMs
         """
 
-        dataFrame = pd.read_csv(self.bsmLogFile)
+        dataFrame = pd.read_csv(self.wayPointsLogFile)
         self.latitudeList = dataFrame["latitude"].tolist()
         self.longitudeList = dataFrame["longitude"].tolist()
         self.elevationList = dataFrame["elevation"].tolist()
@@ -87,7 +85,7 @@ class LeadVehicleDataManager:
         # if (self.trafficSignalState == GREEN and distance <= self.distanceToFinalWayPoints):
         if (self.trafficSignalState == GREEN and distance <= DISTANCE_GAP and self.stoppedAtIntersection == True):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
-            print("\nSlowing down since signal is green and distance is less than " + str(self.distanceToFinalWayPoints) + " m") 
+            self.logger.consoleDisplay("Slowing down since signal is green and distance is less than " + str(self.distanceToFinalWayPoints) + " m") 
         
         elif self.trafficSignalState == GREEN and self.currentSpeed < STEADY_STATE_SPEED:
             self.currentSpeed = self.currentSpeed + (ACCELERATION * TIME_STEP)
@@ -97,11 +95,11 @@ class LeadVehicleDataManager:
 
         elif (self.trafficSignalState == GREEN and self.currentSpeed > STEADY_STATE_SPEED):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
-            print("\nSlowing down since signal is green and speed is greater than steady state speed")   
+            self.logger.consoleDisplay("Slowing down since signal is green and speed is greater than steady state speed")   
             
         elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance <= DISTANCE_GAP and self.currentSpeed >= 0):
             self.currentSpeed = self.currentSpeed + (DECELERATION * TIME_STEP)
-            print("\nSlowing down since signal is red or yellow and speed is greater than zero") 
+            self.logger.consoleDisplay("Slowing down since signal is red or yellow and speed is greater than zero") 
             
         elif ((self.trafficSignalState == RED or self.trafficSignalState == YELLOW) and distance > DISTANCE_GAP and self.currentSpeed < STEADY_STATE_SPEED):
             self.currentSpeed = self.currentSpeed + (ACCELERATION * TIME_STEP)
@@ -111,7 +109,7 @@ class LeadVehicleDataManager:
         
         if self.distanceToIntersection < MIN_GAP_TO_INTERSECTION and self.trafficSignalState == GREEN and self.currentSpeed == 0:
             self.stoppedAtIntersection = True
-            print("Setting stopped at intersection flag true as distance to intersection is ", self.distanceToIntersection)
+            self.logger.consoleDisplay("Setting stopped at intersection flag true as distance to intersection is " + (self.distanceToIntersection))
 
     def getLeadVehicleInformation(self):
         """
@@ -194,36 +192,13 @@ class LeadVehicleDataManager:
         if self.previousIndex < INTERSECTION_INDEX and self.trafficSignalState == GREEN:
             self.distanceToFinalWayPoints = 50
         
-        print("Previous Index, Current speed, Distance to intersection, & Distance to final waypoints: \n", self.previousIndex, self. currentSpeed, self.distanceToIntersection, self.distanceToFinalWayPoints)
-        self.logCoordinates()
+        self.logger.consoleDisplay("Previous Index, Current speed, Distance to intersection, & Distance to final waypoints: \n" + str(self.previousIndex) + ", " + str(self. currentSpeed) + ", " + str(self.distanceToIntersection) + ", " + str(self.distanceToFinalWayPoints))
+        self.logger.logLeadVehicleBsmData(self.timeStep, self.currentLatitude, self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading, self.distanceToFinalWayPoints, self.distanceToIntersection)
         
         return round(self.currentLatitude,10), round(self.currentLongitude,10), round(self.currentSpeed,2)
        
         
-    def logCoordinates(self):
 
-        timestamp_verbose = str(time.time())
-        timeStep = str(self.timeStep)
-        latitude = str(self.currentLatitude)
-        longitude = str(self.currentLongitude)
-        elevation = str(self.currentElevation)
-        speed = str(round(self.currentSpeed, 2))
-        heading = str(round(self.currentHeading, 2))
-        wayPointsDistance = str(round(self.distanceToFinalWayPoints, 2))
-        intersectionDistance = str(round(self.distanceToIntersection, 2))
-
-        csvRow = (timestamp_verbose + ","
-            + timeStep + ","
-            + latitude + ","
-            + longitude + ","
-            + elevation + ","
-            + speed + ","
-            + heading + ","
-            + wayPointsDistance + ","
-            + intersectionDistance + "\n"
-        )
-
-        self.logFile.write(csvRow)
         
     def __del__(self):
-        self.logFile.close()
+        self.logger.consoleDisplay("Closing Lead Vehicle Manager Application")

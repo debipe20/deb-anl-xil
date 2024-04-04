@@ -3,6 +3,7 @@ import datetime
 import json
 import binascii
 from osys import v2x
+from Logger import Logger
 
 
 GREEN = 1
@@ -10,24 +11,22 @@ YELLOW = 2
 RED = 3
 
 class SpatManager:
-    def __init__(self, config):
-        # self.spatDataDictionary = {str(29080): {'PhaseData': [
-        #     {'SignalGroup': 1, 'startTime': 0, 'minEndTime': 10, 'maxEndTime': 15}]}}
+    def __init__(self, config, logger: Logger):
+        self.logger = logger
         self.config = config
         self.desiredSignalGroup = self.config["SignalControllerInformation"]["DesiredSignalGroup"]
         self.eventState = GREEN
         self.spatDataDictionary = {}
-        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
-        self.logFile = open("/nojournal/bin/log/error_log_" + initializationTimestamp + ".log", "w")
-        # self.logFile = open("/nojournal/bin/log/error_log.log", "w")
+
 
     def getDesiredSignalGroupState(self, payload):
         
         try:
+            self.logger.logSpatHexData(payload)
             unhexedPayload = binascii.unhexlify(payload)
             receivedJsonString = v2x.MessageFrame.to_json(unhexedPayload, len(unhexedPayload))        
             receivedJsonString = json.loads(receivedJsonString)
-            # print("Received SPaT json string is following: \n", receivedJsonString)
+
             intersectionId = receivedJsonString["value"]["intersections"][0]["id"]["id"]
             
             for data in receivedJsonString["value"]["intersections"][0]["states"]:
@@ -45,13 +44,10 @@ class SpatManager:
                     self.eventState = RED
         
         except Exception as e:
-            
-            self.logFile.write("Following error occurred:\n" + str(e) + "\n")
-            self.logFile.write("Hexed Data in Spat Manager class is:\n" + str(payload) + "\n")
-            self.leadVehicleInformationStatus = False
+            self.logger.logErrorData(e, payload)
                 
         return self.eventState
     
     
     def __del__(self):
-        self.logFile.close()
+        self.logger.consoleDisplay("Closing SPaT Manager Application")

@@ -2,7 +2,13 @@ import socket
 import json
 import time
 import struct
+import atexit
 from LeadVehicleDataManager import LeadVehicleDataManager
+from Logger import Logger
+
+def destruct_logger(logger:Logger):
+    logger.consoleDisplay("Shutting down now!")
+    del logger
 
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", "r")
@@ -20,7 +26,14 @@ def main():
     leadVehicleDataManagerSocket.bind(leadVehicleDataManagerAddress)
     leadVehicleDataManagerSocket.settimeout(0)
     
-    leadVehicleDataManager = LeadVehicleDataManager(config)
+    # Get logging and console output variables
+    consoleStatus = config["GeneralInformation"]["ConsoleOutput"]
+    loggingStatus = config["GeneralInformation"]["Logging"]
+    debugStatus =  config["GeneralInformation"]["Debug"]
+    
+    logger = Logger(consoleStatus, loggingStatus, debugStatus)
+    atexit.register(lambda: destruct_logger(logger))
+    leadVehicleDataManager = LeadVehicleDataManager(config, logger)
     
     timeGap = 0.1
     dataSentTime = time.time()
@@ -29,7 +42,7 @@ def main():
         try:
             data, address = leadVehicleDataManagerSocket.recvfrom(1024)
             decodedTrafficSignalState = struct.unpack("i", data)[0]
-            print("\nReceived traffic signal state is :", decodedTrafficSignalState)
+            logger.consoleDisplay("Received traffic signal state is :" + str(decodedTrafficSignalState))
             leadVehicleDataManager.setTrafficSignalState(decodedTrafficSignalState)
             
         except:

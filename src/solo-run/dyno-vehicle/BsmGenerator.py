@@ -2,6 +2,7 @@ import json
 import pandas as pd
 import haversine
 import time, datetime
+from Logger import Logger
 
 
 MAX_MSG_COUNT = 127
@@ -14,7 +15,8 @@ SECOND_MILISECOND_CONVERSION = 1000
 
 
 class BsmGenerator:
-    def __init__(self, config):
+    def __init__(self, config, logger: Logger):
+        self.logger = logger
         self.config = config
         self.vehicleId = config["VehicleInformation"]["HostVehicleId"]
         self.currentLatitude = 0.0
@@ -33,10 +35,7 @@ class BsmGenerator:
         self.previousTimeStampSetStatus = False
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
 
-        self.bsmLogFile = config["VehicleInformation"]["BsmLogFileName"]
-        initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
-        self.logFile = open("/nojournal/bin/log/solo-run/host_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")
-        self.logFile.write("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
+        self.wayPointsLogFile = config["VehicleInformation"]["HostBsmLogFileName"]
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -44,7 +43,7 @@ class BsmGenerator:
         - Method to get all the coordinates from preload waypoints/BSMs
         """
 
-        dataFrame = pd.read_csv(self.bsmLogFile)
+        dataFrame = pd.read_csv(self.wayPointsLogFile)
         self.latitudeList = dataFrame["latitude"].tolist()
         self.longitudeList = dataFrame["longitude"].tolist()
         self.elevationList = dataFrame["elevation"].tolist()
@@ -131,6 +130,8 @@ class BsmGenerator:
 
         if self.currentSpeed > 0:
             self.getNearestCoordinates()
+            
+        else: self.previousTime = time.time()
 
         self.setMsgCount()
         self.currentHeading = round(self.currentHeading, 2)        
@@ -178,9 +179,9 @@ class BsmGenerator:
             bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
             
         except Exception as e:
-            print("Following error occurred:\n", str(e))
+            self.logger.consoleDisplay("Following error occurred:\n", str(e))
 
-        self.logCoordinates()
+        self.logger.logHostVehicleBsmData(self.timeStep, self.msgCount, self.currentLatitude, self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading)
 
         return (
             self.currentLatitude,
@@ -205,33 +206,7 @@ class BsmGenerator:
         msOfMinute = timeNow.second * SECOND_MILISECOND_CONVERSION
 
         return msOfMinute
-
-    def logCoordinates(self):
-
-        timestamp_verbose = str(time.time())
-        timeStep = str(self.timeStep)
-        msgCount = str(self.msgCount)
-        temporaryId = "f03ad610"
-        secMark = str(100)
-        latitude = str(self.currentLatitude)
-        longitude = str(self.currentLongitude)
-        elevation = str(self.currentElevation)
-        speed = str(round(self.currentSpeed, 2))
-        heading = str(round(self.currentHeading,2))
-
-        csvRow = (timestamp_verbose + ","
-            + timeStep + ","
-            + msgCount + ","
-            + temporaryId + ","
-            + secMark + ","
-            + latitude + ","
-            + longitude + ","
-            + elevation + ","
-            + speed + ","
-            + heading + "\n"
-        )
-
-        self.logFile.write(csvRow)
         
     def __del__(self):
-        self.logFile.close()
+        self.logger.consoleDisplay("Closing BSM Generator Application")
+

@@ -3,40 +3,15 @@ import json
 import binascii
 import struct
 import haversine
-import time,datetime
+import time
+import atexit
 from osys import v2x
 from BsmGenerator import BsmGenerator
 from SpatManager import SpatManager
+from Logger import Logger
 
 SpeedDataLength = 16
 LEAD_VEHICLE_DATA_LENGTH = 24
-initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
-
-hostVehicleLogFile = open("/nojournal/bin/log/solo-run/host_vehicle_log_" + initializationTimestamp + ".csv", "w")
-leadVehicleLogFile = open("/nojournal/bin/log/solo-run/lead_vehicle_log_" + initializationTimestamp + ".csv", "w")
-bsmLog = open("/nojournal/bin/log/solo-run/bsm_hex_log_" + initializationTimestamp + ".log","w")
-
-hostHeader = ("TimeStamp, Counter, HostVehicleSpeed\n")
-leadHeader = ("TimeStamp, Counter, RelativeDistance, RelativeSpeed, LeadVehicleSpeed, HostVehicleSpeed\n")
-
-hostVehicleLogFile.write(hostHeader)
-leadVehicleLogFile.write(leadHeader)
-
-def logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed):
-    csvrow = (
-            str(round(time.time(), 4)) + ","
-            + str(round(counter, 0))  + ","
-            + str(round(relativeDistance, 3)) + ","
-            + str(round(relativeSpeed, 2)) + ","
-            + str(round(leadVehicleSpeed, 2)) + ","
-            + str(round(hostVehicleSpeed, 2)) + "\n")
-    leadVehicleLogFile.write(csvrow)
-    
-def logHostVehicleData(counter, decodedSpeed):
-    csvrow = (str(round(time.time(), 4)) + "," 
-            + str(round(counter, 0)) + "," 
-            + str(round(decodedSpeed, 2)) + "\n")
-    hostVehicleLogFile.write(csvrow)
 
 def getSafeDynoOperationData(counter, relativeDistance):
     
@@ -63,6 +38,10 @@ def getMessageType(string):
 
     return messageType
 
+def destruct_logger(logger:Logger):
+    logger.consoleDisplay("Shutting down now!")
+    del logger
+
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", "r")
     config = json.load(configFile)
@@ -76,8 +55,8 @@ def main():
     messageReceiverPort = config["PortNumber"]["MessageReceiver"]
     messageReceiverAddress = (messageReceiverIp, messageReceiverPort)
 
-    vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
-    # vehicleControllerIp = config["IPAddress"]["HostIp"]
+    # vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
+    vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
     
@@ -86,9 +65,16 @@ def main():
 
     hostVehicleDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     hostVehicleDataManagerSocket.bind(hostAddress)
-
-    bsmGenerator = BsmGenerator(config)
-    spatManager = SpatManager(config)
+    
+    # Get logging and console output variables
+    consoleStatus = config["GeneralInformation"]["ConsoleOutput"]
+    loggingStatus = config["GeneralInformation"]["Logging"]
+    debugStatus =  config["GeneralInformation"]["Debug"]
+    
+    logger = Logger(consoleStatus, loggingStatus, debugStatus)
+    atexit.register(lambda: destruct_logger(logger))
+    bsmGenerator = BsmGenerator(config, logger)
+    spatManager = SpatManager(config, logger)
 
     hostVehicleLat, hostVehicleLon, hostVehicleSpeed = 42.3025391192385, -83.69779345760013, 0.0
     leadVehicleLat, leadVehicleLon, leadVehicleSpeed = 42.30245402283134, -83.69784540965374, 0.0
@@ -97,7 +83,7 @@ def main():
 
     while True:
         data, address = hostVehicleDataManagerSocket.recvfrom(2048)
-        # print("Received data is following:\n", data)
+        # logger.consoleDisplay("Received data is following:\n" + str(data))
 
         dataLength = len(data)
 
@@ -106,13 +92,13 @@ def main():
             hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            # print("Encoded Bsm is: \n ", encodedBsm)
             hostVehicleDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
             
-            bsmHex = binascii.hexlify(encodedBsm)
-            bsmLog.write(str(bsmHex) + "\n")
-            logHostVehicleData(decodedCounter, decodedSpeed)
-            print("Decoded data is: ", decodedSpeed, " and counter is: ", decodedCounter)
+            hostBsmHex = binascii.hexlify(encodedBsm)
+            logger.logHostBsmHexData(hostBsmHex)
+
+            logger.logHostVehicleData(decodedCounter, decodedSpeed)
+            logger.consoleDisplay("Decoded data is: " + str(decodedSpeed) + " and counter is: " + str(decodedCounter))
             
             if time.time() - leadVehicleDataReceivedTime > 1.0:
                 while relativeDistance > 10:
@@ -121,12 +107,13 @@ def main():
 
                     hostVehicleDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     
-                    # logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed)
-                    print("Sending relative distance & speed, counter, and lead and host vehicle speed for safe operation: ", relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
-
+                    logger.consoleDisplay("Sending relative distance & speed, counter, and lead & host vehicle speed for safe operation: " +
+                                          + str(relativeDistance) + ", " + str(relativeSpeed) + ", " + str(counter) + ", " + str(leadVehicleSpeed) + ", " + str(hostVehicleSpeed))
+                    
         elif dataLength == LEAD_VEHICLE_DATA_LENGTH:
             leadVehicleLat, leadVehicleLon, leadVehicleSpeed = struct.unpack("ddd", data)
-            print("Received lead vehicle data is following: \n", leadVehicleLat, leadVehicleLon, leadVehicleSpeed)
+
+            logger.consoleDisplay("Received lead vehicle data is following: \n" + str(leadVehicleLat) + ", " + str(leadVehicleLon) + ", " + str(leadVehicleSpeed))
             relativeDistance = haversine.haversine((leadVehicleLat, leadVehicleLon), (hostVehicleLat, hostVehicleLon), unit=haversine.Unit.METERS)
  
             leadVehicleDataReceivedTime = time.time()
@@ -135,9 +122,10 @@ def main():
             sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
             
             hostVehicleDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
-            logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed)
-            print("Sending relative distance & speed, counter, and lead and host vehicle speed: ",
-                relativeDistance, relativeSpeed, counter, leadVehicleSpeed, hostVehicleSpeed)
+            
+            logger.logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed)            
+            logger.consoleDisplay("Sending relative distance & speed, counter, and lead & host vehicle speed: " + 
+                                          str(relativeDistance) + ", " + str(relativeSpeed) + ", " + str(counter) + ", " + str(leadVehicleSpeed) + ", " + str(hostVehicleSpeed))
 
         else:
 
@@ -151,14 +139,11 @@ def main():
                 trafficSignalState = spatManager.getDesiredSignalGroupState(payload)
                 sendingData =  struct.pack("i", trafficSignalState)
                 hostVehicleDataManagerSocket.sendto(sendingData, leadVehicleDataManagerAddress)
-                print("Sent traffic signal state", trafficSignalState)
+
+                logger.consoleDisplay("Sent traffic signal state " + str(trafficSignalState))
                 
                 
     hostVehicleDataManagerSocket.close()
-    hostVehicleLogFile.close()
-    leadVehicleLogFile.close()
-    bsmLog.close()
-
 
 if __name__ == "__main__":
     main()

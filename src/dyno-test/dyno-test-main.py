@@ -37,8 +37,8 @@ def main():
     MessageReceiverPort = config["PortNumber"]["MessageReceiver"]
     MessageReceiverAddress = (MessageReceiverIp, MessageReceiverPort)
 
-    # vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
-    vehicleControllerIp = config["IPAddress"]["HostIp"]
+    vehicleControllerIp = config["IPAddress"]["VehicleControllerIp"]
+    # vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
 
@@ -90,7 +90,7 @@ def main():
                     dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     
                     logger.consoleDisplay("Sending relative distance & speed, counter, and lead & host vehicle speed for safe operation: " +
-                                          + str(relativeDistance) + ", " + str(relativeSpeed) + ", " + str(counter) + ", " + str(leadVehicleSpeed) + ", " + str(hostVehicleSpeed))
+                                          str(relativeDistance) + ", " + str(relativeSpeed) + ", " + str(counter) + ", " + str(leadVehicleSpeed) + ", " + str(hostVehicleSpeed))
                     
         else:
 

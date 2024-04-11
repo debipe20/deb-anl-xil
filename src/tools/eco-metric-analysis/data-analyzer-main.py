@@ -9,7 +9,7 @@ def main():
     configFile.close()
 
     datamanager = DataManager(config)
-    datamanager.plotTransmissionOilTemperature()
+    datamanager.plotRelativeDistanceAndSpeedProfile()
 
 if __name__ == "__main__":
     main()  

@@ -1,0 +1,62 @@
+{
+	"FileDirectory": "/home/debashis/Downloads/Pilot2_Event2_eco_data",
+	"FileName": [
+		"Solo-ANL/SR1-20240405-190328_ANL-DYNO-1_eco_data.csv",
+		"Solo-ANL/SR2-20240405-192725_ANL-DYNO-1_eco_data.csv",
+		"Solo-ANL/SR3-20240405-193357_ANL-DYNO-1_eco_data.csv",
+		"Solo-Mcity/SR1-NOSTOP-20240405-195856_MCITY-CAV-01_eco_data.csv",
+		"Solo-Mcity/SR2-NOSTOP-20240405-200509_MCITY-CAV-01_eco_data.csv",
+		"Solo-Mcity/SR3-20240405-201143_MCITY-CAV-01_eco_data.csv",
+		"Solo-UCLA/SR1-20240325-210209_UCLA-OPENCDA_eco_data.csv",
+		"Solo-UCLA/SR2-20240325-211015_UCLA-OPENCDA_eco_data.csv",
+		"Solo-UCLA/SR3-20240325-211741_UCLA-OPENCDA_eco_data.csv",
+		"Solo-ORNL/SR1-20240321-144927_ORNL-AUTO-1_eco_data.csv",
+		"Solo-ORNL/SR2-20240321-150204_ORNL-AUTO-1_eco_data.csv",
+		"Solo-ORNL/SR3-20240321-152732_ORNL-AUTO-1_eco_data.csv"
+	],
+	"VehicleType": [
+		"chevy.bolt.2017",
+		"chevy.bolt.2017",
+		"chevy.bolt.2017",
+		"vehicle.lincoln.mkz2017",
+		"vehicle.lincoln.mkz2017",
+		"vehicle.lincoln.mkz2017",
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius"
+	],
+	"RoadGradColumn": [
+		"waypoint_pitch",
+		"waypoint_pitch",
+		"waypoint_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch"
+	],
+	"SaveFileName": [
+		"solo-run/ANL/ANL-DYNO_eco_data_round1.csv",
+		"solo-run/ANL/ANL-DYNO_eco_data_round2.csv",
+		"solo-run/ANL/ANL-DYNO_eco_data_round3.csv",
+		"solo-run/Mcity/MCITY-CAV_eco_data_round1.csv",
+		"solo-run/Mcity/MCITY-CAV_eco_data_round2.csv",
+		"solo-run/Mcity/MCITY-CAV_eco_data_round3.csv",
+		"solo-run/UCLA/UCLA-OPENCDA_eco_data_round1.csv",
+		"solo-run/UCLA/UCLA-OPENCDA_eco_data_round2.csv",
+		"solo-run/UCLA/UCLA-OPENCDA_eco_data_round3.csv",
+		"solo-run/ORNL/ORNL-AUTO_eco_data_round1.csv",
+		"solo-run/ORNL/ORNL-AUTO_eco_data_round2.csv",
+		"solo-run/ORNL/ORNL-AUTO_eco_data_round3.csv",
+		"solo-run/CARMA/Carma_eco_data_round1.csv",
+		"solo-run/CARMA/Carma_eco_data_round2.csv",
+		"solo-run/CARMA/Carma_eco_data_round3.csv"
+	]
+}

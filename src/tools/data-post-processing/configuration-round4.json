@@ -1,0 +1,31 @@
+{
+	"FileDirectory": "/home/debashis/Downloads/Pilot2_Event2_eco_data/Group/Group-R4",
+	"FileName": [
+		"20240405-182120_ANL-DYNO-1_eco_data.csv",
+		"20240405-182115_MCITY-CAV-01_eco_data.csv",
+		"20240405-182119_UCLA-OPENCDA_eco_data.csv",
+		"20240405-182113_ORNL-AUTO-1_eco_data.csv",
+		"20240405-182109_carma_1_eco_data.csv"
+	],
+	"VehicleType": [
+		"chevy.bolt.2017",
+		"vehicle.lincoln.mkz2017",
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius"
+	],
+	"RoadGradColumn": [
+		"waypoint_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch"
+	],
+	"SaveFileName": [
+		"group-run/round4/ANL-DYNO_eco_data_round4.csv",
+		"group-run/round4/MCITY-CAV_eco_data_round4.csv",
+		"group-run/round4/UCLA-OPENCDA_eco_data_round4.csv",
+		"group-run/round4/ORNL-AUTO_eco_data_round4.csv",
+		"group-run/round4/Carma_eco_data_round4.csv"
+	]
+}

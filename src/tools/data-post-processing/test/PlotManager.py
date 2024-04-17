@@ -28,7 +28,7 @@ class PlotManager:
                     timeData.append(row['Time(s)'])
                     vehicleSpeed.append(row['VehicleSpeed(m/s)'])
                     
-                fig, ax1 = plt.subplots()
+                fig, ax1 = plt.subplots(figsize=(18,12))
 
                 ax1.set_xlabel('Time (s)', fontsize=24, fontweight='bold')
                 ax1.set_ylabel('Speed (m/s)', fontsize=24, fontweight='bold')
@@ -37,7 +37,7 @@ class PlotManager:
                 # ax1.scatter(timeData, vehicleSpeed, c="blue",  linewidths=4,
                 #         marker=".",  edgecolor="none",  s=50, label='Vehicle Speed', zorder=2)
                             
-                ax1.legend(loc='upper right', prop={"size": 16})
+                # ax1.legend(loc='upper right', prop={"size": 16}, bbox_to_anchor=(1, 1))
                 ax1.set_title("Speed vs Time Plot", fontsize=20, fontweight='bold')
                 fig.tight_layout()  # otherwise the right y-label is slightly clipped
                 plt.grid(color='black', linestyle='-', linewidth=0.5)

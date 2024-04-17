@@ -14,18 +14,16 @@ Description:
 """
 
 import json 
-from DataManager import DataManager
+from PlotManager import PlotManager
 
 def main():
-    # Read the config file into a json object:
-    configFile = open("configuration-solo-run.json", 'r')
-    config = (json.load(configFile))
-    # Close the config file:
+
+    configFile = open("configuration.json", "r")
+    config = json.load(configFile)
     configFile.close()
 
-    dataManager = DataManager(config)
-    dataManager.processRawData()
-    
+    plotManager = PlotManager(config)
+    plotManager.plotSpeedProfile()
 
 if __name__ == "__main__":
-    main()
+    main()  

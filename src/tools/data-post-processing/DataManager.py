@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import math
 
+KPH_TO_MPS = 0.277778
+
 class DataManager:
     def __init__(self, config) -> None:
         self.config = config
@@ -41,7 +43,7 @@ class DataManager:
             for index, row in self.rawDataFrame.iterrows():
                 timeData.append(row['current_time'] - startTime)
                 vehicleType.append(vehicleModel)
-                vehicleSpeed.append(row['smoothed_speed'])
+                vehicleSpeed.append(row['smoothed_speed'] * KPH_TO_MPS)
                 roadGrade.append(row[roadGradeType])
             
             timeData = [round(val, 2) for val in timeData]

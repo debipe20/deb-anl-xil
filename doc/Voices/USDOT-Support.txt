@@ -114,6 +114,11 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	
 # Logging tcpdump data:
 	- sudo tcpdump -i lo port <V2X Hub Message Receiver Port> -w anl_bsm.pcap
-		
+
+
+docker logs containername >& myFile.log 
+iperf -s
+iperf -c 10.91.0.35
+
 		
 		

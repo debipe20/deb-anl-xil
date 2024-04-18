@@ -1,4 +1,4 @@
-Time(s),VehicleType,VehicleSpeed(m/s),RoadGrade(rad)
+Time(s),VehicleType,VehicleSpeed(m/s),RoadGrade(degree)
 0.0,toyota.prius,0.0,1.56723
 0.1,toyota.prius,0.0,1.56723
 0.2,toyota.prius,0.0,1.56723
@@ -1432,7 +1432,7 @@ Time(s),VehicleType,VehicleSpeed(m/s),RoadGrade(rad)
 144.8,toyota.prius,3.62,-0.90036
 144.9,toyota.prius,3.65,-0.90607
 145.0,toyota.prius,3.67,-0.91061
-145.1,toyota.prius,3.61,-0.91061
+145.11,toyota.prius,3.61,-0.91061
 145.21,toyota.prius,3.63,-1.00687
 145.31,toyota.prius,3.65,-0.95673
 145.41,toyota.prius,3.67,-0.92608

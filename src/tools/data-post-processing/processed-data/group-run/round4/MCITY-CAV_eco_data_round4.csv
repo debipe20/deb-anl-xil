@@ -1,4 +1,4 @@
-Time(s),VehicleType,VehicleSpeed(m/s),RoadGrade(rad)
+Time(s),VehicleType,VehicleSpeed(m/s),RoadGrade(degree)
 0.0,vehicle.lincoln.mkz2017,0.0,1.32621
 0.1,vehicle.lincoln.mkz2017,0.0,1.32624
 0.2,vehicle.lincoln.mkz2017,0.0,1.32624

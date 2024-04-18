@@ -52,7 +52,7 @@ class DataManager:
             vehicleSpeed = [round(val, 2) for val in vehicleSpeed]
             roadGrade = [round(val, 5) for val in roadGrade]
             # print(timeData)
-            processedDataFrame = pd.DataFrame({'Time(s)':timeData,'VehicleType':vehicleType,'VehicleSpeed(m/s)':vehicleSpeed,'RoadGrade(rad)':roadGrade})
+            processedDataFrame = pd.DataFrame({'Time(s)':timeData,'VehicleType':vehicleType,'VehicleSpeed(m/s)':vehicleSpeed,'RoadGrade(degree)':roadGrade})
             [li.clear() for li in [timeData, vehicleType, vehicleSpeed, roadGrade]]
             
             processedDataFrame.to_csv('processed-data/' + saveFileName, index=False)  # Set index=False to exclude the index column in the CSV file            

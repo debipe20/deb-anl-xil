@@ -18,7 +18,7 @@ from DataManager import DataManager
 
 def main():
     # Read the config file into a json object:
-    configFile = open("configuration-round2.json", 'r')
+    configFile = open("configuration-solo-run-anl.json", 'r')
     config = (json.load(configFile))
     # Close the config file:
     configFile.close()

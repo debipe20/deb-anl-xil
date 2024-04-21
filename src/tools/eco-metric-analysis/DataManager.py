@@ -27,7 +27,7 @@ class DataManager:
         [ecoDrivingLogFileList.append(fileDirectory) for fileDirectory in self.config["Dyno"]['Eco-Driving']]
         [soloRunLogFileList.append(fileDirectory) for fileDirectory in self.config["Dyno"]['Solo-Run']]
         
-        def plotDiagram(logFileList, fileLocation):
+        def plotDynoData(logFileList, fileLocation):
             
             colorList = ['green', 'blue', 'red', 'navy', 'orange', 'darkcyan', 'yellow']
             roundNo = 0
@@ -142,10 +142,10 @@ class DataManager:
                 
                 
         if ecoDrivingLogFileList:
-            plotDiagram(ecoDrivingLogFileList, 'eco-driving')
+            plotDynoData(ecoDrivingLogFileList, 'eco-driving')
             
         if soloRunLogFileList:
-            plotDiagram(soloRunLogFileList, 'solo-run')
+            plotDynoData(soloRunLogFileList, 'solo-run')
 
            
         

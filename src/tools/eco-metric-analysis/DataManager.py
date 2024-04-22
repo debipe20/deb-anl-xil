@@ -35,49 +35,56 @@ class DataManager:
             fig1, ax1 = plt.subplots(figsize=(18,12))                
             ax1.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
             ax1.set_ylabel('Trans_oil_temp_CAN__C', fontsize = 20, fontweight='bold')
-            ax1.set_title('Transmission Oil Temperature [C]', fontsize = 18, fontweight = 'bold')
+            ax1.set_title('Transmission Oil Temperature [C]', fontsize = 22, fontweight = 'bold')
             ax1.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax1.set_ylim(0,50)
-            # Set tick parameters
             ax1.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
             ax1.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
                         
-            
             fig2, ax2 = plt.subplots(figsize=(18,12))                
             ax2.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
             ax2.set_ylabel('Motor_1_temp_calc_DMCM1__C', fontsize = 20, fontweight='bold')
-            ax2.set_title('Motor Temperature [C]', fontsize = 18, fontweight = 'bold')
+            ax2.set_title('Motor Temperature [C]', fontsize = 22, fontweight = 'bold')
             ax2.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax2.set_ylim(0,50)
-            
+            ax2.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax2.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
+
             fig3, ax3 = plt.subplots(figsize=(18,12))                
             ax3.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
             ax3.set_ylabel('Motor_1_inverter_temp_sensor1_DMCM1__C', fontsize = 20, fontweight='bold')
-            ax3.set_title('Motor Inverter Temperature [C]', fontsize = 18, fontweight = 'bold')
+            ax3.set_title('Motor Inverter Temperature [C]', fontsize = 22, fontweight = 'bold')
             ax3.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax3.set_ylim(0,50)
-            
+            ax3.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax3.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
             
             fig4, ax4 = plt.subplots(figsize=(18,12))                
             ax4.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
-            ax4.set_ylabel('HVBatt_electronics_coolant_pump_command_HPCM2__per', fontsize = 18, fontweight='bold')
-            ax4.set_title('Coolant Pump Command [%]', fontsize = 18, fontweight = 'bold')
+            ax4.set_ylabel('HVBatt_electronics_coolant_pump_command_HPCM2__per', fontsize = 22, fontweight='bold')
+            ax4.set_title('Coolant Pump Command [%]', fontsize = 22, fontweight = 'bold')
             ax4.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax4.set_ylim(0,80)
-            
+            ax4.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax4.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
+
             fig5, ax5 = plt.subplots(figsize=(18,12))                
             ax5.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
             ax5.set_ylabel('HVBatt_coolant_temp_sensor_1_BECM__C', fontsize = 20, fontweight='bold')
-            ax5.set_title('HV Battery Coolant Temperature Sensor [C]', fontsize = 18, fontweight = 'bold')
+            ax5.set_title('HV Battery Coolant Temperature Sensor [C]', fontsize = 22, fontweight = 'bold')
             ax5.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax5.set_ylim(0,50)
+            ax5.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax5.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
             
             fig6, ax6 = plt.subplots(figsize=(18,12))                
             ax6.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
             ax6.set_ylabel('HVAC_AC_Compressor', fontsize = 20, fontweight='bold')
-            ax6.set_title('AC compressor [W]', fontsize = 18, fontweight = 'bold')
+            ax6.set_title('AC compressor [W]', fontsize = 22, fontweight = 'bold')
             ax6.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             # ax6.set_ylim(0,50)
+            ax6.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax6.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
             
             for index, logFile in enumerate(logFileList):
                 self.startTime = self.config['Dyno']['StartTime_EcoDriving'][index] if fileLocation == 'eco-driving' else self.config['Dyno']['StartTime_SoloRun'][index]
@@ -200,14 +207,14 @@ class DataManager:
                 axs[0].plot(time, relativeDistance, label='Inter-Vehicle Distance', c="orange")
                 axs[0].set_xlabel('Time (s)', fontweight = 'bold')
                 axs[0].set_ylabel('Distance (m)', fontweight = 'bold')
-                axs[0].set_title('Inter-Vehicle Distance between ANL & UCLA', fontsize = 18, fontweight = 'bold')
+                axs[0].set_title('Inter-Vehicle Distance between ANL & UCLA', fontsize = 22, fontweight = 'bold')
                 axs[0].legend(loc = 'upper right', bbox_to_anchor = (1, 1))
                 
                 axs[1].plot(time, leadVehicleSpeed, label='Lead Vehicle (UCLA) Speed', c="blue")
                 axs[1].plot(time, hostVehicleSpeed, label='Ego Vehicle (ANL) Speed', c="green")
                 axs[1].set_xlabel('Time (s)', fontweight = 'bold')
                 axs[1].set_ylabel('Vehicle Speed (m/s)', fontweight = 'bold')
-                axs[1].set_title('ANL & UCLA Speed Profile', fontsize = 18, fontweight = 'bold')
+                axs[1].set_title('ANL & UCLA Speed Profile', fontsize = 22, fontweight = 'bold')
                 axs[1].legend(loc = 'upper right', bbox_to_anchor = (1, 1))
 
                 plt.subplots_adjust(wspace = 3.0)
@@ -261,9 +268,9 @@ class DataManager:
                 plt.grid(color = 'black', linestyle = '-', linewidth = 0.5)
                 
                 if fileLocation == 'eco-driving':      
-                    ax1.set_title('ANL & UCLA Speed Profile Group Run' + str(index + 1), fontsize = 18, fontweight = 'bold')
+                    ax1.set_title('ANL & UCLA Speed Profile Group Run' + str(index + 1), fontsize = 22, fontweight = 'bold')
                 
-                else: ax1.set_title('ANL & UCLA Speed Profile Solo Run' + str(index + 1), fontsize = 18, fontweight = 'bold')
+                else: ax1.set_title('ANL & UCLA Speed Profile Solo Run' + str(index + 1), fontsize = 22, fontweight = 'bold')
                 
                 ax1.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
                 # plt.show()
@@ -328,7 +335,7 @@ class DataManager:
                 else: ax1.plot(value1, value2, label = 'Solo Run' + str(roundNo), c = color)
                 
 
-            ax1.set_title("ANL Speed Profile", fontsize = 18, fontweight='bold')
+            ax1.set_title("ANL Speed Profile", fontsize = 22, fontweight='bold')
             fig.tight_layout()  # otherwise the right y-label is slightly clipped
             plt.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             # ax1.legend(loc = 'upper right', bbox_to_anchor = (1.0, 1.22), prop={"size": 16})

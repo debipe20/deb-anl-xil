@@ -33,45 +33,48 @@ class DataManager:
             roundNo = 0
             
             fig1, ax1 = plt.subplots(figsize=(18,12))                
-            ax1.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax1.set_ylabel('Trans_oil_temp_CAN__C', fontsize = 14, fontweight='bold')
+            ax1.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax1.set_ylabel('Trans_oil_temp_CAN__C', fontsize = 20, fontweight='bold')
             ax1.set_title('Transmission Oil Temperature [C]', fontsize = 18, fontweight = 'bold')
             ax1.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax1.set_ylim(0,50)
-            
+            # Set tick parameters
+            ax1.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax1.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
+                        
             
             fig2, ax2 = plt.subplots(figsize=(18,12))                
-            ax2.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax2.set_ylabel('Motor_1_temp_calc_DMCM1__C', fontsize = 14, fontweight='bold')
+            ax2.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax2.set_ylabel('Motor_1_temp_calc_DMCM1__C', fontsize = 20, fontweight='bold')
             ax2.set_title('Motor Temperature [C]', fontsize = 18, fontweight = 'bold')
             ax2.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax2.set_ylim(0,50)
             
             fig3, ax3 = plt.subplots(figsize=(18,12))                
-            ax3.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax3.set_ylabel('Motor_1_inverter_temp_sensor1_DMCM1__C', fontsize = 14, fontweight='bold')
+            ax3.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax3.set_ylabel('Motor_1_inverter_temp_sensor1_DMCM1__C', fontsize = 20, fontweight='bold')
             ax3.set_title('Motor Inverter Temperature [C]', fontsize = 18, fontweight = 'bold')
             ax3.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax3.set_ylim(0,50)
             
             
             fig4, ax4 = plt.subplots(figsize=(18,12))                
-            ax4.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax4.set_ylabel('HVBatt_electronics_coolant_pump_command_HPCM2__per', fontsize = 14, fontweight='bold')
+            ax4.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax4.set_ylabel('HVBatt_electronics_coolant_pump_command_HPCM2__per', fontsize = 18, fontweight='bold')
             ax4.set_title('Coolant Pump Command [%]', fontsize = 18, fontweight = 'bold')
             ax4.grid(color = 'black', linestyle = '-', linewidth = 0.5)
-            ax4.set_ylim(0,60)
+            ax4.set_ylim(0,80)
             
             fig5, ax5 = plt.subplots(figsize=(18,12))                
-            ax5.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax5.set_ylabel('HVBatt_coolant_temp_sensor_1_BECM__C', fontsize = 14, fontweight='bold')
+            ax5.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax5.set_ylabel('HVBatt_coolant_temp_sensor_1_BECM__C', fontsize = 20, fontweight='bold')
             ax5.set_title('HV Battery Coolant Temperature Sensor [C]', fontsize = 18, fontweight = 'bold')
             ax5.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             ax5.set_ylim(0,50)
             
             fig6, ax6 = plt.subplots(figsize=(18,12))                
-            ax6.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax6.set_ylabel('HVAC_AC_Compressor', fontsize = 14, fontweight='bold')
+            ax6.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax6.set_ylabel('HVAC_AC_Compressor', fontsize = 20, fontweight='bold')
             ax6.set_title('AC compressor [W]', fontsize = 18, fontweight = 'bold')
             ax6.grid(color = 'black', linestyle = '-', linewidth = 0.5)
             # ax6.set_ylim(0,50)
@@ -80,7 +83,7 @@ class DataManager:
                 self.startTime = self.config['Dyno']['StartTime_EcoDriving'][index] if fileLocation == 'eco-driving' else self.config['Dyno']['StartTime_SoloRun'][index]
                 self.endTime = self.config['Dyno']['EndTime_EcoDriving'][index] if fileLocation == 'eco-driving' else self.config['Dyno']['EndTime_SoloRun'][index]
                 
-                logFileName = self.home_directory + '/Desktop/voices-log/dyno/' + fileLocation + '/' + logFile +'.csv'
+                logFileName = self.home_directory + '/Desktop/deb-anl-xil/data/voices-log/dyno/' + fileLocation + '/' + logFile +'.csv'
                 df = pd.read_csv(logFileName)
                 
                 startTimeIndex, endTimeIndex = self.getStartAndEndTimeIndex(df)
@@ -180,7 +183,7 @@ class DataManager:
         
         def plotDiagram(leadVehicleLogFileList, fileLocation):
             for index, leadVehicleLogFile in enumerate(leadVehicleLogFileList):
-                logFileName = self.home_directory + '/Desktop/voices-log/log/' + fileLocation + '/' + leadVehicleLogFile +'.csv'
+                logFileName = self.home_directory + '/Desktop/deb-anl-xil/data/voices-log/log/' + fileLocation + '/' + leadVehicleLogFile +'.csv'
                 df = pd.read_csv(logFileName)           
                 startIndex = next((idx for idx, val in df['LeadVehicleSpeed'].items() if val > 0), None)
                 endIndex = next((idx+1 for idx, val in reversed(list(df['HostVehicleSpeed'].items())) if val > 0), None)
@@ -236,7 +239,7 @@ class DataManager:
         
         def plotDiagram(leadVehicleLogFileList, fileLocation):
             for index, leadVehicleLogFile in enumerate(leadVehicleLogFileList):
-                logFileName = self.home_directory + '/Desktop/voices-log/log/' + fileLocation + '/' + leadVehicleLogFile +'.csv'
+                logFileName = self.home_directory + '/Desktop/deb-anl-xil/data/voices-log/log/' + fileLocation + '/' + leadVehicleLogFile +'.csv'
                 df = pd.read_csv(logFileName)           
                 startIndex = next((idx for idx, val in df['LeadVehicleSpeed'].items() if val > 0), None)
                 endIndex = next((idx+1 for idx, val in reversed(list(df['HostVehicleSpeed'].items())) if val > 0), None)
@@ -251,7 +254,7 @@ class DataManager:
 
                 fig, ax1 = plt.subplots(figsize=(18,12))
                 
-                ax1.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
+                ax1.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
                 ax1.plot(time, relativeDistance, label = 'Inter-Vehicle Distance', c = "orange")
                 ax1.plot(time, leadVehicleSpeed, label = 'Lead Vehicle (UCLA) Speed', c = "blue")
                 ax1.plot(time, hostVehicleSpeed, label = 'Ego Vehicle (ANL) Speed', c = "green")
@@ -294,7 +297,7 @@ class DataManager:
                 timeNameList[f"time{i}"], relativeDistanceNameList[f"relativeDistance{i}"], leadVehicleSpeedNameList[f"leadVehicleSpeed{i}"], hostVehicleSpeedNameList[f"hostVehicleSpeed{i}"] = ([] for i in range(4))
                 
             for index, leadVehicleLogFile in enumerate(leadVehicleLogFileList):
-                logFileName = self.home_directory + '/Desktop/voices-log/log/' + fileLocation + '/' + leadVehicleLogFile +'.csv'
+                logFileName = self.home_directory + '/Desktop/deb-anl-xil/data/voices-log/log/' + fileLocation + '/' + leadVehicleLogFile +'.csv'
                 df = pd.read_csv(logFileName)           
                 startIndex = next((idx for idx, val in df['LeadVehicleSpeed'].items() if val > 0), None)
                 endIndex = next((idx+1 for idx, val in reversed(list(df['HostVehicleSpeed'].items())) if val > 0), None)
@@ -310,8 +313,8 @@ class DataManager:
             
             fig, ax1 = plt.subplots(figsize=(18,12))
 
-            ax1.set_xlabel('Time (s)', fontsize = 14, fontweight='bold')
-            ax1.set_ylabel('Speed (m/s)', fontsize = 14, fontweight='bold')
+            ax1.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax1.set_ylabel('Speed (m/s)', fontsize = 20, fontweight='bold')
             colorList = ['green', 'blue', 'red', 'darkcyan', 'orange', 'navy', 'yellow']
             roundNo = 0
             

@@ -138,6 +138,7 @@ class DataManager:
                     ax4.plot(timeDataList, coolantPumpCommandDataList, label = 'Solo Run' + str(roundNo), c = color)
                     ax5.plot(timeDataList, hV_BattCoolantTempDataList, label = 'Solo Run' + str(roundNo), c = color)
                     ax6.plot(timeDataList, aC_CompressorPowerDataList, label = 'Solo Run' + str(roundNo), c = color)
+                    ax7.bar(groupRunNo, max(stateOfCharge), color='skyblue', width=0.6, alpha=0.7, edgecolor='black', linewidth=1.2)
                     
                 ax1.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
                 ax2.legend(loc = 'upper right', bbox_to_anchor = (1, 1))

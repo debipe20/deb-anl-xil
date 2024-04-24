@@ -11,14 +11,14 @@ class DataManager:
         self.startTime = 0.0
         self.endTime = 0.0
         
-        # self.dataFileName = config['FileName']
-        # self.dataFrame = pd.read_csv(self.dataFileName)
-        # columnFile = open("cloumn-name.log", 'w')
+        self.dataFileName = config['FileName']
+        self.dataFrame = pd.read_csv(self.dataFileName)
+        columnFile = open("cloumn-name.log", 'w')
         
-        # for col in self.dataFrame.columns:
-        #     columnFile.write(col + '\n')
+        for col in self.dataFrame.columns:
+            columnFile.write(col + '\n')
             
-        # columnFile.close()
+        columnFile.close()
 
 
     def analyzeDynoLog(self):

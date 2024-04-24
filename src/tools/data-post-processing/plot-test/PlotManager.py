@@ -30,8 +30,8 @@ class PlotManager:
                     
                 fig, ax1 = plt.subplots(figsize=(18,12))
 
-                ax1.set_xlabel('Time (s)', fontsize=24, fontweight='bold')
-                ax1.set_ylabel('Speed (m/s)', fontsize=24, fontweight='bold')
+                ax1.set_xlabel('Time (s)', fontsize=20, fontweight='bold')
+                ax1.set_ylabel('Speed (m/s)', fontsize=22, fontweight='bold')
                 
                 ax1.plot(timeData, vehicleSpeed, label = 'Vehicle Speed', c = "blue")
                 # ax1.scatter(timeData, vehicleSpeed, c="blue",  linewidths=4,
@@ -46,8 +46,8 @@ class PlotManager:
                 plt.savefig(saveFileName +'-plot.jpg', bbox_inches='tight', dpi=72)
                 plt.close(fig)
                 
-                [li.clear() for li in [timeData, vehicleSpeed]]
-                
+                [li.clear() for li in [timeData, vehicleSpeed]]               
+            
         if self.groupRunLogFileList:
             plotDiagram(self.groupRunLogFileList, self.groupRunSaveFileNameList)
             
@@ -55,6 +55,49 @@ class PlotManager:
             plotDiagram(self.soloRunLogFileList, self.soloRunSaveFileNameList)
 
 
+    def plotAllSpeedProfile(self):
         
+        [self.groupRunLogFileList.append(fileDirectory) for fileDirectory in self.config["VehicleLogFileDirectory"]['Group-Run']]
+        [self.soloRunLogFileList.append(fileDirectory) for fileDirectory in self.config["VehicleLogFileDirectory"]['Solo-Run']]
+        groupRunSaveFileName = self.config["SaveFileName"]['Group-Run']
+        soloRunSaveFileName = self.config["SaveFileName"]['Solo-Run']
+        timeData, vehicleSpeed = ([] for i in range(2))  
+        
+        def plotDiagram(vehicleLogFileList, saveFileName):
+            
+            fig, ax1 = plt.subplots(figsize=(18,12))
+            ax1.set_xlabel('Time (s)', fontsize=20, fontweight='bold')
+            ax1.set_ylabel('Speed (m/s)', fontsize=22, fontweight='bold')
+            ax1.set_title("Vehicle Speed Profile Group Run" + str(self.config["GroupRunNo"]), fontsize=20, fontweight='bold')
+            ax1.grid(color = 'black', linestyle = '-', linewidth = 0.5)
+            ax1.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax1.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
+            colorList = ['green', 'blue', 'red', 'orange', 'navy', 'yellow','darkcyan']
+            siteList = ['ANL', 'MCITY', 'UCLA', 'ORNL', 'CARMA']
+            
+            for index, logFileName in enumerate(vehicleLogFileList):
+                logFileName = '../processed-data' + '/' + logFileName 
+                dataFrame = pd.read_csv(logFileName)
+                                
+                for i, row in dataFrame.iterrows():
+                    timeData.append(row['Time(s)'])
+                    vehicleSpeed.append(row['VehicleSpeed(m/s)'])
+                
+                ax1.plot(timeData, vehicleSpeed, label = siteList[index], c =  colorList[index])
+                ax1.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
+                [li.clear() for li in [timeData, vehicleSpeed]]
+                
+            # plt.show()
+            plt.savefig(groupRunSaveFileName + '-plot.jpg', bbox_inches='tight', dpi=72)
+            plt.close(fig)
+            
+        if self.groupRunLogFileList:
+            plotDiagram(self.groupRunLogFileList, groupRunSaveFileName)
+            
+        # if self.soloRunLogFileList:
+        #     plotDiagram(self.soloRunLogFileList, soloRunSaveFileName)        
+            
+                
+                
         
     

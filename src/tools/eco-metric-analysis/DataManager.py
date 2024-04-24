@@ -11,18 +11,20 @@ class DataManager:
         self.startTime = 0.0
         self.endTime = 0.0
         
-        self.dataFileName = config['FileName']
-        self.dataFrame = pd.read_csv(self.dataFileName)
-        columnFile = open("cloumn-name.log", 'w')
+        # self.dataFileName = config['FileName']
+        # self.dataFrame = pd.read_csv(self.dataFileName)
+        # columnFile = open("cloumn-name.txt", 'w')
         
-        for col in self.dataFrame.columns:
-            columnFile.write(col + '\n')
+        # for col in self.dataFrame.columns:
+        #     columnFile.write(col + '\n')
             
-        columnFile.close()
+        # columnFile.close()
 
 
     def analyzeDynoLog(self):
-        timeDataList, transmissionOilTempDataList, motorTemperatureDataList, motorInverterTemperatureDataList, coolantPumpCommandDataList, hV_BattCoolantTempDataList, aC_CompressorPowerDataList = ([] for i in range(7))
+        timeDataList, transmissionOilTempDataList, motorTemperatureDataList, motorInverterTemperatureDataList = ([] for i in range(4))
+        coolantPumpCommandDataList, hV_BattCoolantTempDataList, aC_CompressorPowerDataList = ([] for i in range(3))
+        stateOfCharge, groupRunNo = ([] for i in range(2))
         ecoDrivingLogFileList, soloRunLogFileList = ([] for i in range(2)) 
         [ecoDrivingLogFileList.append(fileDirectory) for fileDirectory in self.config["Dyno"]['Eco-Driving']]
         [soloRunLogFileList.append(fileDirectory) for fileDirectory in self.config["Dyno"]['Solo-Run']]
@@ -86,6 +88,15 @@ class DataManager:
             ax6.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
             ax6.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
             
+            fig7, ax7 = plt.subplots(figsize=(18,12))                
+            ax7.set_xlabel('Time (s)', fontsize = 20, fontweight='bold')
+            ax7.set_ylabel('HVBatt_SOC_HPCM__per', fontsize = 20, fontweight='bold')
+            ax7.set_title('State of Charge', fontsize = 22, fontweight = 'bold')
+            ax7.grid(color = 'black', linestyle = '-', linewidth = 0.5)
+            # ax7.set_ylim(0,50)
+            ax7.tick_params(axis='both', which='major', labelsize=16)  # Major ticks
+            ax7.tick_params(axis='both', which='minor', labelsize=14)  # Minor ticks
+            
             for index, logFile in enumerate(logFileList):
                 self.startTime = self.config['Dyno']['StartTime_EcoDriving'][index] if fileLocation == 'eco-driving' else self.config['Dyno']['StartTime_SoloRun'][index]
                 self.endTime = self.config['Dyno']['EndTime_EcoDriving'][index] if fileLocation == 'eco-driving' else self.config['Dyno']['EndTime_SoloRun'][index]
@@ -104,9 +115,12 @@ class DataManager:
                     coolantPumpCommandDataList.append(row['HVBatt_electronics_coolant_pump_command_HPCM2__per'])
                     hV_BattCoolantTempDataList.append(row['HVBatt_coolant_temp_sensor_1_BECM__C'])
                     aC_CompressorPowerDataList.append(row['HVAC_AC_Compressor_Current_unk_CAN'] * row['HVAC_AC_Compressor_Voltage_CAN__V'])
-                                   
+                    stateOfCharge.append(row['HVBatt_SOC_HPCM__per'])               
+                
+                
                 color = colorList[roundNo]
                 roundNo += 1
+                groupRunNo.append("Group Run" + str(roundNo))
                 
                 if fileLocation == 'eco-driving':
                     ax1.plot(timeDataList, transmissionOilTempDataList, label = 'Group Run' + str(roundNo), c = color)
@@ -115,6 +129,7 @@ class DataManager:
                     ax4.plot(timeDataList, coolantPumpCommandDataList, label = 'Group Run' + str(roundNo), c = color)
                     ax5.plot(timeDataList, hV_BattCoolantTempDataList, label = 'Group Run' + str(roundNo), c = color)
                     ax6.plot(timeDataList, aC_CompressorPowerDataList, label = 'Group Run' + str(roundNo), c = color)
+                    ax7.bar(groupRunNo, max(stateOfCharge), color='skyblue', width=0.6, alpha=0.7, edgecolor='black', linewidth=1.2)
                     
                 else:
                     ax1.plot(timeDataList, transmissionOilTempDataList, label = 'Solo Run' + str(roundNo), c = color)
@@ -130,9 +145,11 @@ class DataManager:
                 ax4.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
                 ax5.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
                 ax6.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
+                # ax7.legend(loc = 'upper right', bbox_to_anchor = (1, 1))
                 
                 
-                [li.clear() for li in [timeDataList, transmissionOilTempDataList, motorTemperatureDataList, motorInverterTemperatureDataList, coolantPumpCommandDataList, hV_BattCoolantTempDataList, aC_CompressorPowerDataList]]                
+                [li.clear() for li in [timeDataList, transmissionOilTempDataList, motorTemperatureDataList, motorInverterTemperatureDataList]]
+                [li.clear() for li in [coolantPumpCommandDataList, hV_BattCoolantTempDataList, aC_CompressorPowerDataList, stateOfCharge]]                
                 
             
             fig1.savefig('diagram/' + fileLocation + '/' +'transmission-oil-temperature-plot.jpg', bbox_inches='tight', dpi=72) 
@@ -140,7 +157,8 @@ class DataManager:
             fig3.savefig('diagram/' + fileLocation + '/' +'motor-inverter-temperature-plot.jpg', bbox_inches='tight', dpi=72)                
             fig4.savefig('diagram/' + fileLocation + '/' +'coolant-pump-command-plot.jpg', bbox_inches='tight', dpi=72) 
             fig5.savefig('diagram/' + fileLocation + '/' +'hv-battery-coolant-temperature-plot.jpg', bbox_inches='tight', dpi=72)
-            fig6.savefig('diagram/' + fileLocation + '/' +'ac-compressor-power-plot.jpg', bbox_inches='tight', dpi=72)                
+            fig6.savefig('diagram/' + fileLocation + '/' +'ac-compressor-power-plot.jpg', bbox_inches='tight', dpi=72)
+            fig7.savefig('diagram/' + fileLocation + '/' +'state-of-charge-plot.jpg', bbox_inches='tight', dpi=72)                
             
             plt.close(fig1)
             plt.close(fig2)
@@ -148,7 +166,7 @@ class DataManager:
             plt.close(fig4)
             plt.close(fig5)
             plt.close(fig6)
-                        
+            plt.close(fig7)       
                 
                 
         if ecoDrivingLogFileList:

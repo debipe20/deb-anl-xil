@@ -2,7 +2,8 @@ import socket
 import json
 import struct
 
-
+KPH_TO_MPS = 0.35
+MPH_TO_MPS = 0.44704
 
 def main():
     configFile = open("/nojournal/bin/anl-master-config.json", 'r')
@@ -23,12 +24,19 @@ def main():
 
     while True:
         data, address = msgSenderSocket.recvfrom(2048)
-        decodedDistance, decodedSpeed, decodedCounter, decodedSpeedOriginal  = struct.unpack("dddd", data)
+        relativeDistance, relativeSpeed, counter, leadVehicleSpeed  = struct.unpack("dddd", data)
 
-        print("Received data is following:\n Relative Distance, Relative Speed, Speed \n", decodedDistance, decodedSpeed,  decodedSpeedOriginal)
+        print("Received data is following:\n Relative Distance, Relative Speed, Speed \n", relativeDistance, relativeSpeed, leadVehicleSpeed)
 
-        encodedCounter = struct.pack("d", decodedCounter)
-        encodedSpeed = struct.pack("d", decodedSpeedOriginal)
+        if relativeDistance <= 10.0:
+            leadVehicleSpeed = 0.0
+        
+        # else: leadVehicleSpeed = leadVehicleSpeed * KPH_TO_MPS
+        
+        leadVehicleSpeed = leadVehicleSpeed * MPH_TO_MPS
+            
+        encodedCounter = struct.pack("d", counter)
+        encodedSpeed = struct.pack("d", leadVehicleSpeed)
 
         sendingData =  encodedCounter + encodedSpeed
         msgSenderSocket.sendto(sendingData, clientAddress)

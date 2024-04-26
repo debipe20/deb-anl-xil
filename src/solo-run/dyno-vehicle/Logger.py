@@ -57,7 +57,7 @@ class Logger:
                 + heading + "\n"
             )
 
-        self.hostVehicleBsmLogFile.write(csvRow)
+            self.hostVehicleBsmLogFile.write(csvRow)
         
     def logLeadVehicleData(self, counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed):
         if (self.loggingStatus == True):

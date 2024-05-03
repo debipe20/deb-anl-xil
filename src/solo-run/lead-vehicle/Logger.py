@@ -22,30 +22,30 @@ class Logger:
         self.leadVehicleBsmLogFile.write(leadHeader) 
             
     def logLeadVehicleBsmData(self, timeStep, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading, distanceToFinalWayPoints, distanceToIntersection):
-        timestamp_verbose = str(time.time())
-        timeStep = str(timeStep)
-        latitude = str(currentLatitude)
-        longitude = str(currentLongitude)
-        elevation = str(currentElevation)
-        speed = str(round(currentSpeed, 2))
-        heading = str(round(currentHeading, 2))
-        wayPointsDistance = str(round(distanceToFinalWayPoints, 2))
-        intersectionDistance = str(round(distanceToIntersection, 2))
+        if (self.loggingStatus == True):
+            timestamp_verbose = str(time.time())
+            timeStep = str(timeStep)
+            latitude = str(currentLatitude)
+            longitude = str(currentLongitude)
+            elevation = str(currentElevation)
+            speed = str(round(currentSpeed, 2))
+            heading = str(round(currentHeading, 2))
+            wayPointsDistance = str(round(distanceToFinalWayPoints, 2))
+            intersectionDistance = str(round(distanceToIntersection, 2))
 
-        csvRow = (timestamp_verbose + ","
-            + timeStep + ","
-            + latitude + ","
-            + longitude + ","
-            + elevation + ","
-            + speed + ","
-            + heading + ","
-            + wayPointsDistance + ","
-            + intersectionDistance + "\n"
-        )
+            csvRow = (timestamp_verbose + ","
+                + timeStep + ","
+                + latitude + ","
+                + longitude + ","
+                + elevation + ","
+                + speed + ","
+                + heading + ","
+                + wayPointsDistance + ","
+                + intersectionDistance + "\n"
+            )
 
-        self.leadVehicleBsmLogFile.write(csvRow)
+            self.leadVehicleBsmLogFile.write(csvRow)
         
-
     def consoleDisplay(self, consoleString:str):
         
         timestamp = str(round(time.time(),4))

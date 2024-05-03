@@ -1,0 +1,10 @@
+Argonne Event 2 check list
+
+• Config: Set appropriate config file (site config and scenario config)
+• V2X-HUB: Check EMendPoint and ListenEndPoint IP Addresses in the TENA BSM V2X-Hub Plugin
+• Execution-Manager: Ensure all the adapters and plugin are running (CARLA TENA Adapter, TENA J2735 Message Adapter, TENA Entity Generator, and TENA BSM V2X-Hub Plugin)
+• BSM-Generator: Check BSM-Generator software is running and receiving data from Dyno vehicle and lead vehicle.
+• CARLA: Ensure ANL vehicle appears on CARLA Map and ready to roll
+• Dyno: Dyno is ON and ready to operate safely, and data-collection is running.
+• Vehicle: Vehicle is on Drive mode.
+• Simulation PC: Ensure communication is established with vehicle and BSM-Generator, and vehicle control algorithm is running

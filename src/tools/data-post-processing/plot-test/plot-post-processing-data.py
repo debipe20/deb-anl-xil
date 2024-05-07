@@ -18,13 +18,13 @@ from PlotManager import PlotManager
 
 def main():
 
-    configFile = open("configuration-round1.json", "r")
+    configFile = open("configuration.json", "r")
     config = json.load(configFile)
     configFile.close()
 
     plotManager = PlotManager(config)
-    # plotManager.plotSpeedProfile()
-    plotManager.plotAllSpeedProfile()
+    plotManager.plotSpeedProfile() #for configuration.json
+    # plotManager.plotAllSpeedProfile() #for configuration-round1.json
 
 if __name__ == "__main__":
     main()  

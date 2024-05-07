@@ -40,7 +40,10 @@
 			"solo-run/UCLA/UCLA-OPENCDA_eco_data_round3.csv",
 			"solo-run/ORNL/ORNL-AUTO_eco_data_round1.csv",
 			"solo-run/ORNL/ORNL-AUTO_eco_data_round2.csv",
-			"solo-run/ORNL/ORNL-AUTO_eco_data_round3.csv"
+			"solo-run/ORNL/ORNL-AUTO_eco_data_round3.csv",
+			"solo-run/CARMA/CARMA-Platform_eco_data_round1.csv",
+			"solo-run/CARMA/CARMA-Platform_eco_data_round2.csv",
+			"solo-run/CARMA/CARMA-Platform_eco_data_round3.csv"
 		]
 	},
 	"SaveFileName": {
@@ -83,7 +86,10 @@
 			"figure/solo-run/UCLA-OPENCDA_eco_data_round3",
 			"figure/solo-run/ORNL-AUTO_eco_data_round1",
 			"figure/solo-run/ORNL-AUTO_eco_data_round2",
-			"figure/solo-run/ORNL-AUTO_eco_data_round3"
+			"figure/solo-run/ORNL-AUTO_eco_data_round3",
+			"figure/solo-run/CARMA-Platform_eco_data_round1",
+			"figure/solo-run/CARMA-Platform_eco_data_round2",
+			"figure/solo-run/CARMA-Platform_eco_data_round3"
 		]
 	}
 }

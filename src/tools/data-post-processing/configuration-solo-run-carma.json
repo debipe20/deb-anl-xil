@@ -1,0 +1,25 @@
+{
+	"FileDirectory": "/home/debashis/Desktop/deb-anl-xil/data/voices-log/Pilot2_Event2_eco_data",
+	"StartTime":[1714658402, 1714658803, 1714659196],
+	"EndTime":[1714658591, 1714658993, 1714659387],
+	"FileName": [
+		"Solo-CARMA/20240502-135858_carma_1_eco_data_smoothed.csv",
+		"Solo-CARMA/20240502-140535_carma_1_eco_data_smoothed.csv",
+		"Solo-CARMA/20240502-141220_carma_1_eco_data_smoothed.csv"
+	],
+	"VehicleType": [
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius"
+	],
+	"RoadGradColumn": [
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch"
+	],
+	"SaveFileName": [
+		"solo-run/CARMA/CARMA-Platform_eco_data_round1.csv",
+		"solo-run/CARMA/CARMA-Platform_eco_data_round2.csv",
+		"solo-run/CARMA/CARMA-Platform_eco_data_round3.csv"
+	]
+}

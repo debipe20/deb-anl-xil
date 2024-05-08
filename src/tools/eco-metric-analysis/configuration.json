@@ -1,0 +1,35 @@
+{
+    "FileName": "voices-test-data.csv",
+    "LeadVehicleLogFileDirectory": {
+        "Eco-Driving": [
+            "lead_vehicle_log_04052024_122601",
+            "lead_vehicle_log_04052024_124531",
+            "lead_vehicle_log_04052024_130438",
+            "lead_vehicle_log_04052024_131933",
+            "lead_vehicle_log_04052024_133121"
+        ],
+        "Solo-Run": [
+            "lead_vehicle_log_04052024_140301",
+            "lead_vehicle_log_04052024_142646",
+            "lead_vehicle_log_04052024_143343"
+        ]
+    },
+    "Dyno": {
+        "StartTime_EcoDriving":[3795182904.09986, 3795184241.09969, 3795185243.09969, 3795186108.09995, 3795186833.99991],
+	    "EndTime_EcoDriving":[3795182998.99977, 3795184361.99957, 3795185347.99959, 3795186204.99986, 3795186935.99982],
+        "Eco-Driving": [
+            "voices-event-2-group-run-round1",
+            "voices-event-2-group-run-round2",
+            "voices-event-2-group-run-round3",
+            "voices-event-2-group-run-round4",
+            "voices-event-2-group-run-round5"
+        ],
+        "StartTime_SoloRun":[3795188628.09992, 3795190050.59413, 3795190471.99989],
+	    "EndTime_SoloRun":[3795188770.09978, 3795190202.99217, 3795190614.91998],
+        "Solo-Run": [
+            "voices-event-2-solo-run-round1",
+            "voices-event-2-solo-run-round2",
+            "voices-event-2-solo-run-round3"
+        ]
+    }
+}

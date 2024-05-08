@@ -6,9 +6,10 @@ import sys
 import argparse
 import os
 import signal
+import struct
 from pathlib import Path
 from osys import v2x
-
+import time
 from BsmGenerator import BsmGenerator
 
 def main():
@@ -30,29 +31,38 @@ def main():
     bsmGenerator = BsmGenerator(config)
 
     # bsmJsonString =  bsmGenerator.getBsmJsonString(currentSpeed, currentTime)
-
+    receivingTime = time.time()
+    counter =  0
     while True:
         data, address = bsmGeneratorSocket.recvfrom(2048)
-        # print("Received data:", data)
-        data = data.decode()
-        # print("Decoded data:", data)
-        receivedMessage = json.loads(data)
+        # # print("Received data:", data)
+        # data = data.decode()
+        # # print("Decoded data:", data)
+        # receivedMessage = json.loads(data)
         
-        if receivedMessage["MsgType"]=="SpeedData":
-            bsmJsonString =  bsmGenerator.getBsmJsonString(receivedMessage["Speed"])
-            # print(type(bsmJsonString))
-            # bsmJsonString = json.loads(bsmJsonString)
-            # print(type(bsmJsonString))
-            # print("BSM Json is following:\n", bsmJsonString)
+        # if receivedMessage["MsgType"]=="SpeedData":
+        #     bsmJsonString =  bsmGenerator.getBsmJsonString(receivedMessage["Speed"])
 
+
+        #     encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
+
+        #     print("Encoded BSM is Following:\n", encodedBsm)
+
+        #     bsmGeneratorSocket.sendto(encodedBsm, clientAddress)
+        counter = counter + 1
+        
+        if counter == 10:
+            timeGap = time.time() - receivingTime
+            receivingTime = time.time()
+            counter = 0
+            decodedCounter, decodedSpeed = struct.unpack("dd", data) 
+            print("Received speed data at timeGap: ", timeGap, " ", decodedSpeed)
+            bsmJsonString =  bsmGenerator.getBsmJsonString(decodedSpeed*0.277778)
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            # hexlifyBsm = binascii.hexlify(encodedBsm)
-   
-            # print(hexlifyBsm)
-            # encodedBsm = binascii.hexlify(encodedBsm)
             print("Encoded BSM is Following:\n", encodedBsm)
-
             bsmGeneratorSocket.sendto(encodedBsm, clientAddress)
+        
+        else: continue
             
 
     bsmGeneratorSocket.close()

@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: PandaCANDecoder
+Version: 0.0.1
+Author: Will Martin
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: tqdm
+Requires-Dist: scikit-learn
+Requires-Dist: libusb1
+Requires-Dist: bokeh
+Requires-Dist: openpyxl
+Requires-Dist: mat73

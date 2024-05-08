@@ -8,9 +8,9 @@ def main():
     config = (json.load(configFile))
     configFile.close()
 
-    hostIp = config["HostIp"]
+    hostIp = config["IPAddress"]["HostIp"]
     port = config["PortNumber"]["DataConverter"]
-    clientIp = config["V2XHubIp"]
+    clientIp = config["IPAddress"]["V2XHubIp"]
     clientPort = config["PortNumber"]["MessageReceiver"]
     com_info = (hostIp, port)
     clientAddress = (clientIp, clientPort)

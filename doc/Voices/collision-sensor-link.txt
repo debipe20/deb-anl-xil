@@ -1,0 +1,13 @@
+https://medium.com/@parthanvelanjeri/a-dip-into-carla-ii-control-your-car-and-your-world-2ec5d6682e17
+
+https://medium.com/@parthanvelanjeri/a-dip-into-carla-iii-camera-and-other-sensors-484fa039063c
+
+https://carla.readthedocs.io/en/latest/tuto_G_retrieve_data/#rgb-camera
+
+https://carla.readthedocs.io/en/latest/ref_sensors/
+
+https://github.com/carla-simulator/carla/issues/1553
+
+https://www.youtube.com/watch?v=T0y8dF55NMw&ab_channel=Attokclad-TheIronclad
+
+https://www.youtube.com/watch?v=nhlLWbJz8vI&ab_channel=Attokclad-TheIronclad

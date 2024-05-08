@@ -1,0 +1,33 @@
+{
+	"FileDirectory": "/home/debashis/Desktop/deb-anl-xil/data/voices-log/Pilot2_Event2_eco_data/Group/Group-R1",
+	"StartTime":[1712338114.0522, 1712338114.0522, 1712338114.0522, 1712338114.0522, 1712338114.0522],
+	"EndTime":[1712338337.25267, 1712338350.37171, 1712338337.25267, 1712338337.25267, 1712338346.16487],
+	"FileName": [
+		"20240405-172756_ANL-DYNO-1_eco_data.csv",
+		"20240405-172611_MCITY-CAV-01_eco_data.csv",
+		"20240405-172741_UCLA-OPENCDA_eco_data.csv",
+		"20240405-172747_ORNL-AUTO-1_eco_data.csv",
+		"20240405-172741_carma_1_eco_data.csv"
+	],
+	"VehicleType": [
+		"chevy.bolt.2017",
+		"vehicle.lincoln.mkz2017",
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius"
+	],
+	"RoadGradColumn": [
+		"waypoint_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch"
+	],
+	"SaveFileName": [
+		"group-run/round1/ANL-DYNO_eco_data_round1.csv",
+		"group-run/round1/MCITY-CAV_eco_data_round1.csv",
+		"group-run/round1/UCLA-OPENCDA_eco_data_round1.csv",
+		"group-run/round1/ORNL-AUTO_eco_data_round1.csv",
+		"group-run/round1/Carma_eco_data_round1.csv"
+	]
+}

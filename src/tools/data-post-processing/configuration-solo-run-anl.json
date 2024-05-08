@@ -1,0 +1,25 @@
+{
+	"FileDirectory": "/home/debashis/Desktop/deb-anl-xil/data/voices-log/Pilot2_Event2_eco_data",
+	"StartTime":[1712343834.10454, 1712345259.34288, 1712345679.11066],
+	"EndTime":[1712343974.30387, 1712345399.57182, 1712345819.0582],
+	"FileName": [
+		"Solo-ANL/SR1-20240405-190328_ANL-DYNO-1_eco_data.csv",
+		"Solo-ANL/SR2-20240405-192725_ANL-DYNO-1_eco_data.csv",
+		"Solo-ANL/SR3-20240405-193357_ANL-DYNO-1_eco_data.csv"
+	],
+	"VehicleType": [
+		"chevy.bolt.2017",
+		"chevy.bolt.2017",
+		"chevy.bolt.2017"
+	],
+	"RoadGradColumn": [
+		"waypoint_pitch",
+		"waypoint_pitch",
+		"waypoint_pitch"
+	],
+	"SaveFileName": [
+		"solo-run/ANL/ANL-DYNO_eco_data_round1.csv",
+		"solo-run/ANL/ANL-DYNO_eco_data_round2.csv",
+		"solo-run/ANL/ANL-DYNO_eco_data_round3.csv"
+	]
+}

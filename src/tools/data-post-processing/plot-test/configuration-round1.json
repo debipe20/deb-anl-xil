@@ -1,0 +1,24 @@
+{
+	"FileDirectory": "/home/debashis/Desktop/deb-anl-xil/data/voices-log/Pilot2_Event2_eco_data/Group/Group-R1",
+	"GroupRunNo": 1,
+	"VehicleLogFileDirectory": {
+		"Group-Run": [
+			"group-run/round1/ANL-DYNO_eco_data_round1.csv",
+			"group-run/round1/MCITY-CAV_eco_data_round1.csv",
+			"group-run/round1/UCLA-OPENCDA_eco_data_round1.csv",
+			"group-run/round1/ORNL-AUTO_eco_data_round1.csv",
+			"group-run/round1/Carma_eco_data_round1.csv"
+
+		],
+		"Solo-Run": [
+			"solo-run/ANL/ANL-DYNO_eco_data_round1.csv",
+			"solo-run/Mcity/MCITY-CAV_eco_data_round1.csv",
+			"solo-run/UCLA/UCLA-OPENCDA_eco_data_round1.csv",
+			"solo-run/ORNL/ORNL-AUTO_eco_data_round1.csv"
+		]
+	},
+	"SaveFileName": {
+		"Group-Run": "figure/group-run/vehicle-speed-profile-round1",
+		"Solo-Run": "figure/solo-run/vehicle-speed-profile-round1"
+	}
+}

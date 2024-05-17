@@ -7,6 +7,7 @@ RUN find /home/carla -type f -exec sed -i 's/XERCESC_VERSION=3.2.3/XERCESC_VERSI
 
 #Install the following
 sudo apt install libxcb-xinerama0
+sudo apt-get install libxerces-c3.2
 sudo apt-get install libboost-all-dev
 
 #Change the ownership/permission in the /opt/TENA directory
@@ -54,7 +55,8 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	- Run add_v2xhub_user.bash script
 	- Set V2X-Hub login credential
 		- username: amtl
-		- password: Anl-123
+		- password: Amtl@1234 
+		- passowrd: Anl-123 (pervious version)
 	- Navigate to https://<v2x-hub ip>:19760
 		192.168.26.100:19760
 	- open a new tab-> https://192.168.26.101:19760/ -> advance -> accept the risk
@@ -83,4 +85,40 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 			<param name="wave_cfg_file" value="$(arg wave_cfg_file)" />
 		    </node>
 		</launch>
+# Carla on Ubunutu 22.04
+	- Setup environment by following https://usdot-carma.atlassian.net/wiki/spaces/CRMPLT/pages/486178841/Setup+CARMA+Platform+Prerequisites
+	- Download Carla
+	- Install Anaconda if Python version doesn't match with Carla Egg
+		- Follow https://docs.anaconda.com/free/anaconda/install/linux/
+		- conda config --set auto_activate_base False
+	- Execute following to avoid "libGL error: MESA-LOADER: failed to open iris: /usr/lib/dri/iris_dri.so: ..." error
+		- conda install -c conda-forge libstdcxx-ng
+	-Install  nvidia-container-toolkit from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html to avoid following error
+		- Error response from daemon: could not select device driver "nvidia" with capabilities: [[gpu]]
+	- After installing nvidia-container-toolkit execute  following
+		- systemctl restart docker
+		
+# Connect MITRE Portal
+	- sudo openvpn3 session-start --config voices-openvpn-config.ovpn
+	
+# Disconnect MITRE Portal
+	- sudo openvpn3 session-list
+	- sudo openvpn3 session-manage --session-path </net/openvpn/v3/sessions/a17b15e5s160bs4044saec5s9aeb18c331d8> --disconnect
+# Camera view:
+	- docker exec -it voices bash
+	- cd voices-poc/scripts/carla_python_scripts 
+	
+	- python3 destroy_vehicles.py -e ANL-DYNO-1,UCLA-OPENCDA,ORNL-AUTO-1,carma_1,MCITY-CAV-01,MCITY-TERASIM-01,MCITY-TERASIM-02
+	
+	- python3 follow_vehicle_dash_cam.py --follow_vehicle ANL-DYNO-1 --res 300x300
+	
+# Logging tcpdump data:
+	- sudo tcpdump -i lo port <V2X Hub Message Receiver Port> -w anl_bsm.pcap
 
+
+docker logs containername >& myFile.log 
+iperf -s
+iperf -c 10.91.0.35
+
+		
+		

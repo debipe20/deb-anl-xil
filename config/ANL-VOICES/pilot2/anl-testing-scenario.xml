@@ -1,0 +1,69 @@
+<?xml version="1.0.0" encoding="UTF-8"?>
+<scenario>
+  <identifier>
+    <name>Pilot 2 Event 2</name>
+  </identifier>
+  <OpenDrive>
+    <MapFileName name="ANLKearneyRoad.xodr">
+      <MapOrigin latitudeInDegrees="41.710429" longitudeInDegrees="-87.99206700000001" heightAboveEllipsoidInMeters="-2"> </MapOrigin>
+    </MapFileName>
+  </OpenDrive>
+
+
+
+  <vehicles>
+
+    <vehicle name="ANL-DYNO-1" bsmid="f03ad623" type="vehicle.nissan.micra" owner="CARLA-ANL-2" material="Aluminum" lvcIndicator="Live">
+        <initialTSPI>
+            <GeodeticPosition latitudeInDegrees="41.701552" longitudeInDegrees="-87.991803" heightAboveEllipsoidInMeters="234"/>
+            <!-- x=8.472660 y=8.384986 yaw=187 -->
+            <Heading>355</Heading>
+        </initialTSPI>
+    </vehicle>
+
+  </vehicles>
+
+  <intersectionSignalControllers>
+    <intersectionSignalController name="KeaneyRoad Test Intersection" adapterType="spat-adapter" adapterName="SPAT-1" lvcIndicator="Live">
+      <userData>
+        <CARLA>
+          <controllers>
+            <controller name="ctrl549" id="549"/>
+          </controllers>    
+        </CARLA>
+      </userData>
+    </intersectionSignalController>
+  </intersectionSignalControllers>
+  <phaseSignalMappings>
+        <configuration name="KeaneyRoad Test Intersection Configuration" intersectionName="KeaneyRoad Test Intersection">
+      <controller name="ctrl549-502A" id="549">
+        <control signalId="9951" type="">
+          <userData><phase>2</phase></userData>
+        </control>
+      </controller>
+      <controller name="ctrl549-497A" id="549">
+        <control signalId="9952" type="">
+          <userData><phase>4</phase></userData>
+        </control>
+      </controller>
+      <controller name="ctrl549-508A" id="549">
+        <control signalId="9950" type="">
+          <userData><phase>6</phase></userData>
+        </control>
+      </controller>
+    </configuration>  
+  </phaseSignalMappings>
+
+    <simulations>
+
+    <simulation name="CARLA-ANL-1" type="CARLA">
+      <WeatherState>ClearNoon</WeatherState>
+    </simulation>
+
+    <simulation name="CARLA-ANL-2" type="CARLA">
+      <WeatherState>ClearNoon</WeatherState>
+    </simulation>
+
+  </simulations>
+
+</scenario>

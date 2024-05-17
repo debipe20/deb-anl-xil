@@ -1,0 +1,25 @@
+{
+	"FileDirectory": "/home/debashis/Desktop/deb-anl-xil/data/voices-log/Pilot2_Event2_eco_data",
+	"StartTime":[1712347165.11500, 1712347520.82607, 1712347940.46268],
+	"EndTime":[1712347300.0963, 1712347683.00269, 1712348106.62206],
+	"FileName": [
+		"Solo-Mcity/SR1-NOSTOP-20240405-195856_MCITY-CAV-01_eco_data.csv",
+		"Solo-Mcity/SR2-NOSTOP-20240405-200509_MCITY-CAV-01_eco_data.csv",
+		"Solo-Mcity/SR3-20240405-201143_MCITY-CAV-01_eco_data.csv"
+	],
+	"VehicleType": [
+		"vehicle.lincoln.mkz2017",
+		"vehicle.lincoln.mkz2017",
+		"vehicle.lincoln.mkz2017"
+	],
+	"RoadGradColumn": [
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch"
+	],
+	"SaveFileName": [
+		"solo-run/Mcity/MCITY-CAV_eco_data_round1.csv",
+		"solo-run/Mcity/MCITY-CAV_eco_data_round2.csv",
+		"solo-run/Mcity/MCITY-CAV_eco_data_round3.csv"
+	]
+}

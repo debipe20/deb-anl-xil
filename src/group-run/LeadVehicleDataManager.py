@@ -1,7 +1,23 @@
+"""
+**********************************************************************************
+
+LeadVehicleDataManager.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+The methods available from this class are the following:
+- getLeadVehicleInformation(data): Method to decode messages received from VOICES J2735 Adapter and obtain lead vehicle information
+***************************************************************************************
+"""
+
 import json
 import binascii
 from osys import v2x
-import datetime
 from Logger import Logger
 
 ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE = 10000000
@@ -21,11 +37,10 @@ class LeadVehicleDataManager:
         self.leadVehicleSpeed = 0.0
         self.leadVehicleInformationStatus = False
         
-        
     def getLeadVehicleInformation(self, data):
         """
         - "try and except" block is used to take care scenario if objetive system fails to decode e.g., mobility path message from carma platform
-        - this method decodeds received bsm and checks if vehicle id matches with lead vehicle id
+        - This method decodeds received bsm and checks if vehicle id matches with lead vehicle id
             - if vehicle id match obtain lead vehicle information
         """
         self.leadVehicleInformationStatus = False

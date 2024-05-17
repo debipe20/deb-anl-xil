@@ -1,3 +1,24 @@
+"""
+**********************************************************************************
+
+BSMGenerator.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+The methods available from this class are the following:
+- readWayPoints(): Method to read all the coordinates from waypoints
+- getNearestCoordinates(): Method to find vehicle's estimated GPS location based on the travel distance
+- getBsmJsonString(currentSpeed):Method to generate bsm json string using objective systems
+- setMsgCount(): Method to get the msgCount
+- getMsOfMinute(): Method to get current time in mili second unit
+***************************************************************************************
+"""
+
 import json
 import pandas as pd
 import haversine
@@ -34,10 +55,10 @@ class BsmGenerator:
         self.previousTimeStampSetStatus = False
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
 
-        self.wayPointsLogFile = config["VehicleInformation"]["HostBsmLogFileName"]
-        self.readPreloadedCoordinates()
+        self.wayPointsLogFile = self.config["VehicleInformation"]["HostBsmLogFileName"]
+        self.readWayPoints()
 
-    def readPreloadedCoordinates(self):
+    def readWayPoints(self):
         """
         - Method to get all the coordinates from preload waypoints/BSMs
         """
@@ -65,6 +86,7 @@ class BsmGenerator:
             - if extraDistance is greater than vehicle's travel distance, deduct extraDistance from vehicle's travel distance
         - Iterate until haversine distance for current coordinate is close to the estimated distance compare to next coordinate
         """
+        
         currentTime = time.time()
 
         if self.previousTimeStampSetStatus == False:
@@ -200,6 +222,9 @@ class BsmGenerator:
             self.msgCount = MIN_MSG_COUNT
 
     def getMsOfMinute(self):
+        """
+        Method to get current time in mili second unit
+        """
 
         timeNow = datetime.datetime.now()
         msOfMinute = timeNow.second * SECOND_MILISECOND_CONVERSION

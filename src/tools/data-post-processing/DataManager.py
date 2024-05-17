@@ -1,6 +1,21 @@
-import os
+"""
+**********************************************************************************
+
+DataManager.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+The methods available from this class are the following:
+- processRawData(): Method to cleaned up the data collected usign VOICES Data Collection system
+- getStartAndEndTimeIndex(dataframe): Method to get index for the start time and end time of the dataframe
+***************************************************************************************
+"""
 import pandas as pd
-import math
 
 KPH_TO_MPS = 0.277778
 
@@ -9,14 +24,16 @@ class DataManager:
         self.config = config
         self.fileDirectory = self.config['FileDirectory']
         self.rawFileName = self.config["FileName"]
-        # home_directory = os.path.expanduser( '~' )
-        # self.rawDataFrame = pd.read_csv(home_directory + self.fileDirectory + "/" + self.rawFileName)
         self.logFileList = []
         self.vehicleTypeList = []
         self.roadGradeTypeList = []
         self.saveFileNameList = []          
         
     def processRawData(self):
+        """
+        Method to cleaned up the data collected usign VOICES Data Collection system
+        """
+        
         timeData, vehicleType, vehicleSpeed, roadGrade =([] for i in range(4))
         
         [self.logFileList.append(fileName) for fileName in self.config["FileName"]]
@@ -32,8 +49,6 @@ class DataManager:
             saveFileName = self.saveFileNameList[index]
             self.startTime = self.config["StartTime"][index]
             self.endTime = self.config["EndTime"][index]
-            
-            print(logFileName)
 
             self.rawDataFrame = pd.read_csv(logFileName)
             
@@ -42,7 +57,6 @@ class DataManager:
             startTime = self.rawDataFrame['current_time'].iloc[startTimeIndex]
             
             for index, row in self.rawDataFrame.loc[startTimeIndex:endTimeIndex].iterrows():
-            # for index, row in self.rawDataFrame.iterrows():
                 timeData.append(row['current_time'] - startTime)
                 vehicleType.append(vehicleModel)
                 vehicleSpeed.append(row['smoothed_speed'] * KPH_TO_MPS)
@@ -51,7 +65,7 @@ class DataManager:
             timeData = [round(val, 2) for val in timeData]
             vehicleSpeed = [round(val, 2) for val in vehicleSpeed]
             roadGrade = [round(val, 5) for val in roadGrade]
-            # print(timeData)
+
             processedDataFrame = pd.DataFrame({'Time(s)':timeData,'VehicleType':vehicleType,'VehicleSpeed(m/s)':vehicleSpeed,'RoadGrade(degree)':roadGrade})
             [li.clear() for li in [timeData, vehicleType, vehicleSpeed, roadGrade]]
             
@@ -60,7 +74,7 @@ class DataManager:
   
     def getStartAndEndTimeIndex(self, dataframe):
         """
-        method to get index for the start time and end time of the diagram
+        Method to get index for the start time and end time of the dataframe
         """
         startTimeIndexList = dataframe.index[dataframe['current_time'] == self.startTime].tolist()
         endTimeIndexList = dataframe.index[dataframe['current_time'] == self.endTime].tolist()

@@ -1,4 +1,24 @@
-import time, datetime
+"""
+**********************************************************************************
+
+LeadVehicle.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+The methods available from this class are the following:
+- readWayPoints(): Method to read all the coordinates from waypoints
+- setTrafficSignalState(evenState):Method to set traffic signal phase state for desired signal group
+- getLeadVehicleSpeed(): Method to generate lead vehicle speed considering traffic signal state, distance to intersection, and distance to final waypoints
+- getLeadVehicleInformation(): Method to find vehicle's estimated GPS location based on the travel distance
+***************************************************************************************
+"""
+
+import time
 import haversine
 import pandas as pd
 from Logger import Logger
@@ -34,7 +54,7 @@ class LeadVehicleDataManager:
         self.intersectionLattitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Latitude_DecimalDegree"]
         self.intersectionLongitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Longitude_DecimalDegree"]
         
-        self.wayPointsLogFile = config["VehicleInformation"]["LeadBsmLogFileName"] 
+        self.wayPointsLogFile = "../" + self.config["VehicleInformation"]["LeadBsmLogFileName"] 
         self.readWayPoints()
 
     def readWayPoints(self):
@@ -68,6 +88,9 @@ class LeadVehicleDataManager:
             unit=haversine.Unit.METERS)
 
     def setTrafficSignalState(self, evenState):
+        """
+        Method to set traffic signal phase state for desired signal group
+        """
 
         self.trafficSignalState = evenState
         
@@ -75,7 +98,10 @@ class LeadVehicleDataManager:
             self.trafficSignalState = GREEN
 
     def getLeadVehicleSpeed(self):
-                
+        """
+        - Method to generate lead vehicle speed considering traffic signal state, distance to intersection, and distance to final waypoints 
+        """    
+        
         if self.previousIndex < INTERSECTION_INDEX and self.stoppedAtIntersection == False:
             distance = self.distanceToIntersection
             

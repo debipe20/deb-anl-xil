@@ -1,3 +1,18 @@
+"""
+**********************************************************************************
+
+vehicle-data-manager.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+  1. This script contains API of LeadVehicleDataManager class to generate lead vehicle's speed profile.
+"""
+
 import socket
 import json
 import time
@@ -11,7 +26,7 @@ def destruct_logger(logger:Logger):
     del logger
 
 def main():
-    configFile = open("/nojournal/bin/anl-master-config.json", "r")
+    configFile = open("../../../config/anl-master-config.json", "r")
     config = json.load(configFile)
     configFile.close()
 
@@ -55,7 +70,6 @@ def main():
                 leadVehicleDataManagerSocket.sendto(sendingData, hostVehicleDataManagerAddress)
                 time.sleep(0.0998)
                 
-        
     leadVehicleDataManagerSocket.close()
 
 if __name__ == "__main__":

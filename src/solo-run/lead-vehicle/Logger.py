@@ -1,4 +1,24 @@
+"""
+**********************************************************************************
+
+Logger.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+The methods available from this class are the following:
+- createLogFile(): Method to create all the required log files
+- logLeadVehicleBsmData(timeStep, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading, distanceToFinalWayPoints, distanceToIntersection): Method to log lead vehicle's GPS data, speed, etc.
+- consoleDisplay(consoleString:str): Method to display information
+***************************************************************************************
+"""
+
 import time, datetime
+import os
 
 class Logger:
     def __init__(self, consoleStatus:bool, loggingStatus:bool, debugStatus:bool):
@@ -11,9 +31,12 @@ class Logger:
         
     def createLogFile(self):
         if (self.debugStatus == True):
-            logfileDirectory = "/nojournal/bin/log/debug/"
+            logfileDirectory = "../../../log/debug/"
         
-        else: logfileDirectory = "/nojournal/bin/log/eco-driving/"
+        else: logfileDirectory = "../../../log/solo-run/"
+        
+        if not os.path.exists(logfileDirectory):
+                os.makedirs(logfileDirectory)
         
         initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
         
@@ -56,9 +79,3 @@ class Logger:
         if (self.loggingStatus == True):
             self.consoleDisplay("Closing log file!")
             self.leadVehicleBsmLogFile.close()
-
-        
-        
-        
-
-

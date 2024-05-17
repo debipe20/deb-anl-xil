@@ -1,4 +1,29 @@
+"""
+**********************************************************************************
+
+Logger.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+  
+Description:
+------------
+The methods available from this class are the following:
+- createLogFile(): Method to create all the required log files
+- logHostVehicleBsmData(timeStep, msgCount, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading): Method to log host vehicle's GPS data and speed.
+- logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed): Method to log lead and ego vehicle's speed data, relative distance and relative speed
+- logHostVehicleData(counter, decodedSpeed): Method to log ego vehicle's speed
+- logHostBsmHexData(bsmHex): Method to log ego vehicle's encoded BSM
+- logLeadBsmHexData(bsmHex): Method to log lead vehicle's encoded BSM
+- logErrorData(errorMsg, payload): Method to log payload that Objective Systems can not decode
+- consoleDisplay(consoleString:str): Method to display information
+***************************************************************************************
+"""
+
 import time, datetime
+import os
 
 class Logger:
     def __init__(self, consoleStatus:bool, loggingStatus:bool, debugStatus:bool):
@@ -10,10 +35,14 @@ class Logger:
             self.createLogFile()     
         
     def createLogFile(self):
+    
         if (self.debugStatus == True):
-            logfileDirectory = "/nojournal/bin/log/debug/"
+            logfileDirectory = "../../log/debug/"
+                    
+        else: logfileDirectory = "../../log/group-run/"
         
-        else: logfileDirectory = "/nojournal/bin/log/eco-driving/"
+        if not os.path.exists(logfileDirectory):
+                os.makedirs(logfileDirectory)
         
         initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
         
@@ -107,8 +136,3 @@ class Logger:
             self.hostBsmHexLogFile.close()
             self.leadBsmHexLogFile.close()
             self.errorLogFile.close()
-        
-        
-        
-
-

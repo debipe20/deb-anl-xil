@@ -15,7 +15,7 @@ def getSpeed(previousSpeed):
     return currentSpeed
 
 def main():
-    configFile = open("/nojournal/bin/anl-master-config.json", 'r')
+    configFile = open("../../../../config/anl-master-config.json", 'r')
     config = (json.load(configFile))
     configFile.close()
 

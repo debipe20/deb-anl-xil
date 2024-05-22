@@ -1,0 +1,10 @@
+bokeh==3.0.3
+numpy==1.23.5
+scipy==1.10.0
+pandas==1.5.2
+seaborn==0.12.1
+DateTime==4.9.0
+openpyxl==3.0.10
+matplotlib==3.6.2
+more-itertools==9.0.0
+

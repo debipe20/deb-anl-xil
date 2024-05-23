@@ -21,7 +21,15 @@ Choose scale and offset. Defaults to  1 and  0, respectively.
 #            ['7DA', '04618a', (4, 5), (0, -1), 0.01, -327.68],
 #            ['7DA', '0x06 61 81', (6, 7), (0, -1), 0.1, 0]]
 # signals = [['7DA', '0x066181', (6, 7), (0, -1), 0.1, 0]]
-signals = [['7E4', '', (4,4),(0,-1),0.5,0]]
+
+# signals = [['7E4', '0322', (4,4),(0,-1),0.5,0]]
+signals = [['7EC', '0322', (5,5),(0,-1),0.5,0]]
+# signals = [['7E4', '', (5,5),(0,7),0.5,0]]
+
+# signals = [['1A0', '', (1,1),(0,-1),1,0]]
+
+# signals = [['0x35', '', (5,5),(0,-1),1,0]]
+
 known_signals = [Diagnostic(*signal) for signal in signals]
 first_bits_and_lengths = [signal.get_bits() for signal in known_signals]
 

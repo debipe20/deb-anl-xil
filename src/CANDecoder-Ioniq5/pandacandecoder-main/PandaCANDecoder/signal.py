@@ -67,21 +67,38 @@ class Signal:
 
         return ts_msg_masked_shifted
 
+    # @property
+    # def ts_data(self):
+    #     # correct for signedness
+    #     ts_signal_data_raw = self.ts_data_raw
+
+    #     if self.signedness == 'signed':
+    #         sign_change_bit_shift = 64 - self.length
+    #         ts_signal_data = (ts_signal_data_raw<<sign_change_bit_shift).astype(np.int64)>>sign_change_bit_shift
+    #     else:
+    #         ts_signal_data = ts_signal_data_raw
+
+    #     # correct for scale and offset
+    #     ts_signal_data = ts_signal_data*self.factor + self.offset
+
+    #     return ts_signal_data
+    
     @property
     def ts_data(self):
         # correct for signedness
         ts_signal_data_raw = self.ts_data_raw
 
         if self.signedness == 'signed':
-            sign_change_bit_shift = 64 - self.length
-            ts_signal_data = (ts_signal_data_raw<<sign_change_bit_shift).astype(np.int64)>>sign_change_bit_shift
+            sign_change_bit_shift = np.int64(64 - self.length)
+            ts_signal_data = np.right_shift(np.left_shift(ts_signal_data_raw, sign_change_bit_shift), sign_change_bit_shift).astype(np.int64)
         else:
             ts_signal_data = ts_signal_data_raw
 
         # correct for scale and offset
-        ts_signal_data = ts_signal_data*self.factor + self.offset
+        ts_signal_data = ts_signal_data * self.factor + self.offset
 
         return ts_signal_data
+
 
     def first_derivative_ts_data(self, sampling_rate=1):
         # return d(ts_data)/dt and time stamps

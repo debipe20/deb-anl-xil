@@ -1,4 +1,35 @@
 {
-    "FileName":"can_data/processed_combined_data.csv",
-    "SignalID": []
+    "FileName": "can_data/processed_combined_data.csv",
+    "SignalInformation": [
+        {
+            "arbid":"0x245", 
+            "message_start":"",  
+            "start_byte": 3,
+            "end_byte": 3, 
+            "start_bit": 0,
+            "end_bit": -1, 
+            "scale": 0.5, 
+            "offset": 0
+        },
+        {
+            "arbid":"7DA",
+            "message_start":"04618a",  
+            "start_byte": 4,
+            "end_byte": 5, 
+            "start_bit": 0,
+            "end_bit": -1, 
+            "scale": 0.01, 
+            "offset": -327.68
+        },
+        {
+            "arbid":"7DA",
+            "message_start":"0x06 61 81",  
+            "start_byte": 6,
+            "end_byte": 7, 
+            "start_bit": 0,
+            "end_bit": -1, 
+            "scale": 0.1, 
+            "offset": 0
+        }
+    ]
 }

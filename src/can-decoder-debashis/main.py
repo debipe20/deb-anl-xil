@@ -1,5 +1,6 @@
 import json
 from DiagnosticSignalManager import Diagnostic
+from Decoder import Decoder
 
 def main():
     configFile = open("configuration.json", "r")
@@ -20,11 +21,17 @@ def main():
     print(all_data_path)
     
     # The *signal syntax unpacks the elements of each signal in the signals list and passes them as separate arguments to the Diagnostic constructor and create instance/object of Diagnostic for each signal
-    known_signals = [Diagnostic(*signal) for signal in signalsList]
-    first_bits_and_lengths = [signal.get_bits() for signal in known_signals]
+    knownSignalsList = [Diagnostic(*signal) for signal in signalsList]
+    first_bits_and_lengths = [signal.get_bits() for signal in knownSignalsList]
     
-    for signal in known_signals:
+    for signal in knownSignalsList:
         signal.set_data_path(all_data_path)
-
+        
+    can_decoder = Decoder(all_data_path, full_csv=True) # Keep full_csv=True here
+    signal_decoders = [Decoder(signal.data_path, full_csv=False) for signal in knownSignalsList] # Set full_csv False
+    
+    
+    
+    
 if __name__ == "__main__":
     main()

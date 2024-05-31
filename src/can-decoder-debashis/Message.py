@@ -34,3 +34,9 @@ class Message:
         self.signals = None
 
         self.ts_data = None
+
+    def __repr__(self):
+        '''
+        Override print string
+        '''
+        return f"Message {self.msg_id}: {self.panda_buses}"

@@ -37,7 +37,29 @@ def main():
     # can_decoder.print_msgs()
     for signal in signal_decoders:
         signal.print_msgs()    
+
+    """
+    ### Generate Time Series Data
+    can_decoder.generate_msg_ts_data will generate message time series data for all message IDs. These get saved as numpy uint64 arrays to the directory ./all_time_series_msgs/{msg_id}.npy for fast reading. 
+    If the data needs to be saved for the first time, this step should take about 8 seconds. If the data has been saved previously, the rewrite argument should be set to False.
+
+    signal.generate_msg_ts_data will generate message time series data only for the message IDs chosen above. This should be fast regardless regardless of whether or not the data has already been saved previously.
+
+    """
+
+    can_decoder.generate_msg_ts_data(rewrite=False)
+    print('*'*88)
+    for signal in signal_decoders:
+        signal.generate_msg_ts_data(full_csv=False, rewrite=True) 
+
+    # # Calculate predicted signals
+    can_decoder.calculate_signals(
+            tokenization_method='conditional_bit_flip',
+            signedness_method='msb_classifier',
+            alpha1=0.01,
+            alpha2=0.5,
+            gamma1=0.2)  
+
         
-    
 if __name__ == "__main__":
     main()

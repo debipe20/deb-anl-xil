@@ -93,9 +93,9 @@ class Message:
         # previously 8 was msg.msg_length
         transition_matrix_bin = (((transition_matrix_raw[:,None] & (1 << np.arange(self.msg_length*8, dtype='uint64')[::-1]))) > 0).astype(int)
         if byte_order == 'be':
-            transition_matrix_bin = np.pad(transition_matrix_bin, ((0,0), (0, 64-transition_matrix_bin.shape[1])))
+            transition_matrix_bin = np.pad(transition_matrix_bin, ((0,0), (0, 64-transition_matrix_bin.shape[1]))) # pads zeros to the right side of each row 
         elif byte_order == 'le':
-            transition_matrix_bin = np.pad(transition_matrix_bin, ((0,0), (64-transition_matrix_bin.shape[1], 0)))
+            transition_matrix_bin = np.pad(transition_matrix_bin, ((0,0), (64-transition_matrix_bin.shape[1], 0)))  # pads zeros to the left side of each row
 
         # probability of bit flip
         # [P(F_i), P(F_i+1), ...]
@@ -116,7 +116,7 @@ class Message:
                 transition_matrix_bin (np.array)
         '''
         # F_i AND F_i+1
-        transition_matrix_bin_shifted = np.pad(transition_matrix_bin, ((0,0),(0,1)))[:,1:]
+        transition_matrix_bin_shifted = np.pad(transition_matrix_bin, ((0,0),(0,1)))[:,1:] # adds an additional column of zeros to the right of the array and removes first column from each row
         transition_matrix_and = ((transition_matrix_bin+transition_matrix_bin_shifted) > 1).astype(int)
 
         # [P(F_i AND F_i+1), P(F_i+1 AND F_i+2), ..., 0]

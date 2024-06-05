@@ -10,9 +10,9 @@ def convert_signal(start_bit, length, in_format, out_format):
             out_format (str): ['inorder', 'be', 'le']
     '''
     # TODO: validate in_format and out_format
-    inorder_ref = np.arange(0,64)
-    be_ref = inorder_ref.reshape((8,8))[:, ::-1].reshape(64,)
-    le_ref = inorder_ref[::-1]
+    inorder_ref = np.arange(0,64) #creates a 1D NumPy array containing integers from 0 to 63
+    be_ref = inorder_ref.reshape((8,8))[:, ::-1].reshape(64,) #reshapes the 1D array into an 8x8 2D array, then reverses the order of elements in each row (reverses the columns), and finally reshapes the 2D array back into a 1D array
+    le_ref = inorder_ref[::-1] #reverses the order of the elements in the inorder_ref array
 
     if in_format == 'inorder':
         if out_format == 'be':

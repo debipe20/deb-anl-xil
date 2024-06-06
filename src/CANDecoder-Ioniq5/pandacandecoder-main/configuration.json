@@ -1,0 +1,21 @@
+{
+    "FileName": "can_data/2023_Hyundai_Ioniq5_processed_dat.csv",
+    "SignalInformation": [
+        {
+            "arbid": "0x7EC",
+            "message_start": "",
+            "start_byte": 3,
+            "end_byte": 3,
+            "start_bit": 0,
+            "end_bit": -1,
+            "scale": 0.5,
+            "offset": 0,
+            "multiframe": {
+                "status": true,
+                "startBits": "103E",
+                "endBits":"28",
+                "discardBits": ["103E", "21", "22", "23", "24", "25", "26", "27", "28"]
+            }
+        }
+    ]
+}

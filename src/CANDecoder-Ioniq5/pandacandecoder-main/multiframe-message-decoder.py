@@ -33,7 +33,7 @@ all_data_path = config["FileName"]
 
 # signals = [['7E4', '0322', (4,4),(0,-1),0.5,0]]
 # signals = [['7EC', '', (5,5),(0,-1),0.5,0]]
-signals = [['7E4', '', (5,5),(0,7),0.5,0]]
+# signals = [['7E4', '', (5,5),(0,7),0.5,0]]
 
 # signals = [['1A0', '', (1,1),(0,-1),1,0]]
 
@@ -50,7 +50,7 @@ A .csv file downloaded directly from VSpy3 will have a lot of extra information.
 It creates a new .csv file with 'processing_' prepended to the file name. By default, it deletes the original file, but setting remove=False allows the original file to remain.
 """
 # all_data_path = 'can_data/processed_combined_data.csv'
-all_data_path = 'can_data/2023_Hyundai_Ioniq5_processed_dat.csv'
+# all_data_path = 'can_data/2023_Hyundai_Ioniq5_processed_dat.csv'
 for signal in known_signals:
     signal.set_data_path(all_data_path)
 

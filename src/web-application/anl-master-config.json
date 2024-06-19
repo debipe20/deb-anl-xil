@@ -1,0 +1,46 @@
+{
+    "IPAddress": {
+        "HostIp": "192.168.26.110",
+        "SourceDsrcDeviceIp": "192.168.26.121",
+        "V2XHubIp": "192.168.26.101",
+        "VehicleControllerIp": "192.168.26.113"
+    },
+    "PortNumber": {
+        "MessageDecoder": 1516,
+        "BsmGenerator": 5398,
+        "SpeedProfileGenerator": 50002,
+        "VehicleStatusManager": 50003,
+        "SpatManager": 50004,
+        "DataConverter": 50005,
+        "HostVehicleDataManager": 5398,
+        "LeadVehicleDataManager": 50006,
+        "VehicleController": 1025,
+        "MessageReceiver": 26789,
+        "SpatReceiver": 6053
+    },
+    "VehicleInformation": {
+        "HostVehicleId": "f03ad623",
+        "LeadVehicleId": "f03ad626",
+        "HostBsmLogFileName": "/home/carma/Desktop/deb-anl-xil/data/ANL_breadcrumbs_event2.csv",
+        "LeadBsmLogFileName": "/home/carma/Desktop/deb-anl-xil/data/ANL_breadcrumbs.csv"
+    },
+    "IntersectionInformation": {
+        "IntersectionName": "tsc_mcity_state_and_liberty",
+        "IntersectionID": 0,
+        "MapPayload": "001280de380030203007a6014edb6fd139668768194202dc051178316008a00020140000a67dc22028297021f1481414290580002483900010c0111000201000009adbfac0a0a5c003662050516019a0002010001029543cb4c0302604fb05ef976036602858694a4a9332e04fb08e8d23c47f8a7e136c8c40339120902800062c04340004010000c50167a6a7ea3d3027d82f505d85ad16002461e0241d000186015080010080001133d1f386058154bc913404fb16032a000200c0000a3cd70b0282860257f50a4090001120a40008300ec4000804000028f0633c0a0a189c1fd4",
+        "IntersectionReferencePoint": {
+            "Latitude_DecimalDegree": 42.3004671180329,
+            "Longitude_DecimalDegree": -83.6979730240772,
+            "Elevation_Meter": 237
+        }
+    },
+    "SignalControllerInformation": {
+        "Vendor": "Econolite",
+        "DesiredSignalGroup": 2
+    },
+    "GeneralInformation": {
+        "ConsoleOutput": true,
+        "Logging": true,
+        "Debug": true
+    }
+}

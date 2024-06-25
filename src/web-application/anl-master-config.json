@@ -1,12 +1,12 @@
 {
     "IPAddress": {
-        "HostIp": "192.168.26.110",
+        "HostIp": "192.168.26.101",
         "SourceDsrcDeviceIp": "192.168.26.121",
         "V2XHubIp": "192.168.26.101",
         "VehicleControllerIp": "192.168.26.113"
     },
     "PortNumber": {
-        "MessageDecoder": 1516,
+        "MessageDecoder": 1517,
         "BsmGenerator": 5398,
         "SpeedProfileGenerator": 50002,
         "VehicleStatusManager": 50003,

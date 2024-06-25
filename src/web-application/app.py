@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import json
+import subprocess
 
 app = Flask(__name__)
 
@@ -9,7 +10,12 @@ with open('anl-master-config.json', 'r') as f:
 
 @app.route('/')
 def index():
-    return render_template('index.html', config_data=config_data)
+    # Generate IP status
+    ip_status = {}
+    for device, ip in config_data["IPAddress"].items():
+        ip_status[device] = ping_ip(ip)
+
+    return render_template('index.html', config_data=config_data, ip_status=ip_status)
 
 @app.route('/update', methods=['POST'])
 def update_config():
@@ -35,6 +41,16 @@ def update_config():
 
     # If not a POST request, return error response
     return jsonify({'status': 'error', 'message': 'Invalid request method'})
+
+def ping_ip(ip):
+    try:
+        output = subprocess.check_output(['ping', '-c', '1', ip], stderr=subprocess.STDOUT, universal_newlines=True)
+        if '1 received' in output:
+            return 'successful'
+        else:
+            return 'unsuccessful'
+    except subprocess.CalledProcessError:
+        return 'unsuccessful'
 
 if __name__ == '__main__':
     app.run(debug=True)

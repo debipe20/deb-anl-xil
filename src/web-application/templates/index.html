@@ -30,10 +30,10 @@
                 <a class="nav-link active" id="logo-tab" data-toggle="tab" href="#logo" role="tab" aria-controls="logo" aria-selected="true">Welcome Page</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="ip-tab" data-toggle="tab" href="#ip" role="tab" aria-controls="ip" aria-selected="false">IP Address</a>
+                <a class="nav-link" id="ip-tab" data-toggle="tab" href="#ip" role="tab" aria-controls="ip" aria-selected="false">IP Addresses</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="port-tab" data-toggle="tab" href="#port" role="tab" aria-controls="port" aria-selected="false">Port Number</a>
+                <a class="nav-link" id="port-tab" data-toggle="tab" href="#port" role="tab" aria-controls="port" aria-selected="false">Port Numbers</a>
             </li>
         </ul>
         <div class="tab-content mt-3" id="myTabContent">
@@ -43,21 +43,30 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="ip" role="tabpanel" aria-labelledby="ip-tab">
-                <!-- <h3>IPAddress</h3> -->
                 <form id="ip-address-form" method="post" action="{{ url_for('update_config') }}">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped"> <!-- Added table-striped class for alternate row shading -->
                             <thead>
                                 <tr>
-                                    <th>Device</th>
+                                    <th>Device Name</th>
                                     <th>IP Address</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for device, ip in config_data["IPAddress"].items() %}
                                 <tr>
-                                    <td>{{ device }}</td>
+                                    <td>
+                                        {% if device == 'SourceDsrcDeviceIp' %}
+                                            RSU IP
+                                        {% elif device == 'SomeOtherDeviceIp' %}
+                                            Another Device IP
+                                        {% else %}
+                                            {{ device }}
+                                        {% endif %}
+                                    </td>
                                     <td><input type="text" class="form-control ip-address-input" name="ip_address" value="{{ ip }}"></td>
+                                    <td>{{ ip_status[device] }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -67,7 +76,7 @@
                 </form>
             </div>
             <div class="tab-pane fade" id="port" role="tabpanel" aria-labelledby="port-tab">
-                <h3>Port Number</h3>
+                <h3>Port Numbers</h3>
                 <form id="port-number-form" method="post" action="{{ url_for('update_config') }}">
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped"> <!-- Added table-striped class for alternate row shading -->
@@ -107,8 +116,6 @@
             notificationHTML += '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
             notificationHTML += '<span aria-hidden="true">&times;</span>';
             notificationHTML += '</button>';
-            notificationHTML += '</div>';
-
             notificationArea.html(notificationHTML);
         }
 

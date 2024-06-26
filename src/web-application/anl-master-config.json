@@ -44,41 +44,13 @@
         "Debug": true
     },
     "FlexILUDPSignals": {
-        "SimPC": [
-            {
-                "SignalName": "VUT_Ctrl_ACC_Accel_Cmd",
-                "SourceIP": "192.168.26.101",
-                "SourcePort": 10001,
-                "DestinationIP": "192.168.26.101",
-                "DestinationPort": 10001,
-                "Active": true
-            },
-            {
-                "SignalName": "VUT_Data_BPP_Pos",
-                "SourceIP": "192.168.26.102",
-                "SourcePort": 10001,
-                "DestinationIP": "192.168.26.101",
-                "DestinationPort": 10001,
-                "Active": false
-            }
-        ],
-        "Mabx": [
-            {
-                "SignalName": "VUT_Ctrl_ACC_Accel_Cmd",
-                "SourceIP": "192.168.26.121",
-                "SourcePort": 10001,
-                "DestinationIP": "192.168.26.101",
-                "DestinationPort": 50001,
-                "Active": false
-            },
-            {
-                "SignalName": "Dyno_Data_Trace_Grade",
-                "SourceIP": "192.168.26.112",
-                "SourcePort": 121101,
-                "DestinationIP": "192.168.26.101",
-                "DestinationPort": 13301,
-                "Active": true
-            }
-        ]
+        "SimPC": {
+            "VUT_Ctrl_ACC_Accel_Cmd": false,
+            "VUT_Data_BPP_Pos": true
+        },
+        "Mabx": {
+            "VUT_Ctrl_BPP_Accel_Cmd": true,
+            "Dyno_Data_Trace_Grade": false
+        }
     }
 }

@@ -5,11 +5,34 @@ import subprocess
 app = Flask(__name__)
 
 # Load JSON data from file
-with open('anl-master-config.json', 'r') as f:
-    config_data = json.load(f)
+def load_config():
+    with open('anl-master-config.json', 'r') as f:
+        return json.load(f)
+
+# Save JSON data to file
+def save_config(data):
+    with open('anl-master-config.json', 'w') as f:
+        json.dump(data, f, indent=4)
+
+# Check if form data contains any SimPC signals
+def form_contains_simpc_signals(form_data):
+    simpc_signals = load_config()['FlexILUDPSignals']['SimPC']
+    for signal_name in simpc_signals:
+        if f'SimPC_signal_{signal_name}' in form_data:
+            return True
+    return False
+
+# Check if form data contains any Mabx signals
+def form_contains_mabx_signals(form_data):
+    mabx_signals = load_config()['FlexILUDPSignals']['Mabx']
+    for signal_name in mabx_signals:
+        if f'Mabx_signal_{signal_name}' in form_data:
+            return True
+    return False
 
 @app.route('/')
 def index():
+    config_data = load_config()
     # Generate IP status
     ip_status = {}
     for device, ip in config_data["IPAddress"].items():
@@ -20,26 +43,50 @@ def index():
 @app.route('/update', methods=['POST'])
 def update_config():
     if request.method == 'POST':
-        # Process form submission and update JSON data
-        ip_addresses = request.form.getlist('ip_address')
-        port_numbers = request.form.getlist('port_number')
+        config_data = load_config()
+        form_data = request.form
 
         # Update IPAddress section
+        ip_addresses = form_data.getlist('ip_address')
         for device, new_ip in zip(config_data['IPAddress'], ip_addresses):
             config_data['IPAddress'][device] = new_ip
 
         # Update PortNumber section
+        port_numbers = form_data.getlist('port_number')
         for component, new_port in zip(config_data['PortNumber'], port_numbers):
             config_data['PortNumber'][component] = int(new_port)
 
+        # Check if form data contains SimPC signals
+        if form_contains_simpc_signals(form_data):
+            # Set all SimPC signals to False by default
+            for signal_name in config_data['FlexILUDPSignals']['SimPC']:
+                config_data['FlexILUDPSignals']['SimPC'][signal_name] = False
+
+            # Update FlexILUDPSignals section for SimPC based on form data
+            for signal_name in config_data['FlexILUDPSignals']['SimPC']:
+                if f'SimPC_signal_{signal_name}' in form_data:
+                    config_data['FlexILUDPSignals']['SimPC'][signal_name] = form_data.get(f'SimPC_signal_{signal_name}') == 'on'
+
+        # Check if form data contains Mabx signals
+        if form_contains_mabx_signals(form_data):
+            # Set all Mabx signals to False by default
+            for signal_name in config_data['FlexILUDPSignals']['Mabx']:
+                config_data['FlexILUDPSignals']['Mabx'][signal_name] = False
+
+            # Update FlexILUDPSignals section for Mabx based on form data
+            for signal_name in config_data['FlexILUDPSignals']['Mabx']:
+                if f'Mabx_signal_{signal_name}' in form_data:
+                    config_data['FlexILUDPSignals']['Mabx'][signal_name] = form_data.get(f'Mabx_signal_{signal_name}') == 'on'
+
         # Save updated JSON data back to file
-        with open('anl-master-config.json', 'w') as f:
-            json.dump(config_data, f, indent=4)
+        save_config(config_data)
+
+        # Debugging statements
+        print(json.dumps(config_data, indent=4))
 
         # Return success response
         return jsonify({'status': 'success'})
 
-    # If not a POST request, return error response
     return jsonify({'status': 'error', 'message': 'Invalid request method'})
 
 def ping_ip(ip):

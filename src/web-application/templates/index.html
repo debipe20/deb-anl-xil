@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,28 +16,35 @@
 
         /* Alternate row shading */
         .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #f8f9fa; /* Light shade */
+            background-color: #f8f9fa;
+            /* Light shade */
         }
 
         .table-striped tbody tr:nth-of-type(even) {
-            background-color: #e9ecef; /* Dark shade */
+            background-color: #e9ecef;
+            /* Dark shade */
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-4">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="logo-tab" data-toggle="tab" href="#logo" role="tab" aria-controls="logo" aria-selected="true">Welcome Page</a>
+                <a class="nav-link active" id="logo-tab" data-toggle="tab" href="#logo" role="tab" aria-controls="logo"
+                    aria-selected="true">Welcome Page</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="ip-tab" data-toggle="tab" href="#ip" role="tab" aria-controls="ip" aria-selected="false">IP Addresses</a>
+                <a class="nav-link" id="ip-tab" data-toggle="tab" href="#ip" role="tab" aria-controls="ip"
+                    aria-selected="false">IP Addresses</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="port-tab" data-toggle="tab" href="#port" role="tab" aria-controls="port" aria-selected="false">Port Numbers</a>
+                <a class="nav-link" id="port-tab" data-toggle="tab" href="#port" role="tab" aria-controls="port"
+                    aria-selected="false">Port Numbers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="flexil-tab" data-toggle="tab" href="#flexil" role="tab" aria-controls="flexil" aria-selected="false">FlexIL UDP Signals</a>
+                <a class="nav-link" id="flexil-tab" data-toggle="tab" href="#flexil" role="tab" aria-controls="flexil"
+                    aria-selected="false">FlexIL UDP Signals</a>
             </li>
         </ul>
         <div class="tab-content mt-3" id="myTabContent">
@@ -61,14 +69,15 @@
                                 <tr>
                                     <td>
                                         {% if device == 'SourceDsrcDeviceIp' %}
-                                            RSU IP
+                                        RSU IP
                                         {% elif device == 'SomeOtherDeviceIp' %}
-                                            Another Device IP
+                                        Another Device IP
                                         {% else %}
-                                            {{ device }}
+                                        {{ device }}
                                         {% endif %}
                                     </td>
-                                    <td><input type="text" class="form-control ip-address-input" name="ip_address" value="{{ ip }}"></td>
+                                    <td><input type="text" class="form-control ip-address-input" name="ip_address"
+                                            value="{{ ip }}"></td>
                                     <td>{{ ip_status[device] }}</td>
                                 </tr>
                                 {% endfor %}
@@ -93,7 +102,8 @@
                                 {% for component, port in config_data["PortNumber"].items() %}
                                 <tr>
                                     <td>{{ component }}</td>
-                                    <td><input type="number" class="form-control port-number-input" name="port_number" value="{{ port }}"></td>
+                                    <td><input type="number" class="form-control port-number-input" name="port_number"
+                                            value="{{ port }}"></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -105,14 +115,21 @@
             <div class="tab-pane fade" id="flexil" role="tabpanel" aria-labelledby="flexil-tab">
                 <ul class="nav nav-tabs" id="flexilTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="simulation-tab" data-toggle="tab" href="#simulation" role="tab" aria-controls="simulation" aria-selected="true">Simulation</a>
+                        <a class="nav-link active" id="simulation-tab" data-toggle="tab" href="#simulation" role="tab"
+                            aria-controls="simulation" aria-selected="true">Simulation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="vehicle-tab" data-toggle="tab" href="#vehicle" role="tab" aria-controls="vehicle" aria-selected="false">Vehicle</a>
+                        <a class="nav-link" id="vehicle-tab" data-toggle="tab" href="#vehicle" role="tab"
+                            aria-controls="vehicle" aria-selected="false">Vehicle</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="facilities-tab" data-toggle="tab" href="#facilities" role="tab"
+                            aria-controls="facilities" aria-selected="false">Facilities</a> <!-- New Facilities Tab -->
                     </li>
                 </ul>
                 <div class="tab-content mt-3" id="flexilTabContent">
-                    <div class="tab-pane fade show active" id="simulation" role="tabpanel" aria-labelledby="simulation-tab">
+                    <div class="tab-pane fade show active" id="simulation" role="tabpanel"
+                        aria-labelledby="simulation-tab">
                         <form id="simulation-form" method="post" action="{{ url_for('update_config') }}">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
@@ -123,10 +140,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Simulation"].items() %}
+                                        {% for signal_name, active in
+                                        config_data["FlexILUDPSignals"]["Simulation"].items() %}
                                         <tr>
                                             <td>{{ signal_name }}</td>
-                                            <td><input type="checkbox" name="Simulation_signal_{{ signal_name }}" {% if active %}checked{% endif %}></td>
+                                            <td><input type="checkbox" name="Simulation_signal_{{ signal_name }}" {% if
+                                                    active %}checked{% endif %}></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -146,10 +165,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Vehicle"].items() %}
+                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Vehicle"].items()
+                                        %}
                                         <tr>
                                             <td>{{ signal_name }}</td>
-                                            <td><input type="checkbox" name="Vehicle_signal_{{ signal_name }}" {% if active %}checked{% endif %}></td>
+                                            <td><input type="checkbox" name="Vehicle_signal_{{ signal_name }}" {% if
+                                                    active %}checked{% endif %}></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -158,12 +179,39 @@
                             <button type="button" class="btn btn-primary save-vehicle">Save Changes</button>
                         </form>
                     </div>
+                    <div class="tab-pane fade" id="facilities" role="tabpanel" aria-labelledby="facilities-tab">
+                        <!-- New Facilities Tab Content -->
+                        <form id="facilities-form" method="post" action="{{ url_for('update_config') }}">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Signal Name</th>
+                                            <th>Active</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for signal_name, active in
+                                        config_data["FlexILUDPSignals"]["Facilities"].items() %}
+                                        <tr>
+                                            <td>{{ signal_name }}</td>
+                                            <td><input type="checkbox" name="Facilities_signal_{{ signal_name }}" {% if
+                                                    active %}checked{% endif %}></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-primary save-facilities">Save Changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="notification-area" class="fixed-bottom mb-4 mr-4" style="position: fixed; bottom: 0; right: 0;"></div> <!-- Notification area for displaying messages -->
+    <div id="notification-area" class="fixed-bottom mb-4 mr-4" style="position: fixed; bottom: 0; right: 0;"></div>
+    <!-- Notification area for displaying messages -->
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -175,85 +223,111 @@
             var notificationHTML = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">';
             notificationHTML += message;
             notificationHTML += '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
-            notificationHTML += '<span aria-hidden="true">&times;</span>';
+            notificationHTML += '<span aria-hidden="true">&times;</span></button></div>'; // Add the close button and close the div
+
             notificationArea.html(notificationHTML);
+
+            // Automatically hide the notification after 2 seconds (2000 milliseconds)
+            setTimeout(function () {
+                $('.alert').alert('close');
+            }, 2000);
         }
 
         // AJAX function to update IP Address
-        $('.save-ip-address').click(function() {
+        $('.save-ip-address').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/update',
                 data: $('#ip-address-form').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         showNotification('IP Address changes saved successfully.', 'success');
                     } else {
                         showNotification('Failed to save IP Address changes.', 'danger');
                     }
                 },
-                error: function() {
+                error: function () {
                     showNotification('Error occurred while saving IP Address changes.', 'danger');
                 }
             });
         });
 
         // AJAX function to update Port Number
-        $('.save-port-number').click(function() {
+        $('.save-port-number').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/update',
                 data: $('#port-number-form').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         showNotification('Port Number changes saved successfully.', 'success');
                     } else {
                         showNotification('Failed to save Port Number changes.', 'danger');
                     }
                 },
-                error: function() {
+                error: function () {
                     showNotification('Error occurred while saving Port Number changes.', 'danger');
                 }
             });
         });
 
         // AJAX function to update Simulation Signals
-        $('.save-simulation').click(function() {
+        $('.save-simulation').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/update',
                 data: $('#simulation-form').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         showNotification('Simulation Signal changes saved successfully.', 'success');
                     } else {
                         showNotification('Failed to save Simulation Signal changes.', 'danger');
                     }
                 },
-                error: function() {
+                error: function () {
                     showNotification('Error occurred while saving Simulation Signal changes.', 'danger');
                 }
             });
         });
 
         // AJAX function to update Vehicle Signals
-        $('.save-vehicle').click(function() {
+        $('.save-vehicle').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/update',
                 data: $('#vehicle-form').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         showNotification('Vehicle Signal changes saved successfully.', 'success');
                     } else {
                         showNotification('Failed to save Vehicle Signal changes.', 'danger');
                     }
                 },
-                error: function() {
+                error: function () {
                     showNotification('Error occurred while saving Vehicle Signal changes.', 'danger');
+                }
+            });
+        });
+
+        // AJAX function to update Facilities Signals
+        $('.save-facilities').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '/update',
+                data: $('#facilities-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        showNotification('Facilities Signal changes saved successfully.', 'success');
+                    } else {
+                        showNotification('Failed to save Facilities Signal changes.', 'danger');
+                    }
+                },
+                error: function () {
+                    showNotification('Error occurred while saving Facilities Signal changes.', 'danger');
                 }
             });
         });
     </script>
 </body>
+
 </html>

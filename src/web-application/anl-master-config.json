@@ -15,7 +15,7 @@
     "FlexILUDPSignals": {
         "Simulation": {
             "Dyno_Ctrl_Grade_Cmd": false,
-            "VUT_Ctrl_ACC_AxlTrq_Cmd": true,
+            "VUT_Ctrl_ACC_AxlTrq_Cmd": false,
             "VUT_Ctrl_ACC_BrkDecel_Cmd": true,
             "VUT_Ctrl_Trns_Gear_Cmd": true,
             "Master_Ctrl_Test_Cmd": true,
@@ -35,7 +35,7 @@
             "VUT_Ctrl_Trns_TrqCnvCl_Actv": true
         },
         "Vehicle": {
-            "VUT_Data_Veh_Grade": true,
+            "VUT_Data_Veh_Grade": false,
             "VUT_Data_Trns_Engd": true,
             "VUT_Data_Trns_Gear": true,
             "VUT_Resp_Veh_Accel": true,
@@ -98,7 +98,7 @@
         },
         "Facilities": {
             "Dyno_Data_Trace_Grade": true,
-            "Dyno_Data_Temp_1": true,
+            "Dyno_Data_Temp_1": false,
             "Dyno_Data_Temp_2": true,
             "Dyno_Data_Fan_Spd": true,
             "Dyno_Data_Trace_Spd": true,

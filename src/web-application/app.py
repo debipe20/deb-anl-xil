@@ -30,6 +30,15 @@ def form_contains_vehicle_signals(form_data):
             return True
     return False
 
+
+# Check if form data contains any Facilities signals
+def form_contains_facilities_signals(form_data):
+    facilities_signals = load_config()['FlexILUDPSignals']['Facilities']
+    for signal_name in facilities_signals:
+        if f'Facilities_signal_{signal_name}' in form_data:
+            return True
+    return False
+
 @app.route('/')
 def index():
     config_data = load_config()
@@ -77,7 +86,18 @@ def update_config():
             for signal_name in config_data['FlexILUDPSignals']['Vehicle']:
                 if f'Vehicle_signal_{signal_name}' in form_data:
                     config_data['FlexILUDPSignals']['Vehicle'][signal_name] = form_data.get(f'Vehicle_signal_{signal_name}') == 'on'
+                    
+        # Check if form data contains Facilities signals
+        if form_contains_facilities_signals(form_data):
+            # Set all Facilities signals to False by default
+            for signal_name in config_data['FlexILUDPSignals']['Facilities']:
+                config_data['FlexILUDPSignals']['Facilities'][signal_name] = False
 
+            # Update FlexILUDPSignals section for Facilities based on form data
+            for signal_name in config_data['FlexILUDPSignals']['Facilities']:
+                if f'Facilities_signal_{signal_name}' in form_data:
+                    config_data['FlexILUDPSignals']['Facilities'][signal_name] = form_data.get(f'Facilities_signal_{signal_name}') == 'on'            
+        
         # Save updated JSON data back to file
         save_config(config_data)
 

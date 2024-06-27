@@ -70,6 +70,8 @@
                                     <td>
                                         {% if device == 'SourceDsrcDeviceIp' %}
                                         RSU IP
+                                        {% elif device == 'VehicleControllerIp' %}
+                                        SimPC IP
                                         {% elif device == 'SomeOtherDeviceIp' %}
                                         Another Device IP
                                         {% else %}

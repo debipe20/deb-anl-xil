@@ -14,19 +14,19 @@ def save_config(data):
     with open('anl-master-config.json', 'w') as f:
         json.dump(data, f, indent=4)
 
-# Check if form data contains any SimPC signals
-def form_contains_simpc_signals(form_data):
-    simpc_signals = load_config()['FlexILUDPSignals']['SimPC']
-    for signal_name in simpc_signals:
-        if f'SimPC_signal_{signal_name}' in form_data:
+# Check if form data contains any Simulation signals
+def form_contains_simulation_signals(form_data):
+    simulation_signals = load_config()['FlexILUDPSignals']['Simulation']
+    for signal_name in simulation_signals:
+        if f'Simulation_signal_{signal_name}' in form_data:
             return True
     return False
 
-# Check if form data contains any Mabx signals
-def form_contains_mabx_signals(form_data):
-    mabx_signals = load_config()['FlexILUDPSignals']['Mabx']
-    for signal_name in mabx_signals:
-        if f'Mabx_signal_{signal_name}' in form_data:
+# Check if form data contains any Vehicle signals
+def form_contains_vehicle_signals(form_data):
+    vehicle_signals = load_config()['FlexILUDPSignals']['Vehicle']
+    for signal_name in vehicle_signals:
+        if f'Vehicle_signal_{signal_name}' in form_data:
             return True
     return False
 
@@ -56,33 +56,33 @@ def update_config():
         for component, new_port in zip(config_data['PortNumber'], port_numbers):
             config_data['PortNumber'][component] = int(new_port)
 
-        # Check if form data contains SimPC signals
-        if form_contains_simpc_signals(form_data):
-            # Set all SimPC signals to False by default
-            for signal_name in config_data['FlexILUDPSignals']['SimPC']:
-                config_data['FlexILUDPSignals']['SimPC'][signal_name] = False
+        # Check if form data contains Simulation signals
+        if form_contains_simulation_signals(form_data):
+            # Set all Simulation signals to False by default
+            for signal_name in config_data['FlexILUDPSignals']['Simulation']:
+                config_data['FlexILUDPSignals']['Simulation'][signal_name] = False
 
-            # Update FlexILUDPSignals section for SimPC based on form data
-            for signal_name in config_data['FlexILUDPSignals']['SimPC']:
-                if f'SimPC_signal_{signal_name}' in form_data:
-                    config_data['FlexILUDPSignals']['SimPC'][signal_name] = form_data.get(f'SimPC_signal_{signal_name}') == 'on'
+            # Update FlexILUDPSignals section for Simulation based on form data
+            for signal_name in config_data['FlexILUDPSignals']['Simulation']:
+                if f'Simulation_signal_{signal_name}' in form_data:
+                    config_data['FlexILUDPSignals']['Simulation'][signal_name] = form_data.get(f'Simulation_signal_{signal_name}') == 'on'
 
-        # Check if form data contains Mabx signals
-        if form_contains_mabx_signals(form_data):
-            # Set all Mabx signals to False by default
-            for signal_name in config_data['FlexILUDPSignals']['Mabx']:
-                config_data['FlexILUDPSignals']['Mabx'][signal_name] = False
+        # Check if form data contains Vehicle signals
+        if form_contains_vehicle_signals(form_data):
+            # Set all Vehicle signals to False by default
+            for signal_name in config_data['FlexILUDPSignals']['Vehicle']:
+                config_data['FlexILUDPSignals']['Vehicle'][signal_name] = False
 
-            # Update FlexILUDPSignals section for Mabx based on form data
-            for signal_name in config_data['FlexILUDPSignals']['Mabx']:
-                if f'Mabx_signal_{signal_name}' in form_data:
-                    config_data['FlexILUDPSignals']['Mabx'][signal_name] = form_data.get(f'Mabx_signal_{signal_name}') == 'on'
+            # Update FlexILUDPSignals section for Vehicle based on form data
+            for signal_name in config_data['FlexILUDPSignals']['Vehicle']:
+                if f'Vehicle_signal_{signal_name}' in form_data:
+                    config_data['FlexILUDPSignals']['Vehicle'][signal_name] = form_data.get(f'Vehicle_signal_{signal_name}') == 'on'
 
         # Save updated JSON data back to file
         save_config(config_data)
 
         # Debugging statements
-        print(json.dumps(config_data, indent=4))
+        # print(json.dumps(config_data, indent=4))
 
         # Return success response
         return jsonify({'status': 'success'})

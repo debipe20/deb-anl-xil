@@ -105,15 +105,15 @@
             <div class="tab-pane fade" id="flexil" role="tabpanel" aria-labelledby="flexil-tab">
                 <ul class="nav nav-tabs" id="flexilTab" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" id="simpc-tab" data-toggle="tab" href="#simpc" role="tab" aria-controls="simpc" aria-selected="true">SimPC</a>
+                        <a class="nav-link active" id="simulation-tab" data-toggle="tab" href="#simulation" role="tab" aria-controls="simulation" aria-selected="true">Simulation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="mabx-tab" data-toggle="tab" href="#mabx" role="tab" aria-controls="mabx" aria-selected="false">Mabx</a>
+                        <a class="nav-link" id="vehicle-tab" data-toggle="tab" href="#vehicle" role="tab" aria-controls="vehicle" aria-selected="false">Vehicle</a>
                     </li>
                 </ul>
                 <div class="tab-content mt-3" id="flexilTabContent">
-                    <div class="tab-pane fade show active" id="simpc" role="tabpanel" aria-labelledby="simpc-tab">
-                        <form id="simpc-form" method="post" action="{{ url_for('update_config') }}">
+                    <div class="tab-pane fade show active" id="simulation" role="tabpanel" aria-labelledby="simulation-tab">
+                        <form id="simulation-form" method="post" action="{{ url_for('update_config') }}">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
                                     <thead>
@@ -123,20 +123,20 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["SimPC"].items() %}
+                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Simulation"].items() %}
                                         <tr>
                                             <td>{{ signal_name }}</td>
-                                            <td><input type="checkbox" name="SimPC_signal_{{ signal_name }}" {% if active %}checked{% endif %}></td>
+                                            <td><input type="checkbox" name="Simulation_signal_{{ signal_name }}" {% if active %}checked{% endif %}></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                            <button type="button" class="btn btn-primary save-simpc">Save Changes</button>
+                            <button type="button" class="btn btn-primary save-simulation">Save Changes</button>
                         </form>
                     </div>
-                    <div class="tab-pane fade" id="mabx" role="tabpanel" aria-labelledby="mabx-tab">
-                        <form id="mabx-form" method="post" action="{{ url_for('update_config') }}">
+                    <div class="tab-pane fade" id="vehicle" role="tabpanel" aria-labelledby="vehicle-tab">
+                        <form id="vehicle-form" method="post" action="{{ url_for('update_config') }}">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
                                     <thead>
@@ -146,16 +146,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Mabx"].items() %}
+                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Vehicle"].items() %}
                                         <tr>
                                             <td>{{ signal_name }}</td>
-                                            <td><input type="checkbox" name="Mabx_signal_{{ signal_name }}" {% if active %}checked{% endif %}></td>
+                                            <td><input type="checkbox" name="Vehicle_signal_{{ signal_name }}" {% if active %}checked{% endif %}></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                            <button type="button" class="btn btn-primary save-mabx">Save Changes</button>
+                            <button type="button" class="btn btn-primary save-vehicle">Save Changes</button>
                         </form>
                     </div>
                 </div>
@@ -217,40 +217,40 @@
             });
         });
 
-        // AJAX function to update SimPC Signals
-        $('.save-simpc').click(function() {
+        // AJAX function to update Simulation Signals
+        $('.save-simulation').click(function() {
             $.ajax({
                 type: 'POST',
                 url: '/update',
-                data: $('#simpc-form').serialize(),
+                data: $('#simulation-form').serialize(),
                 success: function(response) {
                     if (response.status === 'success') {
-                        showNotification('SimPC Signal changes saved successfully.', 'success');
+                        showNotification('Simulation Signal changes saved successfully.', 'success');
                     } else {
-                        showNotification('Failed to save SimPC Signal changes.', 'danger');
+                        showNotification('Failed to save Simulation Signal changes.', 'danger');
                     }
                 },
                 error: function() {
-                    showNotification('Error occurred while saving SimPC Signal changes.', 'danger');
+                    showNotification('Error occurred while saving Simulation Signal changes.', 'danger');
                 }
             });
         });
 
-        // AJAX function to update Mabx Signals
-        $('.save-mabx').click(function() {
+        // AJAX function to update Vehicle Signals
+        $('.save-vehicle').click(function() {
             $.ajax({
                 type: 'POST',
                 url: '/update',
-                data: $('#mabx-form').serialize(),
+                data: $('#vehicle-form').serialize(),
                 success: function(response) {
                     if (response.status === 'success') {
-                        showNotification('Mabx Signal changes saved successfully.', 'success');
+                        showNotification('Vehicle Signal changes saved successfully.', 'success');
                     } else {
-                        showNotification('Failed to save Mabx Signal changes.', 'danger');
+                        showNotification('Failed to save Vehicle Signal changes.', 'danger');
                     }
                 },
                 error: function() {
-                    showNotification('Error occurred while saving Mabx Signal changes.', 'danger');
+                    showNotification('Error occurred while saving Vehicle Signal changes.', 'danger');
                 }
             });
         });

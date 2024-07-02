@@ -1,11 +1,17 @@
 {
     "IPAddress": {
-        "HostIp": "192.168.26.101",
-        "SourceDsrcDeviceIp": "192.168.26.121",
-        "V2XHubIp": "192.168.26.101",
-        "VehicleControllerIp": "192.168.26.113"
+        "HostIP": "192.168.26.101",
+        "SimPC": "192.168.26.110",
+        "Mabx": "192.168.26.113",
+        "Facility": "192.168.26.111",
+        "SourceDsrcDeviceIP": "192.168.26.121",
+        "V2XHubIP": "192.168.26.101"
     },
     "PortNumber": {
+        "HostPort": 10001,
+        "SimPC": 10002,
+        "Mabx": 10003,
+        "Facility": 10004,
         "MessageDecoder": 1517,
         "DataConverter": 50005,
         "VehicleController": 1025,
@@ -115,6 +121,10 @@
             "Facil_Mgmt_Time_Greyware": true,
             "RobDrv_Resp_APP_Pos_CmdEcho": true,
             "RobDrv_Resp_BPP_Pos_CmdEcho": true
+        },
+        "Test": {
+            "E_Veh_Grade": false,
+            "E_Trns_Engd": true
         }
     }
 }

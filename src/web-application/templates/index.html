@@ -128,6 +128,10 @@
                         <a class="nav-link" id="facilities-tab" data-toggle="tab" href="#facilities" role="tab"
                             aria-controls="facilities" aria-selected="false">Facilities</a> <!-- New Facilities Tab -->
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="test-tab" data-toggle="tab" href="#test" role="tab"
+                            aria-controls="test" aria-selected="false">Test</a> <!--test Tab -->
+                    </li>
                 </ul>
                 <div class="tab-content mt-3" id="flexilTabContent">
                     <div class="tab-pane fade show active" id="simulation" role="tabpanel"
@@ -205,6 +209,32 @@
                                 </table>
                             </div>
                             <button type="button" class="btn btn-primary save-facilities">Save Changes</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="test" role="tabpanel" aria-labelledby="test-tab">
+                        <!-- Test Tab Content -->
+                        <form id="test-form" method="post" action="{{ url_for('update_config') }}">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Signal Name</th>
+                                            <th>Active</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for signal_name, active in
+                                        config_data["FlexILUDPSignals"]["Test"].items() %}
+                                        <tr>
+                                            <td>{{ signal_name }}</td>
+                                            <td><input type="checkbox" name="Test_signal_{{ signal_name }}" {% if
+                                                    active %}checked{% endif %}></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-primary save-test">Save Changes</button>
                         </form>
                     </div>
                 </div>
@@ -326,6 +356,25 @@
                 },
                 error: function () {
                     showNotification('Error occurred while saving Facilities Signal changes.', 'danger');
+                }
+            });
+        });
+
+        // AJAX function to update Test Signals
+        $('.save-test').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '/update',
+                data: $('#test-form').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        showNotification('Test Signal changes saved successfully.', 'success');
+                    } else {
+                        showNotification('Failed to save Test Signal changes.', 'danger');
+                    }
+                },
+                error: function () {
+                    showNotification('Error occurred while saving Test Signal changes.', 'danger');
                 }
             });
         });

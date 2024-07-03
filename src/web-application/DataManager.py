@@ -35,7 +35,7 @@ class DataManager:
         
     def update_dict(self,key, value):
         """
-            - Method to update msg_count_dictionary
+        Method to update msg_count_dictionary
         """
         if key in self.msg_count_dictionary:
             self.msg_count_dictionary[key].append(value)
@@ -43,6 +43,10 @@ class DataManager:
             self.msg_count_dictionary[key] = [value]
         
     def manageMsgInformation(self, msg_type, transmission_type):
+        
+        """
+        Method to append values into msg_count_dictionary based on msg type and trasmission type
+        """
         valueList = []
         if msg_type == "simulation":
             self.simulation_msg_count = self.simulation_msg_count + 1
@@ -60,6 +64,10 @@ class DataManager:
             self.update_dict("simulation", valueList)
         
     def write_msg_count(self):
+        """
+        Method to write the csv file based on the msg_count_dictionary
+            - Method will check the time gap between two consecutive file writing
+        """
         
         if time.time() - self.msg_update_time >= Time_Gap:
             for lists in self.msg_count_dictionary.values():

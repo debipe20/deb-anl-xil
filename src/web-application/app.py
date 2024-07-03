@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 import json
 import subprocess
+import pandas as pd
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -126,6 +128,22 @@ def update_config():
         return jsonify({'status': 'success'})
 
     return jsonify({'status': 'error', 'message': 'Invalid request method'})
+
+@app.route('/performance-data')
+def performance_data():
+    # Load the CSV data
+    df = pd.read_csv('performance-data-log.csv')
+    
+    # Split the data into transmitted and received messages
+    transmitted = df[df['Type'] == 'Transmitted']
+    received = df[df['Type'] == 'Received']
+    
+    # Get the current time
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    return render_template('performance_data.html', transmitted=transmitted, received=received, current_time=current_time)
+
+
 
 def ping_ip(ip):
     try:

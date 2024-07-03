@@ -21,8 +21,8 @@
     "FlexILUDPSignals": {
         "Simulation": {
             "Dyno_Ctrl_Grade_Cmd": false,
-            "VUT_Ctrl_ACC_AxlTrq_Cmd": false,
-            "VUT_Ctrl_ACC_BrkDecel_Cmd": true,
+            "VUT_Ctrl_ACC_AxlTrq_Cmd": true,
+            "VUT_Ctrl_ACC_BrkDecel_Cmd": false,
             "VUT_Ctrl_Trns_Gear_Cmd": true,
             "Master_Ctrl_Test_Cmd": true,
             "Master_Resp_SoftID": true,
@@ -123,7 +123,7 @@
             "RobDrv_Resp_BPP_Pos_CmdEcho": true
         },
         "Test": {
-            "E_Veh_Grade": false,
+            "E_Veh_Grade": true,
             "E_Trns_Engd": true
         }
     }

@@ -46,6 +46,9 @@
                 <a class="nav-link" id="flexil-tab" data-toggle="tab" href="#flexil" role="tab" aria-controls="flexil"
                     aria-selected="false">FlexIL UDP Signals</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" id="performance-data-tab" data-toggle="tab" href="#performance-data" role="tab" aria-controls="performance-data" aria-selected="false">Performance Data</a>
+            </li>
         </ul>
         <div class="tab-content mt-3" id="myTabContent">
             <div class="tab-pane fade show active" id="logo" role="tabpanel" aria-labelledby="logo-tab">
@@ -239,6 +242,9 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane fade" id="performance-data" role="tabpanel" aria-labelledby="performance-data-tab">
+                <!-- Performance Data will be loaded here -->
+            </div>
         </div>
     </div>
 
@@ -375,6 +381,21 @@
                 },
                 error: function () {
                     showNotification('Error occurred while saving Test Signal changes.', 'danger');
+                }
+            });
+        });
+
+        // AJAX function to load Performance Data
+        $('a#performance-data-tab').on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/performance-data',
+                type: 'GET',
+                success: function (data) {
+                    $('#performance-data').html(data);
+                },
+                error: function () {
+                    showNotification('Error occurred while loading Performance Data.', 'danger');
                 }
             });
         });

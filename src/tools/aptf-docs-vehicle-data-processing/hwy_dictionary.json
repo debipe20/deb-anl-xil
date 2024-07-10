@@ -2,16 +2,19 @@
     "1st": [
         {
             "Test ID [#]": [
-                62009019
+                62009003
             ],
             "Sub-Phase": [
                 1
             ],
-            "Start SOC": [
-                95.676982
+            "Cycle Distance [mi]": [
+                10.31371628
             ],
-            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
-                1285
+            "Start SOC": [
+                64.598976
+            ],
+            "End SOC": [
+                61.609738
             ]
         },
         {
@@ -21,11 +24,14 @@
             "Sub-Phase": [
                 2
             ],
+            "Cycle Distance [mi]": [
+                10.24641703
+            ],
             "Start SOC": [
                 14.482317
             ],
-            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
-                56147
+            "End SOC": [
+                11.248935
             ]
         }
     ],
@@ -37,11 +43,14 @@
             "Sub-Phase": [
                 1
             ],
+            "Cycle Distance [mi]": [
+                10.24739578
+            ],
             "Start SOC": [
                 95.651042
             ],
-            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
-                1319
+            "End SOC": [
+                92.889162
             ]
         },
         {
@@ -51,15 +60,54 @@
             "Sub-Phase": [
                 2
             ],
+            "Cycle Distance [mi]": [
+                10.24705309
+            ],
             "Start SOC": [
                 16.778796
             ],
-            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
-                55995
+            "End SOC": [
+                16.778796
             ]
         }
     ],
     "3rd": [
+        {
+            "Test ID [#]": [
+                62009029
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Cycle Distance [mi]": [
+                10.2462009
+            ],
+            "Start SOC": [
+                95.788372
+            ],
+            "End SOC": [
+                93.04633
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009053
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Cycle Distance [mi]": [
+                10.27643757
+            ],
+            "Start SOC": [
+                22.755747
+            ],
+            "End SOC": [
+                17.941532
+            ]
+        }
+    ],
+    "4th": [
         {
             "Test ID [#]": [
                 62009059
@@ -67,11 +115,14 @@
             "Sub-Phase": [
                 1
             ],
+            "Cycle Distance [mi]": [
+                10.28310848
+            ],
             "Start SOC": [
                 91.766752
             ],
-            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
-                4019
+            "End SOC": [
+                86.590247
             ]
         },
         {
@@ -81,11 +132,14 @@
             "Sub-Phase": [
                 2
             ],
+            "Cycle Distance [mi]": [
+                10.27576421
+            ],
             "Start SOC": [
                 33.340915
             ],
-            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
-                43586
+            "End SOC": [
+                28.068931
             ]
         }
     ]

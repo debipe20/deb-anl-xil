@@ -40,7 +40,7 @@ def is_description_row(row):
      Define a function to identify description rows
     """
     return pd.isna(row['Test Time']) and pd.isna(row['Date'])
-    
+
 def dict_to_df(dictionary):
     """
     Method to create pandas dataframe from dictionary 
@@ -48,20 +48,16 @@ def dict_to_df(dictionary):
     data_list = []
     for key, entries in dictionary.items():
         for entry in entries:
-            # Find the maximum length of lists in the entry
-            max_length = max(len(v) for v in entry.values())
-            for i in range(max_length):
-                data_entry = {}
-                for k, v in entry.items():
-                    data_entry[k] = v[i] if i < len(v) else None
-                data_entry['Category'] = key
-                data_list.append(data_entry)
-
+            data_entry = {k: v[0] for k, v in entry.items()}
+            data_entry['Category'] = key
+            data_list.append(data_entry)
+    
     df = pd.DataFrame(data_list)
     # Reorder columns to place 'Category' at the start
     columns = ['Category'] + [col for col in df.columns if col != 'Category']
     df = df[columns]
-    return df  
+    
+    return df
      
 def merge_category_cells(df, start_row, sheet):
     """
@@ -120,7 +116,7 @@ def populate_dictionary(config, df, index_list, desired_subcycle_name, sub_phase
     
     update_dict(iteration_key, lists_dict, dictionary, dictionary_name)           
          
-def matching_cycles(config, df, cycles_list):
+def matching_rows(config, df, cycles_list):
     """
     Method to find index number that matches desired drive cycle (e.g., MCT)
     """
@@ -140,21 +136,17 @@ def matching_cycles(config, df, cycles_list):
     sub_cycle_name_counter = 0
     iteration_index = 0
     desired_index_list  =[]
-    sub_cycle_finding_status = True
         
     for index, row in df.loc[:].iterrows():
-       
         if row['Cycle'] == sub_cycle_names[sub_cycle_name_counter]:
+            print(sub_cycle_names[sub_cycle_name_counter])
             sub_cycle_name_counter += 1
-            sub_cycle_finding_status = True            
-               
-            if row['Cycle'] in cycles_list:
-                desired_index_list.append(index)            
                 
-        else: sub_cycle_finding_status = False
+            if row['Cycle'] in cycles_list:
+                desired_index_list.append(index)
                     
-        if sub_cycle_finding_status and sub_cycle_name_counter == len(sub_cycle_names):
-            sub_cycle_finding_status = False
+        if sub_cycle_name_counter == len(sub_cycle_names):
+            sub_cycle_name_counter = 0
 
             # iterating both cycle_type dictionary and cycle types simultaneouly
             for (dict_name, dictionary), cycle_type in zip(cycle_type_dicts.items(), config["CycleTypes"]):
@@ -173,11 +165,8 @@ def matching_cycles(config, df, cycles_list):
                         sub_phase_number += 1
                         
             iteration_index += 1
-            
-        if not(sub_cycle_finding_status)  and sub_cycle_name_counter > 1:
-            sub_cycle_name_counter = 0
             desired_index_list.clear()
-    
+        
     return cycle_type_dicts
     
 
@@ -189,9 +178,8 @@ def main():
     configFile.close()
     
     output_file_path = config["OutputFileName"]
-    output_sheet_name = config['OutputSheetName']
     
-    data_frame = pd.read_excel(config["InputFileName"], sheet_name = config['InputSheetName'],  skiprows = config['NoOfSkipRows'])
+    data_frame = pd.read_excel(config["InputFileName"], sheet_name = config['SheetName'],  skiprows = config["NoOfSkipRows"])
 
     # Apply the filter to exclude description rows
     filtered_df = data_frame[~data_frame.apply(is_description_row, axis=1)]
@@ -203,10 +191,10 @@ def main():
     # print("Column names:", column_names)
     
     cycles_list = get_cycles_list(config)
-    cycle_type_dicts = matching_cycles(config, filtered_df, cycles_list) 
+    cycle_type_dicts = matching_rows(config, filtered_df, cycles_list) 
  
-    # for dictionary_name, dictionary in cycle_type_dicts.items():
-    #     print(f"Data in {dictionary_name} is:\n{dictionary}\n\n")
+    for dictionary_name, dictionary in cycle_type_dicts.items():
+        print(f"Data in {dictionary_name} is:\n{dictionary}\n\n")
        
     # Create a Pandas Excel writer using openpyxl as the engine
     with pd.ExcelWriter(output_file_path, engine='openpyxl') as writer:
@@ -216,18 +204,18 @@ def main():
             df = dict_to_df(dictionary)
             
             # Add dictionary name before DataFrame
-            worksheet = writer.book.create_sheet(output_sheet_name) if start_row == 0 else writer.sheets[output_sheet_name]
+            worksheet = writer.book.create_sheet('Sheet1') if start_row == 0 else writer.sheets['Sheet1']
             worksheet.append([dict_name.split('_')[0].upper()]) if start_row == 0 else worksheet.cell(row=start_row + 1, column=1, value=dict_name.split('_')[0].upper())
             
             # Write the DataFrame to the sheet starting at the next row
-            df.to_excel(writer, sheet_name=output_sheet_name, startrow=start_row + 1, index=False)
+            df.to_excel(writer, sheet_name='Sheet1', startrow=start_row + 1, index=False)
             
             # Update start_row for the next dictionary
             start_row += len(df) + 3
 
     # Load the workbook and access the sheet
     workbook = load_workbook(output_file_path)
-    sheet = workbook[output_sheet_name]
+    sheet = workbook['Sheet1']
     
     # Merge cells in 'Category' column for each DataFrame
     start_row = 2

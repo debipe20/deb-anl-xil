@@ -22,7 +22,7 @@ Time_Gap = 300.0
 class DataManager:
     def __init__(self) -> None:
                 
-        self.log_file = open("/log/msg_count_log_.csv", "w")        
+        self.log_file = open("log/msg_count_log_.csv", "w")        
 
         self.simulation_msg_count = 0.0
         self.faulty_simulation_msg_count = 0.0

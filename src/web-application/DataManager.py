@@ -27,6 +27,17 @@ class DataManager:
         self.simulation_msg_count = 0.0
         self.faulty_simulation_msg_count = 0.0
         self.simulation_msg_count_cumulative = 0.0
+        self.faulty_simulation_msg_count_cumulative = 0.0
+        
+        self.mabx_msg_count = 0.0
+        self.faulty_mabx_msg_count = 0.0
+        self.mabx_msg_count_cumulative = 0.0
+        self.faulty_mabx_msg_count_cumulative = 0.0
+        
+        self.facilities_msg_count = 0.0
+        self.faulty_facilities_msg_count = 0.0
+        self.facilities_msg_count_cumulative = 0.0
+        self.faulty_facilities_msg_count_cumulative = 0.0
         
         self.msg_count_dictionary = {}
         
@@ -54,14 +65,47 @@ class DataManager:
             
             valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Simulation", self.simulation_msg_count, self.simulation_msg_count_cumulative, transmission_type)
             self.update_dict("simulation", valueList)
-            
+            self.reset_msg_count(self.simulation_msg_count)
             
         elif msg_type == "fauly-simulation":
             self.faulty_simulation_msg_count = self.faulty_simulation_msg_count + 1
-            self.simulation_msg_count_cumulative = self.simulation_msg_count_cumulative + 1
+            self.faulty_simulation_msg_count_cumulative = self.faulty_simulation_msg_count_cumulative + 1
             
-            valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Faulty-Simulation", self.simulation_msg_count, self.simulation_msg_count_cumulative, transmission_type)
-            self.update_dict("simulation", valueList)
+            valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Faulty-Simulation", self.faulty_simulation_msg_count, self.faulty_simulation_msg_count_cumulative, transmission_type)
+            self.update_dict("simulation", valueList)### Check if Key will be "Simulation or Faulty-Simulation"
+            self.reset_msg_count(self.faulty_simulation_msg_count)
+            
+        elif msg_type == "mabx":
+            self.mabx_msg_count = self.mabx_msg_count + 1
+            self.mabx_msg_count_cumulative = self.mabx_msg_count_cumulative + 1
+            
+            valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Mabx", self.mabx_msg_count, self.mabx_msg_count_cumulative, transmission_type)
+            self.update_dict("mabx", valueList)
+            self.reset_msg_count(self.mabx_msg_count)
+            
+        elif msg_type == "fauly-mabx":
+            self.faulty_mabx_msg_count = self.faulty_mabx_msg_count + 1
+            self.faulty_mabx_msg_count_cumulative = self.faulty_mabx_msg_count_cumulative + 1
+            
+            valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Faulty-Mabx", self.faulty_mabx_msg_count, self.faulty_mabx_msg_count_cumulative, transmission_type)
+            self.update_dict("mabx", valueList)
+            self.reset_msg_count(self.faulty_mabx_msg_count)
+            
+        elif msg_type == "facilities":
+            self.facilities_msg_count = self.facilities_msg_count + 1
+            self.facilities_msg_count_cumulative = self.facilities_msg_count_cumulative + 1
+            
+            valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Facilities", self.facilities_msg_count, self.facilities_msg_count_cumulative, transmission_type)
+            self.update_dict("facilities", valueList)
+            self.reset_msg_count(self.facilities_msg_count)
+            
+        elif msg_type == "fauly-facilities":
+            self.faulty_facilities_msg_count = self.faulty_facilities_msg_count + 1
+            self.faulty_facilities_msg_count_cumulative = self.faulty_facilities_msg_count_cumulative + 1
+            
+            valueList.append(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")), "Faulty-Facilities", self.faulty_facilities_msg_count, self.faulty_facilities_msg_count_cumulative, transmission_type)
+            self.update_dict("facilities", valueList)
+            self.reset_msg_count(self.faulty_facilities_msg_count)
         
     def write_msg_count(self):
         """
@@ -74,11 +118,15 @@ class DataManager:
                 for list_value in lists:
                     self.log_file.writerow(list_value)                  
             
-            
-            self.simulation_msg_count_cumulative = 0.0
             self.msg_update_time = time.time()
             
+    
+    def reset_msg_count(self, msg_count):
+        """
+        Method to reset a particular type message count after updating the dictionary
+        """
+        msg_count = 0.0            
             
     def __del__(self):
         # self.logger.consoleDisplay("Closing BSM Generator Application")
-        pass
+        self.log_file.close()

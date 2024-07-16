@@ -30,19 +30,19 @@ def main():
     facility_address = (facility_ip, facility_port)
 
     message_tranceiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # message_tranceiver_socket.bind(host_address)
+    message_tranceiver_socket.bind(host_address)
 
-    try:
-        message_tranceiver_socket.bind(host_address)
-        print(f"Successfully bound to {host_address}")
-    except OSError as e:
-        print(f"Failed to bind to {host_address}: {e}")
-        try:
-            message_tranceiver_socket.bind(fallback_address)
-            print(f"Successfully bound to {fallback_address}")
-        except OSError as fallback_e:
-            print(f"Failed to bind to {fallback_address} as well: {fallback_e}")
-            return
+    # try:
+    #     message_tranceiver_socket.bind(host_address)
+    #     print(f"Successfully bound to {host_address}")
+    # except OSError as e:
+    #     print(f"Failed to bind to {host_address}: {e}")
+    #     try:
+    #         message_tranceiver_socket.bind(fallback_address)
+    #         print(f"Successfully bound to {fallback_address}")
+    #     except OSError as fallback_e:
+    #         print(f"Failed to bind to {fallback_address} as well: {fallback_e}")
+    #         return
 
     dataManager = DataManager()
     update_time = time.time()
@@ -68,11 +68,11 @@ def main():
         elif (address == simpc_address) and (len(data) != simulation_true_count):
             dataManager.manageMsgInformation("faulty_simulation", "Received")
         
-        # elif (address == mabx_address) and (len(data) == vehicle_true_count):
-        #     pass
+        elif (address == mabx_address) and (len(data) == vehicle_true_count):
+            dataManager.manageMsgInformation("mabx", "Received")
             
-        # elif (address == mabx_address) and (len(data) != vehicle_true_count):
-        #     pass
+        elif (address == mabx_address) and (len(data) != vehicle_true_count):
+            dataManager.manageMsgInformation("faulty_mabx", "Received")
         
         # elif (address == facility_address) and (len(data) == facilities_true_count):
         #     pass

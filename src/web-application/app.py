@@ -132,7 +132,8 @@ def update_config():
 @app.route('/performance-data')
 def performance_data():
     # Load the CSV data
-    df = pd.read_csv('performance-data-log.csv')
+    # df = pd.read_csv('performance-data-log.csv')
+    df = pd.read_csv('log/msg_count_log_.csv')
     
     # Split the data into transmitted and received messages
     transmitted = df[df['Type'] == 'Transmitted']

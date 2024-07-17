@@ -2,13 +2,13 @@
     "IPAddress": {
         "HostIP": "192.168.26.101",
         "SimPC": "192.168.26.110",
-        "Mabx": "192.168.140.10",
+        "Mabx": "192.168.26.10",
         "Facility": "192.168.26.111",
         "SourceDsrcDeviceIP": "192.168.26.121",
         "V2XHubIP": "192.168.26.101"
     },
     "PortNumber": {
-        "HostPort": 1022,
+        "HostPort": 1030,
         "SimPC": 10002,
         "Mabx": 3333,
         "Facility": 10004,
@@ -132,7 +132,8 @@
             "VUT_Ctrl_ACC_AxlTrq_Actv": true,
             "VUT_Ctrl_LongCtrl_Method": true,
             "VUT_Ctrl_ACC_BrkDecel_Actv": true,
-            "VUT_Ctrl_Trns_TrqCnvCl_Cmd": true
+            "VUT_Ctrl_Trns_TrqCnvCl_Cmd": true,
+            "RobDrv_Resp_BPP_Pos_CmdEcho": false
         }
     }
 }

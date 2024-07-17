@@ -1,0 +1,7 @@
+Time,Message,Count,Cumulative,Type
+2024-07-17 16:00:35.303627,Simulation,0.0,0.0,Received
+2024-07-17 16:00:35.303675,MabX,500.0,53048.0,Received
+2024-07-17 16:00:35.303688,Facilities,0.0,0.0,Received
+2024-07-17 16:00:35.303696,Simulation,0.0,0.0,Transmitted
+2024-07-17 16:00:35.303703,MabX,500.0,53048.0,Transmitted
+2024-07-17 16:00:35.303711,Facilities,0.0,0.0,Transmitted

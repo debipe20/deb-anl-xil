@@ -5,16 +5,16 @@ import struct
 import time
 from DataManager import DataManager
 
-Time_Gap = 5.0
+Time_Gap = 30.0
 
 def get_message_length():
-    config_file = open("anl-master-config.json", "r")
+    config_file = open("../anl-master-config.json", "r")
     config = json.load(config_file)
     config_file.close()
     # Count the number of fields that are true
     simulation_true_count = sum(1 for value in config["FlexILUDPSignals"]["Simulation"].values() if value)
-    # vehicle_true_count = sum(1 for value in config["FlexILUDPSignals"]["Vehicle"].values() if value)
-    vehicle_true_count = sum(1 for value in config["FlexILUDPSignals"]["Test"].values() if value)
+    vehicle_true_count = sum(1 for value in config["FlexILUDPSignals"]["Mabx"].values() if value)
+    # vehicle_true_count = sum(1 for value in config["FlexILUDPSignals"]["Test"].values() if value)
     facilities_true_count = sum(1 for value in config["FlexILUDPSignals"]["Facilities"].values() if value)
 
     print(f"Number of fields that are true under 'Simulation', 'Vehicle', and 'Facilities': {simulation_true_count, vehicle_true_count, facilities_true_count}")   
@@ -27,7 +27,7 @@ def get_message_length():
     
 
 def main():
-    config_file = open("anl-master-config.json", "r")
+    config_file = open("../anl-master-config.json", "r")
     config = json.load(config_file)
     config_file.close()
 

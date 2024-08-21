@@ -109,7 +109,7 @@ class DataManager:
             - Method will check the time gap between two consecutive file writing
         """
 
-        log_file = open("log/msg_count_log_.csv", "w") 
+        log_file = open("../log/msg_count_log_.csv", "w") 
         log_file.write("Time,Message,Count,Cumulative,Type\n")
         
         log_file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")) + "," + "Simulation" + "," + str(self.simulation_msg_count) + "," + str(self.simulation_msg_count_cumulative) + "," + "Received" + "\n")

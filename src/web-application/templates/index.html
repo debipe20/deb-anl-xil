@@ -124,17 +124,17 @@
                             aria-controls="simulation" aria-selected="true">Simulation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="vehicle-tab" data-toggle="tab" href="#vehicle" role="tab"
-                            aria-controls="vehicle" aria-selected="false">Vehicle</a>
+                        <a class="nav-link" id="mabx-tab" data-toggle="tab" href="#mabx" role="tab"
+                            aria-controls="mabx" aria-selected="false">Mabx</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="facilities-tab" data-toggle="tab" href="#facilities" role="tab"
                             aria-controls="facilities" aria-selected="false">Facilities</a> <!-- New Facilities Tab -->
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" id="test-tab" data-toggle="tab" href="#test" role="tab"
-                            aria-controls="test" aria-selected="false">Test</a> <!--test Tab -->
-                    </li>
+                            aria-controls="test" aria-selected="false">Test</a> 
+                    </li>  -->
                 </ul>
                 <div class="tab-content mt-3" id="flexilTabContent">
                     <div class="tab-pane fade show active" id="simulation" role="tabpanel"
@@ -163,8 +163,8 @@
                             <button type="button" class="btn btn-primary save-simulation">Save Changes</button>
                         </form>
                     </div>
-                    <div class="tab-pane fade" id="vehicle" role="tabpanel" aria-labelledby="vehicle-tab">
-                        <form id="vehicle-form" method="post" action="{{ url_for('update_config') }}">
+                    <div class="tab-pane fade" id="mabx" role="tabpanel" aria-labelledby="mabx-tab">
+                        <form id="mabx-form" method="post" action="{{ url_for('update_config') }}">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
                                     <thead>
@@ -174,18 +174,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Vehicle"].items()
+                                        {% for signal_name, active in config_data["FlexILUDPSignals"]["Mabx"].items()
                                         %}
                                         <tr>
                                             <td>{{ signal_name }}</td>
-                                            <td><input type="checkbox" name="Vehicle_signal_{{ signal_name }}" {% if
+                                            <td><input type="checkbox" name="Mabx_signal_{{ signal_name }}" {% if
                                                     active %}checked{% endif %}></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                            <button type="button" class="btn btn-primary save-vehicle">Save Changes</button>
+                            <button type="button" class="btn btn-primary save-mabx">Save Changes</button>
                         </form>
                     </div>
                     <div class="tab-pane fade" id="facilities" role="tabpanel" aria-labelledby="facilities-tab">
@@ -214,9 +214,9 @@
                             <button type="button" class="btn btn-primary save-facilities">Save Changes</button>
                         </form>
                     </div>
-                    <div class="tab-pane fade" id="test" role="tabpanel" aria-labelledby="test-tab">
+                    <!-- <div class="tab-pane fade" id="test" role="tabpanel" aria-labelledby="test-tab"> -->
                         <!-- Test Tab Content -->
-                        <form id="test-form" method="post" action="{{ url_for('update_config') }}">
+                        <!-- <form id="test-form" method="post" action="{{ url_for('update_config') }}">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
                                     <thead>
@@ -239,7 +239,7 @@
                             </div>
                             <button type="button" class="btn btn-primary save-test">Save Changes</button>
                         </form>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="tab-pane fade" id="performance-data" role="tabpanel" aria-labelledby="performance-data-tab">
@@ -328,21 +328,21 @@
             });
         });
 
-        // AJAX function to update Vehicle Signals
-        $('.save-vehicle').click(function () {
+        // AJAX function to update Mabx Signals
+        $('.save-mabx').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/update',
-                data: $('#vehicle-form').serialize(),
+                data: $('#mabx-form').serialize(),
                 success: function (response) {
                     if (response.status === 'success') {
-                        showNotification('Vehicle Signal changes saved successfully.', 'success');
+                        showNotification('Mabx Signal changes saved successfully.', 'success');
                     } else {
-                        showNotification('Failed to save Vehicle Signal changes.', 'danger');
+                        showNotification('Failed to save Mabx Signal changes.', 'danger');
                     }
                 },
                 error: function () {
-                    showNotification('Error occurred while saving Vehicle Signal changes.', 'danger');
+                    showNotification('Error occurred while saving Mabx Signal changes.', 'danger');
                 }
             });
         });
@@ -365,7 +365,7 @@
                 }
             });
         });
-
+    /*
         // AJAX function to update Test Signals
         $('.save-test').click(function () {
             $.ajax({
@@ -384,7 +384,7 @@
                 }
             });
         });
-
+    */
         // AJAX function to load Performance Data
         $('a#performance-data-tab').on('click', function (e) {
             e.preventDefault();

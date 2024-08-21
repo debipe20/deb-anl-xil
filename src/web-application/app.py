@@ -24,11 +24,11 @@ def form_contains_simulation_signals(form_data):
             return True
     return False
 
-# Check if form data contains any Vehicle signals
-def form_contains_vehicle_signals(form_data):
-    vehicle_signals = load_config()['FlexILUDPSignals']['Vehicle']
-    for signal_name in vehicle_signals:
-        if f'Vehicle_signal_{signal_name}' in form_data:
+# Check if form data contains any Mabx signals
+def form_contains_mabx_signals(form_data):
+    mabx_signals = load_config()['FlexILUDPSignals']['Mabx']
+    for signal_name in mabx_signals:
+        if f'Mabx_signal_{signal_name}' in form_data:
             return True
     return False
 
@@ -85,16 +85,16 @@ def update_config():
                 if f'Simulation_signal_{signal_name}' in form_data:
                     config_data['FlexILUDPSignals']['Simulation'][signal_name] = form_data.get(f'Simulation_signal_{signal_name}') == 'on'
 
-        # Check if form data contains Vehicle signals
-        if form_contains_vehicle_signals(form_data):
-            # Set all Vehicle signals to False by default
-            for signal_name in config_data['FlexILUDPSignals']['Vehicle']:
-                config_data['FlexILUDPSignals']['Vehicle'][signal_name] = False
+        # Check if form data contains Mabx signals
+        if form_contains_mabx_signals(form_data):
+            # Set all Mabx signals to False by default
+            for signal_name in config_data['FlexILUDPSignals']['Mabx']:
+                config_data['FlexILUDPSignals']['Mabx'][signal_name] = False
 
-            # Update FlexILUDPSignals section for Vehicle based on form data
-            for signal_name in config_data['FlexILUDPSignals']['Vehicle']:
-                if f'Vehicle_signal_{signal_name}' in form_data:
-                    config_data['FlexILUDPSignals']['Vehicle'][signal_name] = form_data.get(f'Vehicle_signal_{signal_name}') == 'on'
+            # Update FlexILUDPSignals section for Mabx based on form data
+            for signal_name in config_data['FlexILUDPSignals']['Mabx']:
+                if f'Mabx_signal_{signal_name}' in form_data:
+                    config_data['FlexILUDPSignals']['Mabx'][signal_name] = form_data.get(f'Mabx_signal_{signal_name}') == 'on'
                     
         # Check if form data contains Facilities signals
         if form_contains_facilities_signals(form_data):
@@ -107,16 +107,16 @@ def update_config():
                 if f'Facilities_signal_{signal_name}' in form_data:
                     config_data['FlexILUDPSignals']['Facilities'][signal_name] = form_data.get(f'Facilities_signal_{signal_name}') == 'on'   
                     
-        # Check if form data contains Test signals
-        if form_contains_test_signals(form_data):
-            # Set all Test signals to False by default
-            for signal_name in config_data['FlexILUDPSignals']['Test']:
-                config_data['FlexILUDPSignals']['Test'][signal_name] = False
+        # # Check if form data contains Test signals
+        # if form_contains_test_signals(form_data):
+        #     # Set all Test signals to False by default
+        #     for signal_name in config_data['FlexILUDPSignals']['Test']:
+        #         config_data['FlexILUDPSignals']['Test'][signal_name] = False
 
-            # Update FlexILUDPSignals section for Test based on form data
-            for signal_name in config_data['FlexILUDPSignals']['Test']:
-                if f'Test_signal_{signal_name}' in form_data:
-                    config_data['FlexILUDPSignals']['Test'][signal_name] = form_data.get(f'Test_signal_{signal_name}') == 'on'            
+        #     # Update FlexILUDPSignals section for Test based on form data
+        #     for signal_name in config_data['FlexILUDPSignals']['Test']:
+        #         if f'Test_signal_{signal_name}' in form_data:
+        #             config_data['FlexILUDPSignals']['Test'][signal_name] = form_data.get(f'Test_signal_{signal_name}') == 'on'            
         
         # Save updated JSON data back to file
         save_config(config_data)

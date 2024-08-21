@@ -90,6 +90,9 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	- Download Carla
 	- Install Anaconda if Python version doesn't match with Carla Egg
 		- Follow https://docs.anaconda.com/free/anaconda/install/linux/
+			- sudo apt-get install libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6
+			- curl -O https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
+			- bash Anaconda3-2023.09-0-Linux-x86_64.sh 
 		- conda config --set auto_activate_base False
 	- Execute following to avoid "libGL error: MESA-LOADER: failed to open iris: /usr/lib/dri/iris_dri.so: ..." error
 		- conda install -c conda-forge libstdcxx-ng

@@ -10,7 +10,7 @@ Transportation and Power Systems Division
   
 Description:
 ------------
-  1. This script contains methodology to generate csv files that can be fed to the Autonomie.
+  1. This script contains API of DataManager class to generate csv files that can be fed to the Autonomie.
 """
 
 import json 
@@ -18,7 +18,7 @@ from DataManager import DataManager
 
 def main():
     # Read the config file into a json object:
-    configFile = open("configuration.json", 'r')
+    configFile = open("configuration-solo-run-carma.json", 'r')
     config = (json.load(configFile))
     # Close the config file:
     configFile.close()

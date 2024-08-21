@@ -1,0 +1,25 @@
+{
+	"FileDirectory": "/home/debashis/Desktop/deb-anl-xil/data/voices-log/Pilot2_Event2_eco_data",
+	"StartTime":[1711032905.01101, 1711033898.76377, 1711035000.52566],
+	"EndTime":[1711033113.52343, 1711034102.64255, 1711035203.54653],
+	"FileName": [
+		"Solo-ORNL/SR1-20240321-144927_ORNL-AUTO-1_eco_data.csv",
+		"Solo-ORNL/SR2-20240321-150204_ORNL-AUTO-1_eco_data.csv",
+		"Solo-ORNL/SR3-20240321-152732_ORNL-AUTO-1_eco_data.csv"
+	],
+	"VehicleType": [
+		"toyota.prius",
+		"toyota.prius",
+		"toyota.prius"
+	],
+	"RoadGradColumn": [
+		"vehicle_pitch",
+		"vehicle_pitch",
+		"vehicle_pitch"
+	],
+	"SaveFileName": [
+		"solo-run/ORNL/ORNL-AUTO_eco_data_round1.csv",
+		"solo-run/ORNL/ORNL-AUTO_eco_data_round2.csv",
+		"solo-run/ORNL/ORNL-AUTO_eco_data_round3.csv"
+	]
+}

@@ -9,6 +9,7 @@ RUN find /home/carla -type f -exec sed -i 's/XERCESC_VERSION=3.2.3/XERCESC_VERSI
 sudo apt install libxcb-xinerama0
 sudo apt-get install libxerces-c3.2
 sudo apt-get install libboost-all-dev
+pip3 install networkx
 
 #Change the ownership/permission in the /opt/TENA directory
 sudo chown -R carma:carma TENA
@@ -63,6 +64,37 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	- login with V2X-Hub credential
 	- Upload the plugin (zip file) if required
 	
+### Docker installation setps:
+	- https://docs.docker.com/engine/install/
+	- If there are following error while setting up V2X-Hub, execute following command 
+"""
+Traceback (most recent call last):
+  File "/usr/local/bin/docker-compose", line 8, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.10/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/local/lib/python3.10/dist-packages/compose/cli/main.py", line 200, in perform_command
+    project = project_from_options('.', options)
+  File "/usr/local/lib/python3.10/dist-packages/compose/cli/command.py", line 60, in project_from_options
+    return get_project(
+  File "/usr/local/lib/python3.10/dist-packages/compose/cli/command.py", line 152, in get_project
+    client = get_client(
+  File "/usr/local/lib/python3.10/dist-packages/compose/cli/docker_client.py", line 41, in get_client
+    client = docker_client(
+  File "/usr/local/lib/python3.10/dist-packages/compose/cli/docker_client.py", line 124, in docker_client
+    kwargs = kwargs_from_env(environment=environment, ssl_version=tls_version)
+TypeError: kwargs_from_env() got an unexpected keyword argument 'ssl_version'
+"""
+	- docker --version
+	- docker compose version
+	- sudo apt-get update
+	- sudo apt-get upgrade docker-ce docker-ce-cli containerd.io
+	- docker login
+	- sudo rm /usr/local/bin/docker-compose
+	- sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+	- sudo chmod +x /usr/local/bin/docker-compose
+	- docker compose version
+	
 ## Configure Carma Platform Adapter	
 	- carma config edit
 	- cd vehicle/config
@@ -90,7 +122,11 @@ cd /home/carma/TENA/tenaCanary-v1.0.12
 	- Download Carla
 	- Install Anaconda if Python version doesn't match with Carla Egg
 		- Follow https://docs.anaconda.com/free/anaconda/install/linux/
+			- curl -O https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
+			- bash ./Anaconda3-2023.09-0-Linux-x86_64.sh
 		- conda config --set auto_activate_base False
+		- conda create --name voices_env python=3.8.10
+
 	- Execute following to avoid "libGL error: MESA-LOADER: failed to open iris: /usr/lib/dri/iris_dri.so: ..." error
 		- conda install -c conda-forge libstdcxx-ng
 	-Install  nvidia-container-toolkit from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html to avoid following error

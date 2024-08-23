@@ -21,8 +21,8 @@
 	"VehicleInformation": {
 		"HostVehicleId": "f03ad623",
 		"LeadVehicleId": "f03ad626",
-		"HostBsmLogFileName": "/home/carma/Desktop/deb-anl-xil/data/ANL_breadcrumbs_event2.csv",
-		"LeadBsmLogFileName": "/home/carma/Desktop/deb-anl-xil/data/ANL_breadcrumbs.csv"
+		"HostBsmLogFileName": "/Desktop/deb-anl-xil/data/ANL_breadcrumbs_event2.csv",
+		"LeadBsmLogFileName": "/Desktop/deb-anl-xil/data/ANL_breadcrumbs.csv"
 	},
 	"IntersectionInformation": {
 		"IntersectionName": "tsc_mcity_state_and_liberty",

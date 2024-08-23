@@ -21,6 +21,7 @@ The methods available from this class are the following:
 import time
 import haversine
 import pandas as pd
+import os
 from Logger import Logger
 
 GREEN = 1
@@ -54,7 +55,7 @@ class LeadVehicleDataManager:
         self.intersectionLattitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Latitude_DecimalDegree"]
         self.intersectionLongitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Longitude_DecimalDegree"]
         
-        self.wayPointsLogFile = "../" + self.config["VehicleInformation"]["LeadBsmLogFileName"] 
+        self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["LeadBsmLogFileName"] 
         self.readWayPoints()
 
     def readWayPoints(self):

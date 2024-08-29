@@ -12,60 +12,79 @@ class EthernetCommGUI:
         # Set the theme to "clam" for a more modern look
         self.style = ttk.Style()
         self.style.theme_use("clam")
-        self.style.configure('TNotebook.Tab', padding=[10, 5], font=('Segoe UI', 12))
         self.style.configure('TButton', font=('Segoe UI', 10), padding=[5, 5], relief='flat')
         self.style.configure('TLabel', font=('Segoe UI', 11))
         self.style.configure('TEntry', font=('Segoe UI', 11), padding=[5, 5])
         self.style.configure('TText', font=('Segoe UI', 11), padding=[5, 5])
         
-        # Create notebook for tabs with a custom background color
-        self.notebook = ttk.Notebook(root)
-        self.notebook.pack(padx=10, pady=10, expand=True)
-        
-        # Tab 1: IP Address Setup
-        self.tab1 = ttk.Frame(self.notebook, style='TFrame')
-        self.notebook.add(self.tab1, text="IP Setup")
-        
-        self.label_ip = ttk.Label(self.tab1, text="Target IP Address:", style='TLabel')
+        # Create a container for the vertical tabs on the left
+        self.main_frame = tk.Frame(root)
+        self.main_frame.pack(fill='both', expand=True)
+
+        # Frame for tabs
+        self.tab_frame = tk.Frame(self.main_frame, bg='#f0f0f0')
+        self.tab_frame.pack(side='left', fill='y')
+
+        # Frame for content
+        self.content_frame = tk.Frame(self.main_frame)
+        self.content_frame.pack(side='right', fill='both', expand=True)
+
+        # Frame for each tab content
+        self.ip_setup_frame = ttk.Frame(self.content_frame)
+        self.traffic_lights_frame = ttk.Frame(self.content_frame)
+
+        # Pack frames (but keep them hidden initially)
+        self.ip_setup_frame.pack(fill='both', expand=True)
+        self.traffic_lights_frame.pack(fill='both', expand=True)
+
+        # Initially show the IP Setup frame
+        self.ip_setup_frame.tkraise()
+
+        # Create buttons to act as tabs
+        tab1_button = tk.Button(self.tab_frame, text="IP Setup", command=lambda: self.ip_setup_frame.tkraise(), bg='#dcdcdc')
+        tab1_button.pack(fill='x')
+
+        tab2_button = tk.Button(self.tab_frame, text="Traffic Lights", command=lambda: self.traffic_lights_frame.tkraise(), bg='#dcdcdc')
+        tab2_button.pack(fill='x')
+
+        # Tab 1: IP Address Setup (content for IP Setup frame)
+        self.label_ip = ttk.Label(self.ip_setup_frame, text="Target IP Address:", style='TLabel')
         self.label_ip.pack(padx=10, pady=5)
         
-        self.entry_ip = ttk.Entry(self.tab1, width=30, style='TEntry')
+        self.entry_ip = ttk.Entry(self.ip_setup_frame, width=30, style='TEntry')
         self.entry_ip.pack(padx=10, pady=5)
         
-        self.label_port = ttk.Label(self.tab1, text="Target Port:", style='TLabel')
+        self.label_port = ttk.Label(self.ip_setup_frame, text="Target Port:", style='TLabel')
         self.label_port.pack(padx=10, pady=5)
         
-        self.entry_port = ttk.Entry(self.tab1, width=10, style='TEntry')
+        self.entry_port = ttk.Entry(self.ip_setup_frame, width=10, style='TEntry')
         self.entry_port.pack(padx=10, pady=5)
         
-        self.connect_button = ttk.Button(self.tab1, text="Start", command=self.start_udp, style='TButton')
+        self.connect_button = ttk.Button(self.ip_setup_frame, text="Start", command=self.start_udp, style='TButton')
         self.connect_button.pack(padx=10, pady=10)
         
-        self.ping_button = ttk.Button(self.tab1, text="Ping Target", command=self.ping_target, style='TButton')
+        self.ping_button = ttk.Button(self.ip_setup_frame, text="Ping Target", command=self.ping_target, style='TButton')
         self.ping_button.pack(padx=10, pady=10)
         
-        self.send_button = ttk.Button(self.tab1, text="Send Message", command=self.send_message, style='TButton')
+        self.send_button = ttk.Button(self.ip_setup_frame, text="Send Message", command=self.send_message, style='TButton')
         self.send_button.pack(padx=10, pady=10)
         self.send_button.config(state=tk.DISABLED)
         
-        self.message_entry = ttk.Entry(self.tab1, width=50, style='TEntry')
+        self.message_entry = ttk.Entry(self.ip_setup_frame, width=50, style='TEntry')
         self.message_entry.pack(padx=10, pady=5)
         
-        self.output = tk.Text(self.tab1, height=10, width=50, font=('Segoe UI', 11), bg="#f0f0f0", relief="flat", borderwidth=0)
+        self.output = tk.Text(self.ip_setup_frame, height=10, width=50, font=('Segoe UI', 11), bg="#f0f0f0", relief="flat", borderwidth=0)
         self.output.pack(padx=10, pady=10)
         self.output.config(state=tk.DISABLED)
         
-        # Tab 2: Traffic Lights
-        self.tab2 = ttk.Frame(self.notebook, style='TFrame')
-        self.notebook.add(self.tab2, text="Traffic Lights")
-        
-        self.traffic_canvas = tk.Canvas(self.tab2, width=50, height=150, bg='#282c34', highlightthickness=0)
+        # Tab 2: Traffic Lights (content for Traffic Lights frame)
+        self.traffic_canvas = tk.Canvas(self.traffic_lights_frame, width=50, height=150, bg='#282c34', highlightthickness=0)
         self.traffic_canvas.pack(padx=10, pady=10)
         
         self.red_light = self.traffic_canvas.create_oval(10, 10, 40, 40, fill='gray', outline='')
         self.yellow_light = self.traffic_canvas.create_oval(10, 55, 40, 85, fill='gray', outline='')
         self.green_light = self.traffic_canvas.create_oval(10, 100, 40, 130, fill='gray', outline='')
-        
+
         self.sock = None
         self.target_address = None
     

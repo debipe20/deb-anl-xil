@@ -23,6 +23,7 @@ import json
 import pandas as pd
 import haversine
 import time, datetime
+import os
 from Logger import Logger
 
 MAX_MSG_COUNT = 127
@@ -55,7 +56,7 @@ class BsmGenerator:
         self.previousTimeStampSetStatus = False
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
 
-        self.wayPointsLogFile = self.config["VehicleInformation"]["HostBsmLogFileName"]
+        self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["HostBsmLogFileName"]
         self.readWayPoints()
 
     def readWayPoints(self):

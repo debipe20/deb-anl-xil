@@ -25,19 +25,20 @@ from openpyxl.utils import get_column_letter
 class TestIDManager:
     def __init__(self, config):
         self.config = config
+        self.cycles_list = []
     
     def get_cycles_list(self):
         """
         Method to get list of cycles from config file
         """
-        cycles_list = []
+        self.cycles_list.clear()
         
         for cycle_type in self.config["CycleTypes"]:
             for key, cycle_type_values in cycle_type.items():
                 for element in cycle_type_values:
-                    cycles_list.append(element)
+                    self.cycles_list.append(element)
                 
-        return cycles_list
+        return self.cycles_list
 
     def check_description_row(self, row):
         """
@@ -45,12 +46,12 @@ class TestIDManager:
         """
         return pd.isna(row['Test Time']) and pd.isna(row['Date'])
     
-    def matching_cycles(self, df, cycles_list):
+    def matching_cycles(self, dataframe):
         """
         Method to find index number that matches desired drive cycle (e.g., MCT)
         """
         
-        # create dictionaries dynamically
+        # create dictionaries dynamically for cycle types (e.g., UDDS_dictionary, US06_dictionary, etc.)
         cycle_type_dicts = {}
 
         for cycle_type in self.config["CycleTypes"]:
@@ -67,13 +68,13 @@ class TestIDManager:
         desired_index_list  =[]
         sub_cycle_finding_status = True
             
-        for index, row in df.loc[:].iterrows():
+        for index, row in dataframe.loc[:].iterrows():
         
             if row['Cycle'] == sub_cycle_names[sub_cycle_name_counter]:
                 sub_cycle_name_counter += 1
                 sub_cycle_finding_status = True            
                 
-                if row['Cycle'] in cycles_list:
+                if row['Cycle'] in self.cycles_list:
                     desired_index_list.append(index)            
                     
             else: sub_cycle_finding_status = False
@@ -89,7 +90,7 @@ class TestIDManager:
                                 sub_phase_number = 1
                             
                             if iteration_index < len(iteration_keys):
-                                self.populate_dictionary(self.config, df, desired_index_list, sub_cycle_name, sub_phase_number, iteration_keys[iteration_index], dictionary, dict_name)
+                                self.populate_dictionary(dataframe, desired_index_list, sub_cycle_name, sub_phase_number, iteration_keys[iteration_index], dictionary, dict_name)
                             
                             else:
                                 print("Not enough iteration keys for all cycle types")
@@ -104,6 +105,26 @@ class TestIDManager:
                 desired_index_list.clear()
         
         return cycle_type_dicts
+    
+    def populate_dictionary(self,df, index_list, desired_subcycle_name, sub_phase_number, iteration_key, dictionary, dictionary_name):
+        """
+        Method to create lists dynamically and append requied data into those lists
+        """
+        
+        # create lists dynamically
+        lists_dict = {f"{field}": [] for field in self.config['DataFields']}
+        
+        for index in index_list:
+            if df.loc[index, 'Cycle'] == desired_subcycle_name:
+                for field in self.config['DataFields']:
+                    if field in df.columns:
+                        lists_dict[f"{field}"].append(df.loc[index, field])
+                    # else:
+                    #     print(f"Field '{field}' does not exist in the dataframe. Skipping this field.")
+                    
+                lists_dict["Sub-Phase"].append(sub_phase_number)             
+        
+        self.update_dict(iteration_key, lists_dict, dictionary, dictionary_name)   
     
     def dict_to_df(self, dictionary):
         """
@@ -161,31 +182,8 @@ class TestIDManager:
         else:
             dictionary[key] = [value]
             
-        # print(f"Data in {dictionary_name} is:\n{dictionary}")
-
-        
-    def populate_dictionary(self, config, df, index_list, desired_subcycle_name, sub_phase_number, iteration_key, dictionary, dictionary_name):
-        """
-        Method to create lists dynamically and append requied data into those lists
-        """
-        
-        # create lists dynamically
-        lists_dict = {f"{field}": [] for field in config['DataFields']}
-        
-        for index in index_list:
-            if df.loc[index, 'Cycle'] == desired_subcycle_name:
-                for field in config['DataFields']:
-                    if field in df.columns:
-                        lists_dict[f"{field}"].append(df.loc[index, field])
-                    # else:
-                    #     print(f"Field '{field}' does not exist in the dataframe. Skipping this field.")
-                    
-                lists_dict["Sub-Phase"].append(sub_phase_number)             
-        
-        self.update_dict(iteration_key, lists_dict, dictionary, dictionary_name)           
+        # print(f"Data in {dictionary_name} is:\n{dictionary}")        
             
-    
-    
     def manage_test_id(self):
         output_file_path = self.config["OutputFileName"]
         output_sheet_name = self.config['OutputSheetName']
@@ -194,8 +192,8 @@ class TestIDManager:
         # Apply the filter to exclude description rows
         filtered_df = data_frame[~data_frame.apply(self.check_description_row, axis=1)]
         
-        cycles_list = self.get_cycles_list()
-        cycle_type_dicts = self.matching_cycles(filtered_df, cycles_list)
+        self.cycles_list = self.get_cycles_list()
+        cycle_type_dicts = self.matching_cycles(filtered_df)
         
         # Create a Pandas Excel writer using openpyxl as the engine
         with pd.ExcelWriter(output_file_path, engine='openpyxl') as writer:

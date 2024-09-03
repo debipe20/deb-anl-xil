@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Data</title>
+    <style>
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f8f9fa; /* Light shade */
+        }
+        .table-striped tbody tr:nth-of-type(even) {
+            background-color: #e9ecef; /* Dark shade */
+        }
+        .table-striped tbody tr:hover {
+            background-color: #d3d3d3; /* Hover effect */
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Performance Data</h1>
+        <p>Last refreshed: {{ current_time }}</p>
+
+        <h2>Messages Received</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>Time</th>
+                    <th>Message</th>
+                    <th>Count</th>
+                    <th>Cumulative</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in received.iterrows() %}
+                <tr>
+                    <td>{{ row['Time'] }}</td>
+                    <td>{{ row['Message'] }}</td>
+                    <td>{{ row['Count'] }}</td>
+                    <td>{{ row['Cumulative'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2>Messages Transmitted</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>Time</th>
+                    <th>Message</th>
+                    <th>Count</th>
+                    <th>Cumulative</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in transmitted.iterrows() %}
+                <tr>
+                    <td>{{ row['Time'] }}</td>
+                    <td>{{ row['Message'] }}</td>
+                    <td>{{ row['Count'] }}</td>
+                    <td>{{ row['Cumulative'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+    </div>
+</body>
+</html>

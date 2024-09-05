@@ -26,6 +26,8 @@ class TestIDManager:
     def __init__(self, config):
         self.config = config
         self.cycles_list = []
+        self.output_file_path = self.config["OutputFileName"]
+        self.output_sheet_name = self.config['OutputSheetName']
     
     def get_cycles_list(self):
         """
@@ -183,38 +185,31 @@ class TestIDManager:
             dictionary[key] = [value]
             
         # print(f"Data in {dictionary_name} is:\n{dictionary}")        
-            
-    def manage_test_id(self):
-        output_file_path = self.config["OutputFileName"]
-        output_sheet_name = self.config['OutputSheetName']
+    def write_in_excel_file(self, filtered_dataframe):
+        """
+        """
         
-        data_frame = pd.read_excel(self.config["InputFileName"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])
-        # Apply the filter to exclude description rows
-        filtered_df = data_frame[~data_frame.apply(self.check_description_row, axis=1)]
-        
-        self.cycles_list = self.get_cycles_list()
-        cycle_type_dicts = self.matching_cycles(filtered_df)
-        
+        cycle_type_dicts = self.matching_cycles(filtered_dataframe)
         # Create a Pandas Excel writer using openpyxl as the engine
-        with pd.ExcelWriter(output_file_path, engine='openpyxl') as writer:
+        with pd.ExcelWriter(self.output_file_path, engine='openpyxl') as writer:
             start_row = 0
             for dict_name, dictionary in cycle_type_dicts.items():
                 # Convert dictionary to DataFrame
                 df = self.dict_to_df(dictionary)
                 
                 # Add dictionary name before DataFrame
-                worksheet = writer.book.create_sheet(output_sheet_name) if start_row == 0 else writer.sheets[output_sheet_name]
+                worksheet = writer.book.create_sheet(self.output_sheet_name) if start_row == 0 else writer.sheets[self.output_sheet_name]
                 worksheet.append([dict_name.split('_')[0].upper()]) if start_row == 0 else worksheet.cell(row=start_row + 1, column=1, value=dict_name.split('_')[0].upper())
                 
                 # Write the DataFrame to the sheet starting at the next row
-                df.to_excel(writer, sheet_name=output_sheet_name, startrow=start_row + 1, index=False)
+                df.to_excel(writer, sheet_name=self.output_sheet_name, startrow=start_row + 1, index=False)
                 
                 # Update start_row for the next dictionary
                 start_row += len(df) + 3
 
         # Load the workbook and access the sheet
-        workbook = load_workbook(output_file_path)
-        sheet = workbook[output_sheet_name]
+        workbook = load_workbook(self.output_file_path)
+        sheet = workbook[self.output_sheet_name]
         
         # Merge cells in 'Category' column for each DataFrame
         start_row = 2
@@ -224,6 +219,20 @@ class TestIDManager:
             start_row += len(df) + 3
 
         # Save the updated workbook
-        workbook.save(output_file_path)
-        print(f"File created successfully: {output_file_path}")
+        workbook.save(self.output_file_path)
+        print(f"File created successfully: {self.output_file_path}")
+        
+    def getTestID(self):
+        pass
+             
+    def manage_test_id(self):
+        """
+        """
+        
+        data_frame = pd.read_excel(self.config["InputFileName"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])
+        
+        filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
+        self.cycles_list = self.get_cycles_list()
+        self.write_in_excel_file(filtered_dataframe)  
+        
     

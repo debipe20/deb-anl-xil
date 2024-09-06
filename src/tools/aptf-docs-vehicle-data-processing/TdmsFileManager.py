@@ -38,10 +38,20 @@ class TdmsFileManager:
             print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
             # Add the summary table to the same sheet
             self.add_summary_table(sheet_name, summary_data)
-            
+
+    def fill_cumulative_list(self, source_list):
+        cumulative_list = []
+        for i in range(len(source_list)):
+            if i == 0:
+                cumulative_list.append((source_list[i] * 0.1) / 3600)
+            else:
+                cumulative_list.append(cumulative_list[i-1] + (source_list[i] * 0.1) / 3600)
+        return cumulative_list
+
     def get_data_group_channel_dataframe(self, tdms_file):
             
         group_channel_dataframe = pd.DataFrame()
+        no_cycle_wh, udds1_wh, udds2_wh, highway_wh, us06_wh = ([] for i in range(5))
         # Access the 'Data' group
         group_data = tdms_file["Data"]
 
@@ -49,20 +59,24 @@ class TdmsFileManager:
         daq_time = group_data["DAQ_Time[s]"].data
         p2_data = group_data["P2"].data
         exhaust_bag = group_data["Exhaust_Bag"].data
+
         no_cycle = [p2_data[i] if exhaust_bag[i] == 0 else 0 for i in range(len(p2_data))]
         udds1_w =  [p2_data[i] if (exhaust_bag[i] == 1 or exhaust_bag[i] == 2) else 0 for i in range(len(p2_data))]
         udds2_w =  [p2_data[i] if (exhaust_bag[i] == 4 or exhaust_bag[i] == 5) else 0 for i in range(len(p2_data))]
         highway_w = [p2_data[i] if exhaust_bag[i] == 3 else 0 for i in range(len(p2_data))]
         us06_w = [p2_data[i] if (exhaust_bag[i] == 6 or exhaust_bag[i] == 7) else 0 for i in range(len(p2_data))]
         
-        no_cycle_wh = []
-        [no_cycle_wh.append((no_cycle[i] * 0.1) / 3600 if i == 0 else no_cycle_wh[i-1] + (no_cycle[i] * 0.1) / 3600) for i in range(len(p2_data))]
+        no_cycle_wh = self.fill_cumulative_list(no_cycle)
+        udds1_wh = self.fill_cumulative_list(udds1_w)
+        udds2_wh = self.fill_cumulative_list(udds2_w)
+        highway_wh = self.fill_cumulative_list(highway_w)
+        us06_wh = self.fill_cumulative_list(us06_w)
+        # [no_cycle_wh.append((no_cycle[i] * 0.1) / 3600 if i == 0 else no_cycle_wh[i-1] + (no_cycle[i] * 0.1) / 3600) for i in range(len(p2_data))]
+        # [udds1_wh.append(udds1_w[i]*0.1)/3600 if i == 0 else (udds1_wh[i-1] + (udds1_w[i]*0.1/3600)) for i in range(len(p2_data))]
+        # [udds2_wh.append(udds2_w[i]*0.1)/3600 if i == 0 else (udds2_wh[i-1] + (udds2_w[i]*0.1/3600)) for i in range(len(p2_data))]
+        # [highway_wh.append(highway_w[i]*0.1)/3600 if i == 0 else (highway_wh[i-1] + (highway_w[i]*0.1/3600)) for i in range(len(p2_data))]
+        # [us06_wh.append(us06_w[i]*0.1)/3600 if i == 0 else (us06_wh[i-1] + (us06_w[i]*0.1/3600)) for i in range(len(p2_data))]
 
-
-        udds1_wh =  [(udds1_w[i]*0.1)/3600 for i in range(len(p2_data))]
-        udds2_wh =  [(udds2_w[i]*0.1)/3600 for i in range(len(p2_data))]
-        highway_wh = [(highway_w[i]*0.1)/3600 for i in range(len(p2_data))]
-        us06_wh = [(us06_w[i]*0.1)/3600 for i in range(len(p2_data))]
         u_p_no_cycle = [0 if no_cycle[i] == 0 else ((0.0035 * no_cycle[i]) + 54) for i in range(len(p2_data))]
         u_p_no_cycle_percentage = [0 if no_cycle[i] == 0 else (u_p_no_cycle[i] / no_cycle[i]) for i in range(len(p2_data))]
         u_p_udds1 = [0 if udds1_w[i] == 0 else ((0.0035 * udds1_w[i]) + 54) for i in range(len(p2_data))]

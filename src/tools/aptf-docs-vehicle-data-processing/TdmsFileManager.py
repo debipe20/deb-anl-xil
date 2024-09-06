@@ -1,9 +1,9 @@
-
+import numpy as np
 import os
 import openpyxl
 import pandas as pd
 from nptdms import TdmsFile
-from openpyxl.styles import Border, Side
+from openpyxl.styles import Border, Side, Font
 
 class TdmsFileManager:
     def __init__(self, config):
@@ -12,7 +12,7 @@ class TdmsFileManager:
         # Define the path to your TDMS file using a raw string literal (r"...")
         self.tdms_data_directory = os.path.expanduser("~") + "/Nissan-Leaf-Data"
         self.test_ID_list = [62007023]
-        
+
     def get_tdm_file_path(self):
         # Loop through each test ID in the list
         for test_id in self.test_ID_list:
@@ -21,23 +21,35 @@ class TdmsFileManager:
             
             print(self.tdms_file_path)
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
-            # Print all groups and their channels
-            # for group in tdms_file.groups():
-            #     print(f"Group: {group.name}")
-            #     for channel in group.channels():
-            #         print(f"  Channel: {channel.name}")
             
+            # Get the DataFrame and summary data
+            group_channel_dataframe = self.get_data_group_channel_dataframe(tdms_file)
+            summary_data = self.get_summary_table(group_channel_dataframe)
             
-            group_channel_dataframe, summary_data = self.get_data_group_channel_dataframe(tdms_file)
-            # Open the Excel file and create a new sheet with the specified name
-            with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a') as writer:
-                # Write DataFrame to a new sheet in the existing Excel file
-                sheet_name = "wh_cal_" + str(test_id)
-                group_channel_dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
-
-            print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
-            # Add the summary table to the same sheet
+            # First, write the summary table to the sheet
+            sheet_name = "wh_cal_" + str(test_id)
             self.add_summary_table(sheet_name, summary_data)
+            
+            # Write the DataFrame below the summary table using pd.ExcelWriter
+            with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+                # Write the DataFrame to the specified sheet, below the summary table
+                group_channel_dataframe.to_excel(writer, sheet_name=sheet_name, index=False, startrow=len(summary_data) + 2)
+
+            # Load workbook to apply formatting
+            wb = openpyxl.load_workbook(self.output_file_path)
+            
+            # Apply borders and bold column headers to the summary table
+            self.style_dataframe(wb, sheet_name, start_row=1, dataframe=pd.DataFrame(summary_data))
+
+            # Apply borders and bold column headers after writing the DataFrame
+            self.style_dataframe(wb, sheet_name, start_row=len(summary_data) + 2, dataframe=group_channel_dataframe)
+
+            # Save and close the workbook
+            wb.save(self.output_file_path)
+            wb.close()
+            
+            print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
+
 
     def fill_cumulative_list(self, source_list):
         cumulative_list = []
@@ -71,11 +83,6 @@ class TdmsFileManager:
         udds2_wh = self.fill_cumulative_list(udds2_w)
         highway_wh = self.fill_cumulative_list(highway_w)
         us06_wh = self.fill_cumulative_list(us06_w)
-        # [no_cycle_wh.append((no_cycle[i] * 0.1) / 3600 if i == 0 else no_cycle_wh[i-1] + (no_cycle[i] * 0.1) / 3600) for i in range(len(p2_data))]
-        # [udds1_wh.append(udds1_w[i]*0.1)/3600 if i == 0 else (udds1_wh[i-1] + (udds1_w[i]*0.1/3600)) for i in range(len(p2_data))]
-        # [udds2_wh.append(udds2_w[i]*0.1)/3600 if i == 0 else (udds2_wh[i-1] + (udds2_w[i]*0.1/3600)) for i in range(len(p2_data))]
-        # [highway_wh.append(highway_w[i]*0.1)/3600 if i == 0 else (highway_wh[i-1] + (highway_w[i]*0.1/3600)) for i in range(len(p2_data))]
-        # [us06_wh.append(us06_w[i]*0.1)/3600 if i == 0 else (us06_wh[i-1] + (us06_w[i]*0.1/3600)) for i in range(len(p2_data))]
 
         u_p_no_cycle = [0 if no_cycle[i] == 0 else ((0.0035 * no_cycle[i]) + 54) for i in range(len(p2_data))]
         u_p_no_cycle_percentage = [0 if no_cycle[i] == 0 else (u_p_no_cycle[i] / no_cycle[i]) for i in range(len(p2_data))]
@@ -113,39 +120,77 @@ class TdmsFileManager:
             "u(P)_Highway_[%]": u_p_highway_percentage,
             "u(P)_US06": u_p_us06,  
             "u(P)_US06_[%]": u_p_us06_percentage   
-        })
+        })       
+            
+        return group_channel_dataframe
+    
+    def get_summary_table(self, group_channel_dataframe):
+
+        energy_channels = ['No_cycle_[Wh]', 'UDDS1_[Wh]', 'UDDS2_[Wh]', 'Highway_[Wh]', 'US06_[Wh]']
+        u_energy_channels = ['u(P)_no_cycle', 'u(P)_UDDS1', 'u(P)_UDDS2', 'u(P)_Highway', 'u(P)_US06']
+        energy_values = [group_channel_dataframe[channel].dropna().iloc[-1] for channel in energy_channels]
+        u_energy_values = [(group_channel_dataframe[channel].dropna().sum())*0.1/3600 for channel in u_energy_channels]
+        u_energy_percent = [(u_energy_values[i] / energy_values[i]) for i in range(len(u_energy_values))]
+        u_energy_sqrt = [(np.sqrt(group_channel_dataframe[channel].dropna()).sum())*0.1/3600 for channel in u_energy_channels]
+        u_energy_sqrt_percent =[(u_energy_sqrt[i] / energy_values[i]) for i in range(len(u_energy_values))]
         
         summary_data = [
             ["SUMMARY (cycle totals)", "No-cycle", "UDDS 1", "UDDS 2", "Highway", "US06", "Tot"],
-            ["Energy [Wh]", group_channel_dataframe['No_cycle_[Wh]'].dropna().iloc[-1], 1486.30, 1349.77, 1954.71, 2032.24, 6883.75],
-            ["u (Energy)", 11.44, 25.85, 25.33, 18.30, 16.11, 85.59],
-            ["u (Energy) [%]", "18.8%", "1.74%", "1.88%", "0.94%", "0.79%", "1.24%"],
-            ["u (Energy)", 0.13, 0.24, 0.24, 0.22, 0.28, 0.99],
-            ["u (Energy) [%]", "0.22%", "0.02%", "0.02%", "0.01%", "0.01%", "0.01%"]
+            ["Energy [Wh]", energy_values[0], energy_values[1], energy_values[2], energy_values[3], energy_values[4], sum(energy_values)],
+            ["u (Energy)", u_energy_values[0], u_energy_values[1], u_energy_values[2], u_energy_values[3], u_energy_values[4], sum(u_energy_values)],
+            ["u (Energy) [%]", u_energy_percent[0], u_energy_percent[1], u_energy_percent[2], u_energy_percent[3], u_energy_percent[4], sum(u_energy_percent)],
+            ["u_sqrt (Energy)", u_energy_sqrt[0], u_energy_sqrt[1], u_energy_sqrt[2], u_energy_sqrt[3], u_energy_sqrt[4], sum(u_energy_sqrt)],
+            ["u_sqrt (Energy) [%]", u_energy_sqrt_percent[0], u_energy_sqrt_percent[1], u_energy_sqrt_percent[2], u_energy_sqrt_percent[3], u_energy_sqrt_percent[4], sum(u_energy_sqrt_percent)]
         ]
-        
-            
-        return group_channel_dataframe, summary_data
-    
+
+        return summary_data
+
     def add_summary_table(self, sheet_name, summary_data):
+        # Load the workbook and create a new sheet if it doesn't exist
         wb = openpyxl.load_workbook(self.output_file_path)
-        sheet = wb[sheet_name]
-
-        # Border style
-        thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
-
         
-        # Find the first empty row in the sheet
-        start_row = sheet.max_row + 2
-        
-        # Write the summary data to the sheet
-        for row_idx, row_data in enumerate(summary_data, start=start_row):
+        # Check if sheet exists, if not, create it
+        if sheet_name not in wb.sheetnames:
+            sheet = wb.create_sheet(sheet_name)
+        else:
+            sheet = wb[sheet_name]
+
+        # Write the summary data to the sheet, starting from row 1
+        for row_idx, row_data in enumerate(summary_data, start=1):
             for col_idx, cell_value in enumerate(row_data, start=1):
-                cell = sheet.cell(row=row_idx, column=col_idx, value=cell_value)
-                cell.border = thin_border
-        # Save workbook
+                sheet.cell(row=row_idx, column=col_idx, value=cell_value)
+
+        # Save workbook after writing the summary
         wb.save(self.output_file_path)
         wb.close()
+        
+    def style_dataframe(self, wb, sheet_name, start_row, dataframe):
+        # Load the specified sheet
+        sheet = wb[sheet_name]
 
-    
-    
+        # Define border style
+        thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+        
+        # Bold font for column headers
+        bold_font = Font(bold=True)
+
+        # Get the number of rows and columns in the DataFrame
+        n_rows, n_cols = dataframe.shape
+        
+        # Apply styles to the column headers (first row of the DataFrame or summary)
+        for col_idx in range(1, n_cols + 1):
+            cell = sheet.cell(row=start_row, column=col_idx)
+            cell.font = bold_font  # Bold the column header
+            cell.border = thin_border  # Apply border to the column header
+        
+        # Apply borders only to the range where the DataFrame has actual data
+        for row_idx in range(start_row + 1, start_row + n_rows + 1):
+            for col_idx in range(1, n_cols + 1):
+                # Get the actual value from the DataFrame for this cell
+                cell_value = dataframe.iloc[row_idx - start_row - 1, col_idx - 1]
+                
+                # Only apply border if the cell has non-NaN, non-empty data
+                if pd.notna(cell_value) and cell_value != "":
+                    cell = sheet.cell(row=row_idx, column=col_idx)
+                    cell.border = thin_border  # Apply border to each non-empty cell
+

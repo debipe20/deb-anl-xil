@@ -11,7 +11,7 @@ class TdmsFileManager:
         self.output_file_path = self.config["OutputFileName"]
         # Define the path to your TDMS file using a raw string literal (r"...")
         self.tdms_data_directory = os.path.expanduser("~") + "/Nissan-Leaf-Data"
-        self.test_ID_list = [62007023]
+        self.test_ID_list = [62007023, 62007025, 62008001, 62008003]
 
     def get_tdm_file_path(self):
         # Loop through each test ID in the list
@@ -135,7 +135,7 @@ class TdmsFileManager:
         u_energy_sqrt_percent =[(u_energy_sqrt[i] / energy_values[i]) for i in range(len(u_energy_values))]
         
         summary_data = [
-            ["SUMMARY (cycle totals)", "No-cycle", "UDDS 1", "UDDS 2", "Highway", "US06", "Tot"],
+            ["SUMMARY (cycle totals)", "No-cycle", "UDDS 1", "UDDS 2", "Highway", "US06", "Total"],
             ["Energy [Wh]", energy_values[0], energy_values[1], energy_values[2], energy_values[3], energy_values[4], sum(energy_values)],
             ["u (Energy)", u_energy_values[0], u_energy_values[1], u_energy_values[2], u_energy_values[3], u_energy_values[4], sum(u_energy_values)],
             ["u (Energy) [%]", u_energy_percent[0], u_energy_percent[1], u_energy_percent[2], u_energy_percent[3], u_energy_percent[4], sum(u_energy_percent)],

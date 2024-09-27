@@ -1,0 +1,100 @@
+{
+    "InputFileName": "Data/Nisan-Leaf/2019_Nissan_Leaf_TestPlanInstru_MasterSummary_200821.xlsm",
+    "OutputFileName": "Data/Nisan-Leaf/nissan-leaf-data.xlsx",
+    "InputSheetName": "TestSummary",
+    "OutputSheetName": "72F_Cycle_Data_Hioki",
+    "NoOfSkipRows": 6,
+    "MaxSubPhase": 2,
+    "IterationKeys": [
+        "1st",
+        "2nd",
+        "3rd",
+        "4th",
+        "5th",
+        "6th",
+        "7th",
+        "8th",
+        "9th",
+        "10th"
+    ],
+    "CycleTypes": [
+        {
+            "UDDS": [
+                "UDDS 1 , Combined",
+                "UDDS 2, combined",
+                "UDDS 3, combined",
+                "UDDS 4, combined"
+            ]
+        },
+        {
+            "HWY": [
+                "HWY 1",
+                "HWY"
+            ]
+        },
+        {
+            "US06": [
+                "US06 1, combined",
+                "US06 2, combined"
+            ]
+        },
+        {
+            "SSS 65mph": [
+                "SSS 65mph depletion"
+            ]
+        }
+    ],
+    "SubCycleNames": [
+        "UDDS 1 , 505",
+        "UDDS 1 ",
+        "UDDS 1 , Combined",
+        "HWY 1",
+        "UDDS 2, 505",
+        "UDDS 2",
+        "UDDS 2, combined",
+        "US06 1, city",
+        "US06 1, hwy",
+        "US06 1, combined",
+        "SSS 65mph depletion",
+        "US06 2, city",
+        "US06 2, hwy",
+        "US06 2, combined",
+        "UDDS 3, 505",
+        "UDDS 3",
+        "UDDS 3, combined",
+        "HWY",
+        "UDDS 4, 505",
+        "UDDS 4",
+        "UDDS 4, combined",
+        "SSS 65mph depletion",
+        "Charge L2 23C"
+    ],
+    "DataFields": [
+        "Test ID [#]",
+        "Sub-Phase",
+        "Cycle Distance [mi]",
+        "Start SOC",
+        "End SOC",
+        "HV Batt (500A)\nStart \nWP1 [Wh]\n",
+        "HV Batt Out (500A) End\nWP1 [Wh]",
+        "HV Batt (500A) WP1\nΔ [Wh]",
+        "HV Batt (500A) Energy consumption ΔWP1\n[Wh/mi]",
+        "12V DCDC out (200A) \n Start WP2 [Wh]",
+        "12V DCDC out (200A) \n End WP2 [Wh]",
+        "12V DCDC (200A)\nΔ WP2 [Wh]",
+        "12V DCDC (200A) Δ WP2 [Wh/mi]",
+        "12V batt ground (80A) \nStart WP4 [Wh]",
+        "12V batt ground (80A) \nEnd WP4 [Wh]",
+        "12V Batt Ground (80A)\nΔ WP4 [Wh]",
+        "12V Batt Ground (80A) Δ WP4 [Wh/mi]",
+        "AC Comp Start (20A) WP5, WP6 [Wh]",
+        "AC Comp End (20A) WP5, WP6 [Wh]",
+        "AC Comp (20A)\nΔ WP5&6 [Wh]",
+        "AC Comp (20A) Δ WP5*6 [Wh/mi]",
+        "PTC Heater Start WP7, WP8 [Wh]",
+        "PTC Heater End WP7, WP8 [Wh]",
+        "PTC Heater \nΔ WP7&8 [Wh]",
+        "PTC Heater Δ WP7&8 [Wh/mi]",
+        "Recharge Allocation Factor"
+    ]
+}

@@ -44,10 +44,12 @@ class PlotManager:
 
     def plot_primary_yaxis(self, x_data, y_data, x_label, y_label, title):
 
-        plt.plot(x_data, y_data)
-        plt.title(title)
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
+        plt.plot(x_data, y_data, label="Speed")
+        plt.title(title, fontsize=24, fontweight='bold')
+        plt.xlabel(x_label, color='tab:green', fontsize=20)
+        plt.ylabel(y_label, color='tab:blue', fontsize=20)
+        plt.tick_params(axis='both', which='major', labelsize=16)
+        plt.legend(fontsize=16)
         plt.grid(True)
         plt.show()
         plt.close()
@@ -57,19 +59,26 @@ class PlotManager:
         fig, ax1 = plt.subplots()
 
         # Plot speed (on primary y-axis)
-        ax1.set_xlabel(x_label)
-        ax1.set_ylabel(y_label1, color='tab:blue')
-        ax1.plot(x_data, y_data1, color='tab:blue', label='Speed (kph)')
-        ax1.tick_params(axis='y', labelcolor='tab:blue')
+        ax1.set_xlabel(x_label, color='tab:green', fontsize=20)
+        ax1.set_ylabel(y_label1, color='tab:blue', fontsize=20)
+        primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
+        ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=16)
+        ax1.tick_params(axis='x', labelsize=16)  # Set label size for x-axis ticks
 
         # Create a secondary y-axis to plot acceleration
         ax2 = ax1.twinx()  # Instantiate a second axes that shares the same x-axis
-        ax2.set_ylabel(y_label2, color='tab:red')
-        ax2.plot(x_data, y_data2, color='tab:red', label='Acceleration (m/s²)')
-        ax2.tick_params(axis='y', labelcolor='tab:red')
+        ax2.set_ylabel(y_label2, color='tab:red', fontsize=20)
+        secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', label='Acceleration')
+        ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=16)
 
+        # Combine legends from both axes
+        lines = [primary_axis_line, secondary_axis_line]  # Handles for both lines
+        labels = [line.get_label() for line in lines]  # Labels for the lines
+
+        # Add the legend
+        ax1.legend(lines, labels, loc='upper right', fontsize=16)
         # Add a title
-        plt.title(title)
+        plt.title(title, fontsize=24, fontweight='bold')
 
         # Show grid
         ax1.grid(True)
@@ -83,8 +92,8 @@ class PlotManager:
         self.get_files()
         self.get_groups_channels()
         self.get_data_from_channel()
-        self.plot_primary_yaxis(self.time_data, self.speed_data, "Time[s]", "Speed[mph]", "Time vs. Speed Plot")
-        self.plot_primary_secondary_yaxis(self.time_data, self.speed_data, self.accel_data, "Time[s]", "Speed[mph]", "Acceleration [m/s²]", "Time vs. Speed and Acceleration Plot")
+        self.plot_primary_yaxis(self.time_data, self.speed_data, "Time [s]", "Speed [mph]", "Time vs. Speed Plot")
+        self.plot_primary_secondary_yaxis(self.time_data, self.speed_data, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs. Speed and Acceleration Plot")
 
 
     

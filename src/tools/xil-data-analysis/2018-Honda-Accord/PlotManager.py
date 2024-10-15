@@ -9,9 +9,9 @@ class PlotManager:
         self.plot_save = config['PlotSave']
 
     def get_files(self):
-        filePath = os.path.expanduser("~") + "/Downloads/2018-Honda-Accord/62409002 2018 Honda Accord Blank 1Bag 3600"
+        filePath = os.path.expanduser("~") + "/Downloads/2018-Honda-Accord/62409013 2018 Honda Accord Blank 1Bag 3600"
 
-        self.tdms_file = TdmsFile.read(filePath + "/62409002 Test Data.tdms")
+        self.tdms_file = TdmsFile.read(filePath + "/62409013 Test Data.tdms")
 
     def get_groups_channels_name(self, tdms_file):
         # Get all groups in the TDMS file
@@ -54,7 +54,8 @@ class PlotManager:
         plt.grid(True)
         
         if plot_save_status:
-            plt.savefig(fileName +'.jpg', bbox_inches='tight', dpi=300)
+            file_directory = "figure/" + fileName + ".jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
         
         else:plt.show()
         
@@ -82,9 +83,10 @@ class PlotManager:
         # ax1.legend(lines, labels, loc='upper right', fontsize=16)
         ax1.grid(True)
         plt.title(title, fontsize=24, fontweight='bold')
-
+        
         if plot_save_status:
-            plt.savefig(fileName +'.jpg', bbox_inches='tight', dpi=300)
+            file_directory = "figure/" + fileName + ".jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
 
         else:plt.show()
 
@@ -94,8 +96,8 @@ class PlotManager:
         self.get_files()
         self.get_groups_channels()
         self.get_data_from_channel()
-        self.plot_primary_yaxis(self.time_data, self.speed_data, "Time [s]", "Speed [mph]", "Time vs. Speed Plot", "0-20_mph_time_vs_speed", self.plot_save)
-        self.plot_primary_secondary_yaxis(self.time_data, self.speed_data, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs. Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel", self.plot_save)
+        self.plot_primary_yaxis(self.time_data, self.speed_data, "Time [s]", "Speed [mph]", "Time vs. Speed Plot", "60_mph_time_vs_speed", self.plot_save)
+        self.plot_primary_secondary_yaxis(self.time_data, self.speed_data, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs. Speed and Acceleration Plot", "60_mph_time_vs_speed_Accel", self.plot_save)
 
 
     

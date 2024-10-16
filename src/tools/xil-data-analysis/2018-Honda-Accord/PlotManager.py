@@ -13,9 +13,9 @@ class PlotManager:
 
         self.tdms_file = TdmsFile.read(filePath + "/62409013 Test Data.tdms")
 
-    def get_groups_channels_name(self, tdms_file):
+    def get_groups_channels_name(self):
         # Get all groups in the TDMS file
-        groups = tdms_file.groups()
+        groups = self.tdms_file.groups()
 
         # Iterate over groups and print their names and channels
         for group in groups:
@@ -96,8 +96,9 @@ class PlotManager:
         self.get_files()
         self.get_groups_channels()
         self.get_data_from_channel()
-        self.plot_primary_yaxis(self.time_data, self.speed_data, "Time [s]", "Speed [mph]", "Time vs. Speed Plot", "60_mph_time_vs_speed", self.plot_save)
-        self.plot_primary_secondary_yaxis(self.time_data, self.speed_data, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs. Speed and Acceleration Plot", "60_mph_time_vs_speed_Accel", self.plot_save)
+        # self.get_groups_channels_name()
+        # self.plot_primary_yaxis(self.time_data, self.speed_data, "Time [s]", "Speed [mph]", "Time vs. Speed Plot", "60_mph_time_vs_speed", self.plot_save)
+        # self.plot_primary_secondary_yaxis(self.time_data, self.speed_data, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs. Speed and Acceleration Plot", "60_mph_time_vs_speed_Accel", self.plot_save)
 
 
     

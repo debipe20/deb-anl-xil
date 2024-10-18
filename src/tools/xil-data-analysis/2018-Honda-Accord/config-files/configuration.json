@@ -1,5 +1,7 @@
 {
     "PlotSave":true,
+    "Platform": "Windows",
+    "NoOfEndDataDiscard": 300,
     "FileName":[
         {"0-20mph":"62409002 2018 Honda Accord Blank 1Bag 3600/62409002 Test Data.tdms"},
         {"20-40mph":"62409003 2018 Honda Accord Blank 1Bag 3600/62409003 Test Data.tdms"},

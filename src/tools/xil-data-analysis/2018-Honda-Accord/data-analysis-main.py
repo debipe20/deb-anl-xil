@@ -1,5 +1,5 @@
 import json
-from PlotManager import PlotManager
+from DataManager import DataManager
 
 def main():
     # Read the config file into a json object:
@@ -7,8 +7,8 @@ def main():
     config = (json.load(configFile))
     configFile.close()
 
-    plot_manager = PlotManager(config)
-    plot_manager.generate_plots()
+    data_manager = DataManager(config)
+    data_manager.generate_plots()
 
 if __name__ == "__main__":
     main() 

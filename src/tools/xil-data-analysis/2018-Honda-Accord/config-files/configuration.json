@@ -1,6 +1,8 @@
 {
-    "PlotSave":true,
+    "SetTitle": true,
+    "PlotSave": true,
     "Platform": "Windows",
+    "WindowSize": 60,
     "NoOfEndDataDiscard": 300,
     "FileName":[
         {"0-20mph":"62409002 2018 Honda Accord Blank 1Bag 3600/62409002 Test Data.tdms"},

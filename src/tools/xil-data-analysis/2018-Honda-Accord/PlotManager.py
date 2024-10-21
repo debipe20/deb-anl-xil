@@ -21,6 +21,7 @@ class PlotManager:
         if self.title_status: 
             plt.title(title, fontweight='bold')
         # plt.xlabel(x_label, color='tab:green')
+        plt.xlabel(x_label)
         plt.ylabel(y_label, color='tab:blue')
         plt.tick_params(axis='both', which='major')
         plt.grid(True)
@@ -44,6 +45,7 @@ class PlotManager:
         # ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=12)
         # ax1.tick_params(axis='x', labelsize=12)  # Set label size for x-axis ticks
         # ax1.set_xlabel(x_label, color='tab:green')
+        ax1.set_xlabel(x_label)
         ax1.set_ylabel(y_label1, color='tab:blue')
         primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
         ax1.tick_params(axis='y', labelcolor='tab:blue')
@@ -81,6 +83,7 @@ class PlotManager:
         fig, ax1 = plt.subplots()
 
         # ax1.set_xlabel(x_label, color='tab:green')
+        ax1.set_xlabel(x_label)
         ax1.set_ylabel(y_label1, color='tab:blue')
         primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed[mph]')
         ax1.tick_params(axis='y', labelcolor='tab:blue')
@@ -104,7 +107,7 @@ class PlotManager:
         
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
-            plt.savefig(file_directory, bbox_inches='tight', dpi=600)
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
             print("saved file")
         else:
             plt.show()

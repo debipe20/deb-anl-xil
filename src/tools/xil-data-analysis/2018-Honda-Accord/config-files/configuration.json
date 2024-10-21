@@ -1,6 +1,6 @@
 {
     "SetTitle": true,
-    "PlotSave": true,
+    "PlotSave": false,
     "Platform": "Windows",
     "WindowSize": 60,
     "NoOfEndDataDiscard": 300,

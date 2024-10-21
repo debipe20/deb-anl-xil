@@ -99,7 +99,8 @@ class PlotManager:
         # Combine legends from all axes
         lines = [primary_axis_line, secondary_axis_line, tertiary_axis_line]
         labels = [line.get_label() for line in lines]
-        ax1.legend(lines, labels, loc='upper right', fontsize=10, bbox_to_anchor=(1, 1), ncol=1, frameon=True)
+        # ax1.legend(lines, labels, loc='upper right', fontsize=10, bbox_to_anchor=(1, 1), ncol=1, frameon=True)
+        ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), prop={"size": 10})
 
         ax1.grid(True)
         if self.title_status:
@@ -107,7 +108,9 @@ class PlotManager:
         
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
-            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            # plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            plt.tight_layout()
+            plt.savefig(file_directory, dpi=300)
             print("saved file")
         else:
             plt.show()

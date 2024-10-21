@@ -1,7 +1,7 @@
 {
     "SetTitle": true,
     "PlotSave": false,
-    "Platform": "Windows",
+    "Platform": "Linux",
     "WindowSize": 60,
     "NoOfEndDataDiscard": 300,
     "FileName":[

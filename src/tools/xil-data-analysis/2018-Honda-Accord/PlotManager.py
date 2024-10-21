@@ -83,28 +83,34 @@ class PlotManager:
         fig, ax1 = plt.subplots()
 
         # ax1.set_xlabel(x_label, color='tab:green')
+        ax1.set_ylabel(y_label1, color='tab:blue', fontsize=16)
         ax1.set_xlabel(x_label)
-        ax1.set_ylabel(y_label1, color='tab:blue')
+        # ax1.set_ylabel(y_label1, color='tab:blue')
         primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed[mph]')
-        ax1.tick_params(axis='y', labelcolor='tab:blue')
+        # ax1.tick_params(axis='y', labelcolor='tab:blue')
+        ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=12)
+        ax1.tick_params(axis='x', labelsize=12)  # Set label size for x-axis ticks
 
         # Instantiate a second axes that shares the same x-axis
         ax2 = ax1.twinx()
-        ax2.set_ylabel(y_label2, color='tab:red')
+        # ax2.set_ylabel(y_label2, color='tab:red')
+        ax2.set_ylabel(y_label2, color='tab:red', fontsize=16)
         secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', label='Accel Req[m/s²]')
         tertiary_axis_line, = ax2.plot(x_data, y_data3, color='tab:green', label='Accel Achv[m/s²]')
-        ax2.tick_params(axis='y', labelcolor='tab:red')
-
+        # ax2.tick_params(axis='y', labelcolor='tab:red')
+        ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=12)
 
         # Combine legends from all axes
         lines = [primary_axis_line, secondary_axis_line, tertiary_axis_line]
         labels = [line.get_label() for line in lines]
         # ax1.legend(lines, labels, loc='upper right', fontsize=10, bbox_to_anchor=(1, 1), ncol=1, frameon=True)
-        ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), prop={"size": 10})
+        # ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), prop={"size": 10})
+        ax1.legend(lines, labels, loc='upper right', fontsize=16, bbox_to_anchor=(1.0, 1.0), prop={"size": 10})
 
         ax1.grid(True)
         if self.title_status:
-            plt.title(title, fontweight='bold')
+            # plt.title(title, fontweight='bold')
+            plt.title(title, fontsize=18, fontweight='bold')
         
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
@@ -117,5 +123,55 @@ class PlotManager:
 
         plt.close(fig)
 
+    def plot_specific_accelerations(self, time_data, speed_data_mph, accel_data, specific_accelerations, x_label, y_label1, y_label2, title, fileName):
+        # Filter data for the specific acceleration values
+        filtered_time_data = []
+        filtered_speed_data = []
+        filtered_accel_data = []
 
-    
+        # Iterate through the acceleration data and find matching values
+        for accel_value in specific_accelerations:
+            indices = np.where(accel_data == accel_value)[0]
+
+            # Extract data for matching indices
+            for idx in indices:
+                filtered_time_data.append(time_data[idx])
+                filtered_speed_data.append(speed_data_mph[idx])
+                filtered_accel_data.append(accel_data[idx])
+
+        # Plotting the data
+        fig, ax1 = plt.subplots()
+
+        # Primary y-axis for speed
+        ax1.set_xlabel(x_label, color='tab:green')
+        ax1.set_ylabel(y_label1, color='tab:blue')
+        primary_axis_line, = ax1.plot(filtered_time_data, filtered_speed_data, color='tab:blue', label='Speed')
+        ax1.tick_params(axis='y', labelcolor='tab:blue')
+
+        # Secondary y-axis for acceleration
+        ax2 = ax1.twinx()
+        ax2.set_ylabel(y_label2, color='tab:red')
+        secondary_axis_line, = ax2.plot(filtered_time_data, filtered_accel_data, color='tab:red', label='Acceleration')
+        ax2.tick_params(axis='y', labelcolor='tab:red')
+
+        # Combine legends from both axes
+        lines = [primary_axis_line, secondary_axis_line]
+        labels = [line.get_label() for line in lines]
+
+        ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1, 1), fontsize=10, ncol=1, frameon=True)
+        ax1.grid(True)
+        plt.title(title, fontweight='bold')
+
+        # Save or show the plot
+        if self.plot_save:
+            file_directory = "figure/" + fileName + ".jpg"
+            plt.savefig(file_directory, dpi=300)
+            print("saved file")
+        else:
+            plt.show()
+
+        plt.close(fig)
+
+
+
+        

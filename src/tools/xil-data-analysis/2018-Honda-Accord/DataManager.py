@@ -51,6 +51,7 @@ class DataManager:
         self.speed_data_mph = self.speed_channel[:-self.end_data_to_discard]* 0.621371
         self.speed_data_mps = self.speed_channel[:-self.end_data_to_discard]* 0.277778
         self.accel_data = self.accel_channel[:-self.end_data_to_discard]
+        print("got channel data")
 
     # def calculate_acceleration_achv(self):
         
@@ -143,11 +144,12 @@ class DataManager:
         # # self.get_groups_channels_name()
         self.calculate_acceleration_achv()
         self.save_data_to_csv()
-        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
-        self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
-        self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
-        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
-
+        # self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
+        # self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
+        # self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
+        # self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
+        specific_accelerations = [0.25, -0.25]
+        self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")
 '''##############################################
                    Unit testing
 ##############################################'''

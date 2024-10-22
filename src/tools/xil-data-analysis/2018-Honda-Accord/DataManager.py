@@ -11,15 +11,16 @@ class DataManager:
         self.platform = self.config['Platform']
         self.window_size = self.config['WindowSize']
         self.end_data_to_discard = self.config['NoOfEndDataDiscard']
+        self.output_file_name = self.config['OutputFileName']
         self.plot_manager = PlotManager(config)
 
     def get_files(self):
         if self.platform == "Linux":
-            filePath = os.path.expanduser("~") + "/Downloads/2018-Honda-Accord/62409002 2018 Honda Accord Blank 1Bag 3600/"
+            filePath = os.path.expanduser("~") + "/Downloads/2018-Honda-Accord/62409008 2018 Honda Accord Blank 1Bag 3600/"
             
 
-        else: filePath = "C:\\Users\ddas\\Documents\\Data\\2018-Honda-Accord\\62409002 2018 Honda Accord Blank 1Bag 3600\\"
-        self.tdms_file = TdmsFile.read(filePath + "62409002 Test Data.tdms")
+        else: filePath = "C:\\Users\ddas\\Documents\\Data\\2018-Honda-Accord\\62409008 2018 Honda Accord Blank 1Bag 3600\\"
+        self.tdms_file = TdmsFile.read(filePath + "62409008 Test Data.tdms")
 
     def get_groups_channels_name(self):
         # Get all groups in the TDMS file
@@ -52,30 +53,6 @@ class DataManager:
         self.speed_data_mps = self.speed_channel[:-self.end_data_to_discard]* 0.277778
         self.accel_data = self.accel_channel[:-self.end_data_to_discard]
         print("got channel data")
-
-    # def calculate_acceleration_achv(self):
-        
-    #     # Initialize an array of the same shape as B with zeros
-    #     self.accel_achv = np.zeros_like(self.speed_data_mps, dtype=float)
-
-    #     # Variable to check for two consecutive non-zero elements
-    #     found_consecutive_non_zero = False
-    #     self.accel_achv[0] = self.accel_data[0]
-
-    #     # Loop to calculate C based on the given conditions
-    #     for i in range(1, len(self.speed_data_mps)):
-
-    #         if self.speed_data_mps[i] > 0 and self.speed_data_mps[i-1] > 0:
-    #             found_consecutive_non_zero = True
-
-    #         else: found_consecutive_non_zero = False
-
-    #         if found_consecutive_non_zero:
-    #             self.accel_achv[i] = (self.speed_data_mps[i] - self.speed_data_mps[i-1]) / (self.time_data[i] - self.time_data[i-1])
-
-    #         else: self.accel_achv[i] = self.accel_data[i] 
-
-    #     self.accel_achv = np.convolve(self.accel_achv, np.ones(self.window_size) / self.window_size, mode='same')
 
     def calculate_acceleration_achv(self):
         # Initialize an array of the same shape as speed_data_mps with zeros
@@ -114,12 +91,6 @@ class DataManager:
             else:
                 self.accel_achv[i] = self.accel_data[i]
 
-            
-
-        # For the first few elements (less than window_size), no smoothing is applied.
-        # They can be directly assigned from the original acceleration values or left as zero.
-
-
 
     def save_data_to_csv(self):
 
@@ -132,7 +103,7 @@ class DataManager:
         })
 
         # Save to CSV
-        csv_file_path = "output_data.csv"
+        csv_file_path = self.output_file_name
         # result.to_csv(csv_file_path, index=False)
         data.to_csv(csv_file_path, index=False)
         print(f"Data saved to {csv_file_path}")
@@ -144,12 +115,12 @@ class DataManager:
         # # self.get_groups_channels_name()
         self.calculate_acceleration_achv()
         self.save_data_to_csv()
-        # self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
-        # self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
-        # self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
-        # self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
-        specific_accelerations = [0.25, -0.25]
-        self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")
+        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "stop_mph_time_vs_speed")
+        self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "stop_mph_time_vs_speed_Accel")      
+        self.plot_manager.plot_primary_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "stop_mph_time_vs_speed_Accel_achv")
+        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "stop_mph_time_vs_speed_Accel_rqst_achv")
+        # specific_accelerations = [0.25, -0.25]
+        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "stop_mph_time_vs_speed_Accel")
 '''##############################################
                    Unit testing
 ##############################################'''

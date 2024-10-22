@@ -37,6 +37,7 @@ class PlotManager:
 
     def plot_primary_secondary_yaxis(self, x_data, y_data1, y_data2, x_label, y_label1, y_label2, title, fileName):
         # # Create a figure and axis object
+        # fig, ax1 = plt.subplots(figsize=(14,4.55))
         fig, ax1 = plt.subplots()
 
         # ax1.set_xlabel(x_label, color='tab:green', fontsize=16)
@@ -80,11 +81,11 @@ class PlotManager:
 
     def plot_twice_secondary_yaxis(self, x_data, y_data1, y_data2, y_data3, x_label, y_label1, y_label2, title, fileName):
         # Create a figure and axis object
-        fig, ax1 = plt.subplots()
+        fig, ax1 = plt.subplots(figsize=(14,5))
 
         # ax1.set_xlabel(x_label, color='tab:green')
         ax1.set_ylabel(y_label1, color='tab:blue', fontsize=16)
-        ax1.set_xlabel(x_label)
+        ax1.set_xlabel(x_label, fontsize=16)
         # ax1.set_ylabel(y_label1, color='tab:blue')
         primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed[mph]')
         # ax1.tick_params(axis='y', labelcolor='tab:blue')
@@ -105,7 +106,8 @@ class PlotManager:
         labels = [line.get_label() for line in lines]
         # ax1.legend(lines, labels, loc='upper right', fontsize=10, bbox_to_anchor=(1, 1), ncol=1, frameon=True)
         # ax1.legend(lines, labels, loc='upper right', bbox_to_anchor=(1.0, 1.0), prop={"size": 10})
-        ax1.legend(lines, labels, loc='upper right', fontsize=16, bbox_to_anchor=(1.0, 1.0), prop={"size": 10})
+        # ax1.legend(lines, labels, loc='upper right', fontsize=16, bbox_to_anchor=(1.005, 1.0), prop={"size": 9})
+        ax1.legend(lines, labels, loc='upper left', fontsize=16, bbox_to_anchor=(0, 1.0), prop={"size": 9})
 
         ax1.grid(True)
         if self.title_status:

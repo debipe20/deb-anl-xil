@@ -1,22 +1,23 @@
 {
     "SetTitle": true,
-    "PlotSave": true,
+    "PlotSave": false,
     "Platform": "Windows",
-    "WindowSize": 60,
+    "WindowSize": 20,
+    "NoOfStartDataDiscard":0,
     "NoOfEndDataDiscard": 300,
-    "OutputFileName": "62409008-output-data.csv",
+    "OutputFileName": "62409002-output-data.csv",
     "FileName":[
         {"0-20mph":"62409002 2018 Honda Accord Blank 1Bag 3600/62409002 Test Data.tdms"},
         {"20-40mph":"62409003 2018 Honda Accord Blank 1Bag 3600/62409003 Test Data.tdms"},
         {"40-60mph":"62409004 2018 Honda Accord Blank 1Bag 3600/62409004 Test Data.tdms"},
         {"50-70mph":"62409005 2018 Honda Accord Blank 1Bag 3600/62409005 Test Data.tdms"},
-        {"60mph":"62409006 2018 Honda Accord Blank 1Bag 3600/62409006 Test Data.tdms"},
-        {"0mph":"62409007 2018 Honda Accord Blank 1Bag 3600/62409007 Test Data.tdms"},
+        {"60-75mph":"62409006 2018 Honda Accord Blank 1Bag 3600/62409006 Test Data.tdms"},
+        {"0-75mph":"62409007 2018 Honda Accord Blank 1Bag 3600/62409007 Test Data.tdms"},
         {"StopTest":"62409008 2018 Honda Accord Blank 1Bag 3600/62409008 Test Data.tdms"},
         {"10-30mph":"62409009 2018 Honda Accord Blank 1Bag 3600/62409009 Test Data.tdms"},
         {"30-50mph":"624090010 2018 Honda Accord Blank 1Bag 3600/624090010 Test Data.tdms"},
-        {"20mph":"624090011 2018 Honda Accord Blank 1Bag 3600/624090011 Test Data.tdms"},
-        {"40mph":"624090012 2018 Honda Accord Blank 1Bag 3600/624090012 Test Data.tdms"},
-        {"60mph":"624090013 2018 Honda Accord Blank 1Bag 3600/624090013 Test Data.tdms"}
+        {"20-0mph":"624090011 2018 Honda Accord Blank 1Bag 3600/624090011 Test Data.tdms"},
+        {"40-0mph":"624090012 2018 Honda Accord Blank 1Bag 3600/624090012 Test Data.tdms"},
+        {"60-0mph":"624090013 2018 Honda Accord Blank 1Bag 3600/624090013 Test Data.tdms"}
     ]
 }

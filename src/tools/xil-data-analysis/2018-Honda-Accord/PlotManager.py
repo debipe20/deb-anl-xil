@@ -12,6 +12,7 @@ class PlotManager:
     
     def plot_primary_yaxis(self, x_data, y_data, x_label, y_label, title, fileName):
 
+        plt.figure(figsize=(12, 4.0))
         plt.plot(x_data, y_data, label="Speed")
         # plt.title(title, fontsize=18, fontweight='bold')
         # plt.xlabel(x_label, color='tab:green', fontsize=16)

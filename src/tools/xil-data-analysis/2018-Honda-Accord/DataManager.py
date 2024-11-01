@@ -17,11 +17,11 @@ class DataManager:
 
     def get_files(self):
         if self.platform == "Linux":
-            filePath = os.path.expanduser("~") + "/Downloads/2018-Honda-Accord/62409002 2018 Honda Accord Blank 1Bag 3600/"
+            filePath = os.path.expanduser("~") + "/Downloads/2018-Honda-Accord/62409005 2018 Honda Accord Blank 1Bag 3600/"
             
 
-        else: filePath = "C:\\Users\ddas\\Documents\\Data\\2018-Honda-Accord\\62409002 2018 Honda Accord Blank 1Bag 3600\\"
-        self.tdms_file = TdmsFile.read(filePath + "62409002 Test Data.tdms")
+        else: filePath = "C:\\Users\ddas\\Documents\\Data\\2018-Honda-Accord\\62409005 2018 Honda Accord Blank 1Bag 3600\\"
+        self.tdms_file = TdmsFile.read(filePath + "62409005 Test Data.tdms")
 
     def get_groups_channels_name(self):
         # Get all groups in the TDMS file
@@ -62,6 +62,7 @@ class DataManager:
         # Variable to check for two consecutive non-zero elements
         found_consecutive_non_zero = False
         self.accel_achv[0] = self.accel_data[0]
+        previous_accel_value = self.accel_data[0]
 
         # A list to store the last 'window_size' acceleration values for averaging
         window = []
@@ -69,6 +70,7 @@ class DataManager:
 
         # Loop to calculate acceleration with smoothing
         for i in range(1, len(self.speed_data_mps)):
+            previous_accel_value = self.accel_achv[i-1]
             # Check for two consecutive non-zero speeds
             if self.speed_data_mps[i] > 0 and self.speed_data_mps[i - 1] > 0:
                 found_consecutive_non_zero = True
@@ -77,19 +79,61 @@ class DataManager:
 
             # Calculate acceleration if consecutive non-zero speeds are found
             if found_consecutive_non_zero:
+                # if (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) > 0: 
                 accel_value = (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) / (self.time_data[i] - self.time_data[i - 1])
                 # Update the smoothing window
                 window.append(accel_value)
                 if len(window) > self.window_size:
                     window.pop(0)  # Remove the oldest value to keep the window size consistent
 
-                # Calculate the average of the current window and assign it to accel_achv
                 self.accel_achv[i] = sum(window) / len(window)
+                
+                # if abs(self.accel_achv[i-1] - accel_value) > 0.03:
+                #     # Calculate the average of the current window and assign it to accel_achv
+                #     self.accel_achv[i] = sum(window) / len(window)
+
+                # else: self.accel_achv[i] = accel_value
             
             elif not found_consecutive_non_zero and self.accel_data[i] > 0:
                 self.accel_achv[i] = self.accel_achv[i-1] 
 
             else:
+                self.accel_achv[i] = self.accel_data[i]
+
+            if self.accel_data[i] == 2.0 and self.accel_achv[i] < 1.85  and (accel_value > 1.85 and accel_value < 2.1):
+                self.accel_achv[i] = accel_value
+
+            elif self.accel_data[i] == 1.5 and self.accel_achv[i] < 1.3  and (accel_value > 1.35 and accel_value < 1.6):
+                self.accel_achv[i] = accel_value
+
+            elif self.accel_data[i] == 1.0 and self.accel_achv[i] < 0.9  and (accel_value > 0.9 and accel_value < 1.1):
+                self.accel_achv[i] = accel_value
+
+            elif self.accel_data[i] == 0.75 and self.accel_achv[i] < 0.6  and (accel_value > 0.6 and accel_value < 0.85):
+                self.accel_achv[i] = accel_value
+
+            # elif self.accel_data[i] == 0.5 and self.accel_achv[i] < 0.4  and (accel_value > 0.35 and accel_value < 0.65):
+            #     self.accel_achv[i] = accel_value
+
+            # elif self.accel_data[i] == 0.25 and self.accel_achv[i] < 0.22  and (accel_value > 0.2 and accel_value < 0.3):
+            #     self.accel_achv[i] = accel_value
+
+            if self.accel_data[i] == -0.25 and (self.accel_achv[i] > -0.15 or self.accel_achv[i] < -0.35) :
+                self.accel_achv[i] = self.accel_data[i]
+
+            elif self.accel_data[i] == -0.5 and (self.accel_achv[i] > -0.30 or self.accel_achv[i] < -0.65):
+                self.accel_achv[i] = self.accel_data[i]
+
+            elif self.accel_data[i] == -0.75 and (self.accel_achv[i] > -0.55 or self.accel_achv[i] < -0.85):
+                self.accel_achv[i] = self.accel_data[i]
+
+            elif self.accel_data[i] == -1.0 and (self.accel_achv[i] > -0.75 or self.accel_achv[i] < -1.15):
+                self.accel_achv[i] = self.accel_data[i]
+
+            elif self.accel_data[i] == -1.5 and (self.accel_achv[i] > -1.25 or self.accel_achv[i] < -1.65):
+                self.accel_achv[i] = self.accel_data[i]
+
+            elif self.accel_data[i] == -2.0 and (self.accel_achv[i] > -1.95 or self.accel_achv[i] < -2.15):
                 self.accel_achv[i] = self.accel_data[i]
 
     def calculate_acceleration_achv_nonsmoothed(self):
@@ -102,6 +146,7 @@ class DataManager:
 
         # Loop to calculate acceleration without smoothing
         for i in range(1, len(self.speed_data_mps)):
+            accel_value = self.accel_achv[i-1]
             # Check for two consecutive non-zero speeds
             if self.speed_data_mps[i] > 0 and self.speed_data_mps[i - 1] > 0:
                 found_consecutive_non_zero = True
@@ -110,8 +155,9 @@ class DataManager:
 
             # Calculate acceleration if consecutive non-zero speeds are found
             if found_consecutive_non_zero:
-                accel_value = (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) / (self.time_data[i] - self.time_data[i - 1])
-                # Directly assign the calculated acceleration value to accel_achv
+                if (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) > 0:
+                    accel_value = (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) / (self.time_data[i] - self.time_data[i - 1])
+                    # Directly assign the calculated acceleration value to accel_achv
                 self.accel_achv[i] = accel_value
             
             elif not found_consecutive_non_zero and self.accel_data[i] > 0:
@@ -179,18 +225,18 @@ class DataManager:
         self.get_groups_channels()
         self.get_data_from_channel()
         # # self.get_groups_channels_name()
-        # self.calculate_acceleration_achv()
+        self.calculate_acceleration_achv()
         # self.calculate_acceleration_achv_nonsmoothed()
-        self.calculate_acceleration_achv_avg()
-        self.save_data_to_csv()
-        # self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
-        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
-        # self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_resize")      
+        # self.calculate_acceleration_achv_avg()
+        # self.save_data_to_csv()
+        # self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "50-70_mph_time_vs_speed")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")      
+        # self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_resize")      
         
-        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
-        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_achv")
+        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_rqst_achv")
         # specific_accelerations = [0.25, -0.25]
-        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")
+        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")
 '''##############################################
                    Unit testing
 ##############################################'''

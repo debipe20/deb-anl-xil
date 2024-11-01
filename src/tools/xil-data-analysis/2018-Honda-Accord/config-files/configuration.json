@@ -1,11 +1,11 @@
 {
     "SetTitle": true,
-    "PlotSave": false,
+    "PlotSave": true,
     "Platform": "Windows",
-    "WindowSize": 20,
-    "NoOfStartDataDiscard":0,
-    "NoOfEndDataDiscard": 300,
-    "OutputFileName": "62409002-output-data.csv",
+    "WindowSize": 30,
+    "NoOfStartDataDiscard":70,
+    "NoOfEndDataDiscard": 122,
+    "OutputFileName": "62409005-output-data.csv",
     "FileName":[
         {"0-20mph":"62409002 2018 Honda Accord Blank 1Bag 3600/62409002 Test Data.tdms"},
         {"20-40mph":"62409003 2018 Honda Accord Blank 1Bag 3600/62409003 Test Data.tdms"},

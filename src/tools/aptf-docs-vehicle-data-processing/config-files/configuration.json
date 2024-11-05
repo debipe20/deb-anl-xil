@@ -1,5 +1,5 @@
 {
-    "Platform": "Linux",
+    "Platform": "Windows",
     "InputFileName": "Data/Nissan-Leaf/2019_Nissan_Leaf_TestPlanInstru_MasterSummary_200821.xlsm",
     "OutputFileName": "Data/Nissan-Leaf/nissan-leaf-data.xlsx",
     "InputSheetName": "TestSummary",

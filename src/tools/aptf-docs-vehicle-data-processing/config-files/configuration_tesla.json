@@ -1,5 +1,4 @@
 {
-    "Platform": "Linux",
     "InputFileName": "Data/Tesla-Model3/2020_Tesla_Model_3_TestPlanInstru_MasterSummary_211112.xlsm",
     "OutputFileName": "Data/Tesla-Model3/tesla-model3-data.xlsx",
     "InputSheetName": "TestSummary",

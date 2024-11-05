@@ -1,5 +1,4 @@
 {
-    "Platform": "Linux",
     "InputFileName": "2020_Chevrolet_Bolt_TestPlanInstru_MasterSummary_201005.xlsm",
     "OutputFileName": "Data/2020_Chevrolet_Bolt/chevy-bolt-data.xlsx",
     "InputSheetName": "TestSummary",

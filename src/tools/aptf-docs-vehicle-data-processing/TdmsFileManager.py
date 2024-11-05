@@ -19,7 +19,7 @@ class TdmsFileManager:
             self.tdms_data_directory = os.path.join(base_directory, tdms_directory)
         else:  # For Windows
             self.tdms_data_directory = os.path.join(base_directory, "Documents", "Data", tdms_directory)
-        
+            
     
     def manage_tdms_file(self, test_ID_list):
         # test_ID_list = [62007023]
@@ -28,7 +28,7 @@ class TdmsFileManager:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
             
-            print(self.tdms_file_path)
+            # print("TDMS file path is:\n", self.tdms_file_path)
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
             
             # Get the DataFrame and summary data

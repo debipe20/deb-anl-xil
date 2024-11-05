@@ -111,7 +111,7 @@ class GuiManager:
             font=("Segoe UI", 10), values=platform_options, state="readonly"
         )
         platform_dropdown.pack(pady=5)
-        platform_dropdown.set("Windows")  # Set default visible selection
+        platform_dropdown.set("Linux")  # Set default visible selection
         
         # Specify Data Directory Label and Entry
         data_dir_label = tk.Label(
@@ -120,7 +120,8 @@ class GuiManager:
         )
         data_dir_label.pack(pady=(20, 5))
 
-        self.data_directory = tk.StringVar(value="C:\\Users\\ddas\\Documents\\Data")
+        # self.data_directory = tk.StringVar(value="C:\\Users\\ddas\\Documents\\Data")
+        self.data_directory = tk.StringVar(value="AMTL-Test-Data")
         data_dir_entry = tk.Entry(
             uncertainity_analysis_tab, textvariable=self.data_directory, 
             font=("Segoe UI", 10), width=50

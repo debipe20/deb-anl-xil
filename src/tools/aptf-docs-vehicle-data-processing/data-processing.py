@@ -26,9 +26,6 @@ def main():
     configFile.close()
     root = tk.Tk()
 
-    # test_id_manager = TestIDManager(config)
-    # tdms_file_manager = TdmsFileManager(config)
-
     # Define callback function to process selections
     def on_selections_made(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory):
         print("Selected Vehicle:", selected_vehicle)

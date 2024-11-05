@@ -39,25 +39,23 @@ class TestIDManager:
         self.iteration_keys = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
         self.desired_test_id_list = []
         self.depletion_test_id_list = []
-    
+
     def get_config_file(self, vehicle_name):
-
-
         if vehicle_name == "Tesla Model 3":
-            config_file_name = os.path.join("config-files, configuration_tesla.json")
+            config_file_name = os.path.join("config-files", "configuration_tesla.json")
             self.output_file_path = os.path.join("Data", "Tesla-Model3", "tesla-model3-data.xlsx")
 
         elif vehicle_name == "2020 Chevrolet Bolt":
-            config_file_name = os.path.join("config-files, configuration_bolt.json")
+            config_file_name = os.path.join("config-files", "configuration_bolt.json")
             self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "chevy-bolt-data.xlsx")
 
         elif vehicle_name == "2019 Nissan Leaf":
-            config_file_name = os.path.join("config-files, configuration_leaf.json")
-            self.output_file_path = os.path.join("Data", "Nisan-Leaf", "nissan-leaf-data.xlsx")
-            print(config_file_name)
-
+            config_file_name = os.path.join("config-files", "configuration_leaf.json")
+            print("Result using OS:", (os.path.join("Data", "Nissan-Leaf", "nissan-leaf-data.xlsx")))
+            self.output_file_path = os.path.join("Data", "Nissan-Leaf", "nissan-leaf-data.xlsx")
+            
         else:
-            config_file_name = "Unknown car model."
+            raise ValueError("Unknown vehicle name")
 
         return config_file_name
 
@@ -222,8 +220,15 @@ class TestIDManager:
     def write_in_excel_file(self, filtered_dataframe):
         """
         """
-        
+        output_dir = os.path.dirname(self.output_file_path)
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+            print(f"The directory '{output_dir}' was created.")
+        else:
+            print(f"The directory '{output_dir}' already exists.")
+            
         cycle_type_dicts = self.matching_cycles(filtered_dataframe)
+        
         # Create a Pandas Excel writer using openpyxl as the engine
         with pd.ExcelWriter(self.output_file_path, engine='openpyxl') as writer:
             start_row = 0
@@ -265,12 +270,12 @@ class TestIDManager:
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
         
         self.write_in_excel_file(filtered_dataframe)
-        self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
-        self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
-        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path)
-        tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
-        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
-        del tdms_file_manager
+        # self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
+        # self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
+        # tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path)
+        # tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
+        # tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
+        # del tdms_file_manager
 
 
 '''##############################################

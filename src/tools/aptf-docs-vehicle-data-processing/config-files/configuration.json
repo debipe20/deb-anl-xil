@@ -1,7 +1,7 @@
 {
     "Platform": "Linux",
     "InputFileName": "Data/Nisan-Leaf/2019_Nissan_Leaf_TestPlanInstru_MasterSummary_200821.xlsm",
-    "OutputFileName": "Data/Nisan-Leaf/nissan-leaf-data.xlsx",
+    "OutputFileName": "Data/Nissan-Leaf/nissan-leaf-data.xlsx",
     "InputSheetName": "TestSummary",
     "OutputSheetName": "72F_Cycle_Data_Hioki",
     "NoOfSkipRows": 6,

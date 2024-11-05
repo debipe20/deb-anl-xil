@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 class GuiManager:
     def __init__(self, root, selection_callback):
         self.root = root
-        self.root.title("Vehicle Simulation GUI")
+        self.root.title("AMTL Uncertainty Analysis GUI")
         self.selection_callback = selection_callback  # Store the callback function
         
         # Set initial window size and background color
@@ -78,30 +78,30 @@ class GuiManager:
         vehicle_dropdown.pack(pady=5)
         vehicle_dropdown.configure(foreground="#1a73e8", background="#fff")  # Accent color for dropdown
         
-        # Center the cycle label below the vehicle label
+        # Driving Cycle Selection - Single Selection using Radiobuttons
         cycle_label = tk.Label(
-            uncertainity_analysis_tab, text="Select Driving Cycles:", 
+            uncertainity_analysis_tab, text="Select Driving Cycle:", 
             font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
         )
         cycle_label.pack(pady=(20, 5))
+        
+        # Create a StringVar for the driving cycle selection
+        self.selected_cycle = tk.StringVar(value="MCT")  # Default selection
 
-        # Create a frame to hold the cycle checkboxes and center it
+        # Frame for Radiobuttons
         cycle_frame = tk.Frame(uncertainity_analysis_tab, bg="#e5e5f7")
         cycle_frame.pack()
 
-        self.cycle_vars = {}
-        cycles = ["UDDS", "HWY", "US06", "SSS 65mph"]
-        for cycle in cycles:
-            var = tk.BooleanVar()
-            checkbox = tk.Checkbutton(
-                cycle_frame, text=cycle, variable=var, 
-                font=("Segoe UI", 10), bg="#e5e5f7", fg="#333", 
-                activebackground="#a0c4ff", selectcolor="#1a73e8", anchor="w", relief="flat"
+        cycle_options = ["MCT", "FTP-75", "WLTC"]
+        for cycle in cycle_options:
+            radio_button = tk.Radiobutton(
+                cycle_frame, text=cycle, variable=self.selected_cycle, value=cycle,
+                font=("Segoe UI", 10), bg="#e5e5f7", fg="#333", activebackground="#e5e5f7", 
+                selectcolor="#a0c4ff", anchor="w"
             )
-            checkbox.pack(anchor="w", padx=10)
-            self.cycle_vars[cycle] = var
+            radio_button.pack(anchor="w", padx=10)
         
-        # Button to get selected vehicle and cycles and trigger the callback
+        # Button to get selected vehicle and cycle and trigger the callback
         get_selection_button = tk.Button(
             uncertainity_analysis_tab, text="Run Uncertainity Analysis", 
             font=("Segoe UI", 10, "bold"), bg="#1a73e8", fg="#fff", activebackground="#0066cc",
@@ -109,16 +109,32 @@ class GuiManager:
             command=self.submit_selection
         )
         get_selection_button.pack(pady=20)
+        
+        # Status label to display success or failure message
+        self.status_label = tk.Label(
+            uncertainity_analysis_tab, text="", font=("Segoe UI", 10, "bold"), 
+            bg="#e5e5f7", fg="#333"
+        )
+        self.status_label.pack(pady=10)
 
     def submit_selection(self):
         # Get selected vehicle
         selected_vehicle = self.selected_vehicle.get()
         
         # Get selected cycle
-        selected_cycle = [cycle for cycle, var in self.cycle_vars.items() if var.get()]
+        selected_cycle = self.selected_cycle.get()
         
-        # Call the callback function with the selections
-        self.selection_callback(selected_vehicle, selected_cycle)
+        # Attempt to perform the analysis and display result
+        try:
+            # Call the callback function with the selections
+            self.selection_callback(selected_vehicle, selected_cycle)
+            # Update status to success
+            self.status_label.config(text="Successfully Completed Uncertainty Analysis!", fg="green", font=("Segoe UI", 14, "bold"))
+
+        except Exception as e:
+            # Update status to failure
+            self.status_label.config(text="Uncertainty Analysis is Failed!", fg="red", font=("Segoe UI", 14, "bold"))
+            print("Error during analysis:", e)
 
 
 # Initialize the application
@@ -126,7 +142,10 @@ if __name__ == "__main__":
     def test_callback(selected_vehicle, selected_cycle):
         print("Callback received:")
         print("Selected Vehicle:", selected_vehicle)
-        print("Selected Driving Cycles:", selected_cycle)
+        print("Selected Driving Cycle:", selected_cycle)
+        # Simulate a delay or process
+        if selected_vehicle == "Tesla Model 3":
+            raise ValueError("Simulated Failure for Testing")  # Example failure for testing
 
     root = tk.Tk()
     app = GuiManager(root, selection_callback=test_callback)

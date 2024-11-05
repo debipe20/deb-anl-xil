@@ -11,37 +11,62 @@ Transportation and Power Systems Division
 Description:
 ------------
 The methods available from this class are the following:
-- get_cycles_list(config): Method to get list of cycles from config file
+- get_cycles_list(): Method to get list of cycles from config file
 - is_description_row(row): Method dentify description rows
 - dict_to_df(dictionary): Method to create pandas dataframe from dictionary
 ********
 """
 
 import pandas as pd
+import json
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-
+from TdmsFileManager import TdmsFileManager
 
 class TestIDManager:
-    def __init__(self, config):
-        self.config = config
-        self.cycles_list = []
-        self.output_file_path = self.config["OutputFileName"]
-        self.output_sheet_name = self.config['OutputSheetName']
+    def __init__(self, vehicle_name, drive_cycle):
+        
+        configFile = open(self.get_config_file(vehicle_name), 'r')
+        self.config = (json.load(configFile))
+        configFile.close()
+        self.platform= self.config['Platform']
+        
+        self.get_cycles_list(drive_cycle)
+        self.output_sheet_name = "72F_Cycle_Data_Hioki"
+        self.iteration_keys = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
+        self.desired_test_id_list = []
+        self.depletion_test_id_list = []
     
-    def get_cycles_list(self):
+    def get_config_file(self, vehicle_name):
+
+        if vehicle_name == "Tesla Model 3":
+            config_file_name = "config-files/configuration_tesla.json"
+            self.output_file_path = "Data/Tesla-Model3/tesla-model3-data.xlsx"
+
+        elif vehicle_name == "2020 Chevrolet Bolt":
+            config_file_name = "config-files/configuration_bolt.json"
+            self.output_file_path = "Data/2020_Chevrolet_Bolt/chevy-bolt-data.xlsx"
+
+        elif vehicle_name == "2019 Nissan Leaf":
+            config_file_name = "config-files/configuration_leaf.json"
+            self.output_file_path = "Data/Nisan-Leaf/nissan-leaf-data.xlsx"
+
+        else:
+            config_file_name = "Unknown car model."
+
+        return config_file_name
+
+
+    def get_cycles_list(self, drive_cycle):
         """
         Method to get list of cycles from config file
         """
-        self.cycles_list.clear()
-        
-        for cycle_type in self.config["CycleTypes"]:
-            for key, cycle_type_values in cycle_type.items():
-                for element in cycle_type_values:
-                    self.cycles_list.append(element)
-                
-        return self.cycles_list
-
+        if drive_cycle == "MCT":
+            self.cycles_list = ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined', 'HWY 1', 'HWY', 'US06 1, combined', 'US06 2, combined', 'SSS 65mph depletion']
+            self.sub_cycle_names_list = ['UDDS 1 , 505', 'UDDS 1 ', 'UDDS 1 , Combined', 'HWY 1', 'UDDS 2, 505', 'UDDS 2', 'UDDS 2, combined', 'US06 1, city', 'US06 1, hwy', 'US06 1, combined', 'SSS 65mph depletion', 'US06 2, city', 'US06 2, hwy', 'US06 2, combined', 'UDDS 3, 505', 'UDDS 3', 'UDDS 3, combined', 'HWY', 'UDDS 4, 505', 'UDDS 4', 'UDDS 4, combined', 'SSS 65mph depletion', 'Charge L2 23C']
+            self.cycles_list_dic = [{'UDDS': ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined']}, {
+                'HWY': ['HWY 1', 'HWY']}, {'US06': ['US06 1, combined', 'US06 2, combined']}, {'SSS 65mph': ['SSS 65mph depletion']}]
+            
     def check_description_row(self, row):
         """
         Define a function to identify description rows
@@ -50,19 +75,17 @@ class TestIDManager:
     
     def matching_cycles(self, dataframe):
         """
-        Method to find index number that matches desired drive cycle (e.g., MCT)
+        Method to find index number in the test file dataframe that matches desired drive cycle (e.g., MCT)
         """
         
         # create dictionaries dynamically for cycle types (e.g., UDDS_dictionary, US06_dictionary, etc.)
         cycle_type_dicts = {}
 
-        for cycle_type in self.config["CycleTypes"]:
+        for cycle_type in self.cycles_list_dic:
             for cycle_type_key, cycle_type_value in cycle_type.items():
                 dict_name = f"{cycle_type_key}_dictionary" 
                 cycle_type_dicts[dict_name] = {}                
 
-        sub_cycle_names = self.config["SubCycleNames"]
-        iteration_keys = self.config["IterationKeys"]
         max_sub_phase_number = self.config["MaxSubPhase"]
         sub_phase_number = 1
         sub_cycle_name_counter = 0
@@ -72,7 +95,7 @@ class TestIDManager:
             
         for index, row in dataframe.loc[:].iterrows():
         
-            if row['Cycle'] == sub_cycle_names[sub_cycle_name_counter]:
+            if row['Cycle'] == self.sub_cycle_names_list[sub_cycle_name_counter]:
                 sub_cycle_name_counter += 1
                 sub_cycle_finding_status = True            
                 
@@ -81,18 +104,18 @@ class TestIDManager:
                     
             else: sub_cycle_finding_status = False
                         
-            if sub_cycle_finding_status and sub_cycle_name_counter == len(sub_cycle_names):
+            if sub_cycle_finding_status and sub_cycle_name_counter == len(self.sub_cycle_names_list):
                 sub_cycle_finding_status = False
 
                 # iterating both cycle_type dictionary and cycle types simultaneouly
-                for (dict_name, dictionary), cycle_type in zip(cycle_type_dicts.items(), self.config["CycleTypes"]):
+                for (dict_name, dictionary), cycle_type in zip(cycle_type_dicts.items(), self.cycles_list_dic):
                     for key, values in cycle_type.items():
                         for sub_cycle_name in values:
                             if sub_phase_number > max_sub_phase_number:
                                 sub_phase_number = 1
                             
-                            if iteration_index < len(iteration_keys):
-                                self.populate_dictionary(dataframe, desired_index_list, sub_cycle_name, sub_phase_number, iteration_keys[iteration_index], dictionary, dict_name)
+                            if iteration_index < len(self.iteration_keys):
+                                self.populate_dictionary(dataframe, desired_index_list, sub_cycle_name, sub_phase_number, self.iteration_keys[iteration_index], dictionary, dict_name)
                             
                             else:
                                 print("Not enough iteration keys for all cycle types")
@@ -121,8 +144,15 @@ class TestIDManager:
                 for field in self.config['DataFields']:
                     if field in df.columns:
                         lists_dict[f"{field}"].append(df.loc[index, field])
+
                     # else:
                     #     print(f"Field '{field}' does not exist in the dataframe. Skipping this field.")
+
+                    if field == "Test ID [#]" and desired_subcycle_name == "SSS 65mph depletion":
+                        self.depletion_test_id_list.append(df.loc[index, field])
+
+                    elif field == "Test ID [#]":
+                        self.desired_test_id_list.append(df.loc[index, field])
                     
                 lists_dict["Sub-Phase"].append(sub_phase_number)             
         
@@ -174,7 +204,6 @@ class TestIDManager:
         if start_merge is not None:
             sheet.merge_cells(start_row=start_merge, start_column=1, end_row=row_num + 1, end_column=1)
             
-            
     def update_dict(self, key, value, dictionary, dictionary_name):
         """
         Method to update msg_count_dictionary
@@ -221,18 +250,27 @@ class TestIDManager:
         # Save the updated workbook
         workbook.save(self.output_file_path)
         print(f"File created successfully: {self.output_file_path}")
-        
-    def getTestID(self):
-        pass
-             
-    def manage_test_id(self):
+                     
+    def manage_test_data(self):
         """
         """
         
         data_frame = pd.read_excel(self.config["InputFileName"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])
         
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
-        self.cycles_list = self.get_cycles_list()
-        self.write_in_excel_file(filtered_dataframe)  
         
-    
+        self.write_in_excel_file(filtered_dataframe)
+        self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
+        self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
+        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path)
+        tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
+        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
+        del tdms_file_manager
+
+
+'''##############################################
+                   Unit testing
+##############################################'''
+if __name__ == "__main__":
+    test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT")
+    test_id_manager.manage_test_data()

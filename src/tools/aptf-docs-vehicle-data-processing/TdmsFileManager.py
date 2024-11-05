@@ -6,16 +6,25 @@ from nptdms import TdmsFile
 from openpyxl.styles import Border, Side, Font
 
 class TdmsFileManager:
-    def __init__(self, config):
-        self.config = config
-        self.output_file_path = self.config["OutputFileName"]
+    def __init__(self, object_name, platform, output_file_path):
+        self.object_name = object_name
+        self.platform = platform
+        self.output_file_path = output_file_path
         # Define the path to your TDMS file using a raw string literal (r"...")
-        self.tdms_data_directory = os.path.expanduser("~") + "/Nissan-Leaf-Data"
-        self.test_ID_list = [62007023, 62007025, 62008001, 62008003]
+        self.tdms_data_directory = os.path.expanduser("~") + "/AMTL-Test-Data"
+        self.set_tdms_data_directory()
+    
+    def set_tdms_data_directory(self):
+        if self.platform == "Linux":
+            self.tdms_data_directory = os.path.expanduser("~") + "/AMTL-Test-Data"
 
-    def get_tdm_file_path(self):
+        else: self.tdms_data_directory = "C:\\Users\ddas\\Documents\\Data\\AMTL-Test-Data"
+        
+    
+    def manage_tdms_file(self, test_ID_list):
+        # test_ID_list = [62007023]
         # Loop through each test ID in the list
-        for test_id in self.test_ID_list:
+        for test_id in test_ID_list:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
             
@@ -163,6 +172,98 @@ class TdmsFileManager:
         # Save workbook after writing the summary
         wb.save(self.output_file_path)
         wb.close()
+
+    def manage_depletion_tdms_file(self, test_ID_list):
+        # test_ID_list = [62007024]
+        # Loop through each test ID in the list
+        for test_id in test_ID_list:
+            
+            self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
+            
+            print(self.tdms_file_path)
+            tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
+
+            # Get the DataFrame and summary data
+            group_channel_dataframe = self.get_depletion_data_group_channel_dataframe(tdms_file)
+            summary_data = self.get_depletion_summary_table(group_channel_dataframe)
+            
+            # First, write the summary table to the sheet
+            sheet_name = "wh_cal_" + str(test_id)
+            self.add_summary_table(sheet_name, summary_data)
+            
+            # Write the DataFrame below the summary table using pd.ExcelWriter
+            with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+                # Write the DataFrame to the specified sheet, below the summary table
+                group_channel_dataframe.to_excel(writer, sheet_name=sheet_name, index=False, startrow=len(summary_data) + 2)
+
+            # Load workbook to apply formatting
+            wb = openpyxl.load_workbook(self.output_file_path)
+            
+            # Apply borders and bold column headers to the summary table
+            self.style_dataframe(wb, sheet_name, start_row=1, dataframe=pd.DataFrame(summary_data))
+
+            # Apply borders and bold column headers after writing the DataFrame
+            self.style_dataframe(wb, sheet_name, start_row=len(summary_data) + 2, dataframe=group_channel_dataframe)
+
+            # Save and close the workbook
+            wb.save(self.output_file_path)
+            wb.close()
+            
+            print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
+
+
+    def get_depletion_data_group_channel_dataframe(self, tdms_file):
+            
+        group_channel_dataframe = pd.DataFrame()
+   
+        # Access the 'Data' group
+        group_data = tdms_file["Data"]
+
+        # Read the DAQ_Time[s] and P2 channels
+        daq_time = group_data["DAQ_Time[s]"].data
+        pwr_w = group_data["P2"].data
+        eng_wh = self.fill_cumulative_list(pwr_w)
+        u_p = [0 if pwr_w[i] == 0 else ((0.35/100 * pwr_w[i]) + (0.09/100*60000)) for i in range(len(pwr_w))]
+        u_p_percentage = [0 if pwr_w[i] == 0 else (u_p[i] / pwr_w[i]) for i in range(len(pwr_w))]
+        pwr_min = [(pwr_w[i] - u_p[i]) for i in range(len(pwr_w))]
+        pwr_max = [(pwr_w[i] + u_p[i]) for i in range(len(pwr_w))]
+        eng_min = self.fill_cumulative_list(pwr_min)
+        eng_max = self.fill_cumulative_list(pwr_max)
+        
+        # Prepare a DataFrame with the values for easy export to Excel
+        group_channel_dataframe = pd.DataFrame({
+            "DAQ_Time[s]": daq_time,
+            "PWR[W]": pwr_w,
+            "Energy_[Wh]": eng_wh,
+            "u(P)": u_p,  
+            "u(P)_[%]": u_p_percentage,
+            "PWR_min": pwr_min,  
+            "PWR_max": pwr_max,
+            "ENG_min": eng_min,  
+            "ENG_max": eng_max,   
+        })
+
+        return group_channel_dataframe
+    
+
+    def get_depletion_summary_table(self, group_channel_dataframe):
+        
+        energy_values = group_channel_dataframe['Energy_[Wh]'].dropna().iloc[-1]
+        u_energy_values = (group_channel_dataframe['Energy_[Wh]'].dropna().sum())*0.1/3600
+        u_energy_percent = u_energy_values / energy_values
+        u_energy_sqrt = (np.sqrt(group_channel_dataframe['Energy_[Wh]'].dropna()).sum())*0.1/3600
+        u_energy_sqrt_percent = u_energy_sqrt / energy_values
+
+        summary_data = [
+            ["SUMMARY ", "No-cycle"],
+            ["Energy [Wh]", energy_values],
+            ["u (Energy)", u_energy_values],
+            ["u (Energy) [%]", u_energy_percent],
+            ["u_sqrt (Energy)", u_energy_sqrt],
+            ["u_sqrt (Energy) [%]", u_energy_sqrt_percent]
+        ]
+
+        return summary_data
         
     def style_dataframe(self, wb, sheet_name, start_row, dataframe):
         # Load the specified sheet
@@ -194,3 +295,5 @@ class TdmsFileManager:
                     cell = sheet.cell(row=row_idx, column=col_idx)
                     cell.border = thin_border  # Apply border to each non-empty cell
 
+    def __del__(self):
+        print(f"{self.object_name} is destroyed.")

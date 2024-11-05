@@ -58,11 +58,11 @@ class GuiManager:
         note_label.pack(side="bottom", pady=10)
 
     def setup_uncertainity_analysis_tab(self):
-        # Vehicle Selection tab
+        # Uncertainty Analysis tab setup
         uncertainity_analysis_tab = tk.Frame(self.tab_control, bg="#e5e5f7")
-        self.tab_control.add(uncertainity_analysis_tab, text="Uncertainity Analysis")
-        
-        # Dropdown menu for vehicle selection
+        self.tab_control.add(uncertainity_analysis_tab, text="Uncertainty Analysis")
+
+        # Vehicle Selection Label and Dropdown
         vehicle_label = tk.Label(
             uncertainity_analysis_tab, text="Select Vehicle:", 
             font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
@@ -76,22 +76,18 @@ class GuiManager:
             font=("Segoe UI", 10), values=vehicle_options
         )
         vehicle_dropdown.pack(pady=5)
-        vehicle_dropdown.configure(foreground="#1a73e8", background="#fff")  # Accent color for dropdown
-        
-        # Driving Cycle Selection - Single Selection using Radiobuttons
+        vehicle_dropdown.set("2019 Nissan Leaf")  # Set default visible selection
+
+        # Driving Cycle Label and Radiobuttons
         cycle_label = tk.Label(
             uncertainity_analysis_tab, text="Select Driving Cycle:", 
             font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
         )
         cycle_label.pack(pady=(20, 5))
-        
-        # Create a StringVar for the driving cycle selection
-        self.selected_cycle = tk.StringVar(value="MCT")  # Default selection
 
-        # Frame for Radiobuttons
+        self.selected_cycle = tk.StringVar(value="MCT")
         cycle_frame = tk.Frame(uncertainity_analysis_tab, bg="#e5e5f7")
         cycle_frame.pack()
-
         cycle_options = ["MCT", "FTP-75", "WLTC"]
         for cycle in cycle_options:
             radio_button = tk.Radiobutton(
@@ -100,17 +96,47 @@ class GuiManager:
                 selectcolor="#a0c4ff", anchor="w"
             )
             radio_button.pack(anchor="w", padx=10)
+
+        # Platform Selection Label and Dropdown
+        platform_label = tk.Label(
+            uncertainity_analysis_tab, text="Platform:", 
+            font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
+        )
+        platform_label.pack(pady=(20, 5))
+
+        platform_options = ["Windows", "Linux"]
+        self.selected_platform = tk.StringVar()
+        platform_dropdown = ttk.Combobox(
+            uncertainity_analysis_tab, textvariable=self.selected_platform, 
+            font=("Segoe UI", 10), values=platform_options, state="readonly"
+        )
+        platform_dropdown.pack(pady=5)
+        platform_dropdown.set("Windows")  # Set default visible selection
         
-        # Button to get selected vehicle and cycle and trigger the callback
+        # Specify Data Directory Label and Entry
+        data_dir_label = tk.Label(
+            uncertainity_analysis_tab, text="Specify Test File (TDMS) Data Directory:", 
+            font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
+        )
+        data_dir_label.pack(pady=(20, 5))
+
+        self.data_directory = tk.StringVar(value="C:\\Users\\ddas\\Documents\\Data")
+        data_dir_entry = tk.Entry(
+            uncertainity_analysis_tab, textvariable=self.data_directory, 
+            font=("Segoe UI", 10), width=50
+        )
+        data_dir_entry.pack(pady=5)
+
+        # Run Analysis Button
         get_selection_button = tk.Button(
-            uncertainity_analysis_tab, text="Run Uncertainity Analysis", 
+            uncertainity_analysis_tab, text="Run Uncertainty Analysis", 
             font=("Segoe UI", 10, "bold"), bg="#1a73e8", fg="#fff", activebackground="#0066cc",
             activeforeground="#fff", relief="flat", padx=10, pady=5, borderwidth=0, highlightthickness=0,
             command=self.submit_selection
         )
         get_selection_button.pack(pady=20)
-        
-        # Status label to display success or failure message
+
+        # Status Label to display success or failure message
         self.status_label = tk.Label(
             uncertainity_analysis_tab, text="", font=("Segoe UI", 10, "bold"), 
             bg="#e5e5f7", fg="#333"
@@ -118,22 +144,18 @@ class GuiManager:
         self.status_label.pack(pady=10)
 
     def submit_selection(self):
-        # Get selected vehicle
+        # Get selected values
         selected_vehicle = self.selected_vehicle.get()
-        
-        # Get selected cycle
         selected_cycle = self.selected_cycle.get()
+        selected_platform = self.selected_platform.get()
+        tdms_data_directory = self.data_directory.get()
         
-        # Attempt to perform the analysis and display result
+        # Perform analysis with selected values
         try:
-            # Call the callback function with the selections
-            self.selection_callback(selected_vehicle, selected_cycle)
-            # Update status to success
+            self.selection_callback(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory)
             self.status_label.config(text="Successfully Completed Uncertainty Analysis!", fg="green", font=("Segoe UI", 14, "bold"))
-
         except Exception as e:
-            # Update status to failure
-            self.status_label.config(text="Uncertainty Analysis is Failed!", fg="red", font=("Segoe UI", 14, "bold"))
+            self.status_label.config(text="Uncertainty Analysis Failed!", fg="red", font=("Segoe UI", 14, "bold"))
             print("Error during analysis:", e)
 
 

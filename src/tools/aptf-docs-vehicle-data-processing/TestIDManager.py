@@ -19,17 +19,20 @@ The methods available from this class are the following:
 
 import pandas as pd
 import json
+import os
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from TdmsFileManager import TdmsFileManager
 
 class TestIDManager:
-    def __init__(self, vehicle_name, drive_cycle):
+    def __init__(self, vehicle_name, drive_cycle, platform, tdms_data_directory):
         
         configFile = open(self.get_config_file(vehicle_name), 'r')
         self.config = (json.load(configFile))
         configFile.close()
-        self.platform= self.config['Platform']
+        self.platform = platform
+        self.tdms_data_directory = tdms_data_directory
+        print(self.output_file_path)
         
         self.get_cycles_list(drive_cycle)
         self.output_sheet_name = "72F_Cycle_Data_Hioki"
@@ -39,17 +42,19 @@ class TestIDManager:
     
     def get_config_file(self, vehicle_name):
 
+
         if vehicle_name == "Tesla Model 3":
-            config_file_name = "config-files/configuration_tesla.json"
-            self.output_file_path = "Data/Tesla-Model3/tesla-model3-data.xlsx"
+            config_file_name = os.path.join("config-files, configuration_tesla.json")
+            self.output_file_path = os.path.join("Data", "Tesla-Model3", "tesla-model3-data.xlsx")
 
         elif vehicle_name == "2020 Chevrolet Bolt":
-            config_file_name = "config-files/configuration_bolt.json"
-            self.output_file_path = "Data/2020_Chevrolet_Bolt/chevy-bolt-data.xlsx"
+            config_file_name = os.path.join("config-files, configuration_bolt.json")
+            self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "chevy-bolt-data.xlsx")
 
         elif vehicle_name == "2019 Nissan Leaf":
-            config_file_name = "config-files/configuration_leaf.json"
-            self.output_file_path = "Data/Nisan-Leaf/nissan-leaf-data.xlsx"
+            config_file_name = os.path.join("config-files, configuration_leaf.json")
+            self.output_file_path = os.path.join("Data", "Nisan-Leaf", "nissan-leaf-data.xlsx")
+            print(config_file_name)
 
         else:
             config_file_name = "Unknown car model."
@@ -272,5 +277,5 @@ class TestIDManager:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT")
+    test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Windows", "C:\\Users\\ddas\\Documents\\Data")
     test_id_manager.manage_test_data()

@@ -30,10 +30,12 @@ def main():
     # tdms_file_manager = TdmsFileManager(config)
 
     # Define callback function to process selections
-    def on_selections_made(selected_vehicle, selected_cycle):
+    def on_selections_made(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory):
         print("Selected Vehicle:", selected_vehicle)
         print("Selected Driving Cycle:", selected_cycle)
-        test_id_manager = TestIDManager(selected_vehicle, selected_cycle)
+        print("Selected Platform:", selected_platform)
+        print("Selected Data Directory:", tdms_data_directory)
+        test_id_manager = TestIDManager(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory)
         test_id_manager.manage_test_data()
 
         print("Completed Uncertainity Analysis!")

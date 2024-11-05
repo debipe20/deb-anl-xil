@@ -1,6 +1,6 @@
 {
     "Platform": "Linux",
-    "InputFileName": "Data/Nisan-Leaf/2019_Nissan_Leaf_TestPlanInstru_MasterSummary_200821.xlsm",
+    "InputFileName": "Data/Nissan-Leaf/2019_Nissan_Leaf_TestPlanInstru_MasterSummary_200821.xlsm",
     "InputSheetName": "TestSummary",
     "NoOfSkipRows": 6,
     "MaxSubPhase": 2,

@@ -6,19 +6,19 @@ from nptdms import TdmsFile
 from openpyxl.styles import Border, Side, Font
 
 class TdmsFileManager:
-    def __init__(self, object_name, platform, output_file_path):
+    def __init__(self, object_name, platform, output_file_path, tdms_directory):
         self.object_name = object_name
         self.platform = platform
         self.output_file_path = output_file_path
         # Define the path to your TDMS file using a raw string literal (r"...")
-        self.tdms_data_directory = os.path.expanduser("~") + "/AMTL-Test-Data"
-        self.set_tdms_data_directory()
+        self.set_tdms_data_directory(tdms_directory)
     
-    def set_tdms_data_directory(self):
+    def set_tdms_data_directory(self, tdms_directory):
+        base_directory = os.path.expanduser("~")  # Gets the user's home directory
         if self.platform == "Linux":
-            self.tdms_data_directory = os.path.expanduser("~") + "/AMTL-Test-Data"
-
-        else: self.tdms_data_directory = "C:\\Users\ddas\\Documents\\Data\\AMTL-Test-Data"
+            self.tdms_data_directory = os.path.join(base_directory, tdms_directory)
+        else:  # For Windows
+            self.tdms_data_directory = os.path.join(base_directory, "Documents", "Data", tdms_directory)
         
     
     def manage_tdms_file(self, test_ID_list):

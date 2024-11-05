@@ -51,7 +51,6 @@ class TestIDManager:
 
         elif vehicle_name == "2019 Nissan Leaf":
             config_file_name = os.path.join("config-files", "configuration_leaf.json")
-            print("Result using OS:", (os.path.join("Data", "Nissan-Leaf", "nissan-leaf-data.xlsx")))
             self.output_file_path = os.path.join("Data", "Nissan-Leaf", "nissan-leaf-data.xlsx")
             
         else:
@@ -270,17 +269,17 @@ class TestIDManager:
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
         
         self.write_in_excel_file(filtered_dataframe)
-        # self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
-        # self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
-        # tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path)
-        # tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
-        # tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
-        # del tdms_file_manager
+        self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
+        self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
+        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
+        tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
+        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
+        del tdms_file_manager
 
 
 '''##############################################
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Windows", "C:\\Users\\ddas\\Documents\\Data")
+    test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Linux", "AMTL-Test-Data")
     test_id_manager.manage_test_data()

@@ -23,7 +23,7 @@ def main():
     if os.path.isdir(directory):
         print("Directory exists")
 
-    tdms_file_path = r"C:\Users\ddas\Documents\Data\AMTL-Test-Data\62007023 Test Data.tdms"
+    tdms_file_path = r"C:\Users\ddas\Documents\Data\AMTL-Test-Data\62005016 Test Data.tdms"
     get_groups_channels_name(tdms_file_path)
     
 

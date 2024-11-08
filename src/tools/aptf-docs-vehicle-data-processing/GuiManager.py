@@ -69,14 +69,15 @@ class GuiManager:
         )
         vehicle_label.pack(pady=5)
 
-        vehicle_options = ["Tesla Model 3", "2020 Chevrolet Bolt", "2019 Nissan Leaf"]
+        vehicle_options = ["2020 Tesla Model 3", "2020 Chevrolet Bolt", "2019 Nissan Leaf"]
         self.selected_vehicle = tk.StringVar()
         vehicle_dropdown = ttk.Combobox(
             uncertainity_analysis_tab, textvariable=self.selected_vehicle, 
             font=("Segoe UI", 10), values=vehicle_options
         )
         vehicle_dropdown.pack(pady=5)
-        vehicle_dropdown.set("2019 Nissan Leaf")  # Set default visible selection
+        # vehicle_dropdown.set("2019 Nissan Leaf")  # Set default visible selection
+        vehicle_dropdown.set("2020 Tesla Model 3")
 
         # Driving Cycle Label and Radiobuttons
         cycle_label = tk.Label(
@@ -111,8 +112,8 @@ class GuiManager:
             font=("Segoe UI", 10), values=platform_options, state="readonly"
         )
         platform_dropdown.pack(pady=5)
-        platform_dropdown.set("Linux")  # Set default visible selection
-        
+        # platform_dropdown.set("Linux")  # Set default visible selection
+        platform_dropdown.set("Windows") 
         # Specify Data Directory Label and Entry
         data_dir_label = tk.Label(
             uncertainity_analysis_tab, text="Specify Test File (TDMS) Data Directory:", 

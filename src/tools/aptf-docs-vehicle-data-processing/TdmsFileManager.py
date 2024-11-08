@@ -22,7 +22,7 @@ class TdmsFileManager:
             
     
     def manage_tdms_file(self, test_ID_list):
-        # test_ID_list = [62007023]
+        test_ID_list = [62005016]
         # Loop through each test ID in the list
         for test_id in test_ID_list:
             
@@ -139,17 +139,18 @@ class TdmsFileManager:
         u_energy_channels = ['u(P)_no_cycle', 'u(P)_UDDS1', 'u(P)_UDDS2', 'u(P)_Highway', 'u(P)_US06']
         energy_values = [group_channel_dataframe[channel].dropna().iloc[-1] for channel in energy_channels]
         u_energy_values = [(group_channel_dataframe[channel].dropna().sum())*0.1/3600 for channel in u_energy_channels]
-        u_energy_percent = [(u_energy_values[i] / energy_values[i]) for i in range(len(u_energy_values))]
-        u_energy_sqrt = [(np.sqrt(group_channel_dataframe[channel].dropna()).sum())*0.1/3600 for channel in u_energy_channels]
-        u_energy_sqrt_percent =[(u_energy_sqrt[i] / energy_values[i]) for i in range(len(u_energy_values))]
+        u_energy_percent = [(u_energy_values[i] / energy_values[i]) * 100 for i in range(len(u_energy_values))]
+        # u_energy_sqrt = [(np.sqrt(group_channel_dataframe[channel].dropna()).sum())*0.1/3600 for channel in u_energy_channels]
+        u_energy_sqrt = [np.sqrt(np.sum(group_channel_dataframe[channel]**2)) * 0.1 / 3600 for channel in u_energy_channels]
+        u_energy_sqrt_percent =[(u_energy_sqrt[i] / energy_values[i]) * 100 for i in range(len(u_energy_values))]
         
         summary_data = [
             ["SUMMARY (cycle totals)", "No-cycle", "UDDS 1", "UDDS 2", "Highway", "US06", "Total"],
             ["Energy [Wh]", energy_values[0], energy_values[1], energy_values[2], energy_values[3], energy_values[4], sum(energy_values)],
-            ["u (Energy)", u_energy_values[0], u_energy_values[1], u_energy_values[2], u_energy_values[3], u_energy_values[4], sum(u_energy_values)],
-            ["u (Energy) [%]", u_energy_percent[0], u_energy_percent[1], u_energy_percent[2], u_energy_percent[3], u_energy_percent[4], sum(u_energy_percent)],
-            ["u_sqrt (Energy)", u_energy_sqrt[0], u_energy_sqrt[1], u_energy_sqrt[2], u_energy_sqrt[3], u_energy_sqrt[4], sum(u_energy_sqrt)],
-            ["u_sqrt (Energy) [%]", u_energy_sqrt_percent[0], u_energy_sqrt_percent[1], u_energy_sqrt_percent[2], u_energy_sqrt_percent[3], u_energy_sqrt_percent[4], sum(u_energy_sqrt_percent)]
+            ["u (Energy)", u_energy_values[0], u_energy_values[1], u_energy_values[2], u_energy_values[3], u_energy_values[4], (sum(u_energy_values)-u_energy_values[0])],
+            ["u (Energy) [%]", u_energy_percent[0], u_energy_percent[1], u_energy_percent[2], u_energy_percent[3], u_energy_percent[4], ((sum(u_energy_values)-u_energy_values[0]) / sum(energy_values))* 100 ],
+            ["u_sqrt (Energy)", u_energy_sqrt[0], u_energy_sqrt[1], u_energy_sqrt[2], u_energy_sqrt[3], u_energy_sqrt[4], (sum(u_energy_sqrt) - u_energy_sqrt[0])],
+            ["u_sqrt (Energy) [%]", u_energy_sqrt_percent[0], u_energy_sqrt_percent[1], u_energy_sqrt_percent[2], u_energy_sqrt_percent[3], u_energy_sqrt_percent[4], ((sum(u_energy_sqrt) - u_energy_sqrt[0]) / sum(energy_values))* 100 ]
         ]
 
         return summary_data
@@ -174,7 +175,7 @@ class TdmsFileManager:
         wb.close()
 
     def manage_depletion_tdms_file(self, test_ID_list):
-        # test_ID_list = [62007024]
+        test_ID_list = [62005017]
         # Loop through each test ID in the list
         for test_id in test_ID_list:
             
@@ -249,10 +250,10 @@ class TdmsFileManager:
     def get_depletion_summary_table(self, group_channel_dataframe):
         
         energy_values = group_channel_dataframe['Energy_[Wh]'].dropna().iloc[-1]
-        u_energy_values = (group_channel_dataframe['Energy_[Wh]'].dropna().sum())*0.1/3600
-        u_energy_percent = u_energy_values / energy_values
-        u_energy_sqrt = (np.sqrt(group_channel_dataframe['Energy_[Wh]'].dropna()).sum())*0.1/3600
-        u_energy_sqrt_percent = u_energy_sqrt / energy_values
+        u_energy_values = (group_channel_dataframe['u(P)'].sum()) * 0.1 / 3600
+        u_energy_percent = (u_energy_values / energy_values) * 100 
+        u_energy_sqrt = np.sqrt(np.sum(group_channel_dataframe['u(P)']**2)) * 0.1 / 3600
+        u_energy_sqrt_percent = (u_energy_sqrt / energy_values) * 100 
 
         summary_data = [
             ["SUMMARY ", "No-cycle"],
@@ -264,6 +265,12 @@ class TdmsFileManager:
         ]
 
         return summary_data
+    
+    def manage_categorial_summary(self):
+        """
+        create a summary sheet based on each category
+        summary sheet will contain summary table and different plots
+        """
         
     def style_dataframe(self, wb, sheet_name, start_row, dataframe):
         # Load the specified sheet

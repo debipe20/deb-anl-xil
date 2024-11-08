@@ -39,19 +39,20 @@ class TestIDManager:
         self.iteration_keys = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
         self.desired_test_id_list = []
         self.depletion_test_id_list = []
+        self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th = ([] for i in range(5))
 
     def get_config_file(self, vehicle_name):
-        if vehicle_name == "Tesla Model 3":
+        if vehicle_name == "2020 Tesla Model 3":
             config_file_name = os.path.join("config-files", "configuration_tesla.json")
-            self.output_file_path = os.path.join("Data", "Tesla-Model3", "tesla-model3-data.xlsx")
+            self.output_file_path = os.path.join("Data", "Tesla-Model3", "2020-tesla-model3-uncertainity-analysis.xlsx")
 
         elif vehicle_name == "2020 Chevrolet Bolt":
             config_file_name = os.path.join("config-files", "configuration_bolt.json")
-            self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "chevy-bolt-data.xlsx")
+            self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainity-analysis.xlsx")
 
         elif vehicle_name == "2019 Nissan Leaf":
             config_file_name = os.path.join("config-files", "configuration_leaf.json")
-            self.output_file_path = os.path.join("Data", "Nissan-Leaf", "nissan-leaf-data.xlsx")
+            self.output_file_path = os.path.join("Data", "Nissan-Leaf", "2019-nissan-leaf-uncertainity-analysis.xlsx")
             
         else:
             raise ValueError("Unknown vehicle name")
@@ -64,10 +65,10 @@ class TestIDManager:
         Method to get list of cycles from config file
         """
         if drive_cycle == "MCT":
-            self.cycles_list = ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined', 'HWY 1', 'HWY', 'US06 1, combined', 'US06 2, combined', 'SSS 65mph depletion']
+            self.cycles_list = ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined', 'HWY 1', 'HWY', 'US06 1, combined', 'US06 2, combined', 'SSS 65mph depletion', 'Charge L2 23C']
             self.sub_cycle_names_list = ['UDDS 1 , 505', 'UDDS 1 ', 'UDDS 1 , Combined', 'HWY 1', 'UDDS 2, 505', 'UDDS 2', 'UDDS 2, combined', 'US06 1, city', 'US06 1, hwy', 'US06 1, combined', 'SSS 65mph depletion', 'US06 2, city', 'US06 2, hwy', 'US06 2, combined', 'UDDS 3, 505', 'UDDS 3', 'UDDS 3, combined', 'HWY', 'UDDS 4, 505', 'UDDS 4', 'UDDS 4, combined', 'SSS 65mph depletion', 'Charge L2 23C']
             self.cycles_list_dic = [{'UDDS': ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined']}, {
-                'HWY': ['HWY 1', 'HWY']}, {'US06': ['US06 1, combined', 'US06 2, combined']}, {'SSS 65mph': ['SSS 65mph depletion']}]
+                'HWY': ['HWY 1', 'HWY']}, {'US06': ['US06 1, combined', 'US06 2, combined']}, {'SSS 65mph': ['SSS 65mph depletion']}, {'Charge L2 23C': ['Charge L2 23C']}]
             
     def check_description_row(self, row):
         """
@@ -153,10 +154,26 @@ class TestIDManager:
                         self.depletion_test_id_list.append(df.loc[index, field])
 
                     elif field == "Test ID [#]":
-                        self.desired_test_id_list.append(df.loc[index, field])
-                    
-                lists_dict["Sub-Phase"].append(sub_phase_number)             
-        
+                        self.desired_test_id_list.append(df.loc[index, field])            
+
+                if desired_subcycle_name in ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined']:
+                    lists_dict["Sub-Phase"].append(sub_phase_number)
+
+                if iteration_key == '1st':
+                    self.test_id_list_category_1st.append(df.loc[index, "Test ID [#]"])
+
+                elif iteration_key == '2nd':
+                    self.test_id_list_category_2nd.append(df.loc[index, "Test ID [#]"])
+
+                elif iteration_key == '3rd':
+                    self.test_id_list_category_3rd.append(df.loc[index, "Test ID [#]"])
+
+                elif iteration_key == '4th':
+                    self.test_id_list_category_4th.append(df.loc[index, "Test ID [#]"])
+
+                elif iteration_key == '5th':
+                    self.test_id_list_category_5th.append(df.loc[index, "Test ID [#]"])
+
         self.update_dict(iteration_key, lists_dict, dictionary, dictionary_name)   
     
     def dict_to_df(self, dictionary):
@@ -263,22 +280,27 @@ class TestIDManager:
         """
         """
         
-        data_frame = pd.read_excel(self.config["InputFileName"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])
-        
+        data_frame = pd.read_excel(self.config["InputFileName"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])        
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
         
         self.write_in_excel_file(filtered_dataframe)
+        self.test_id_list_category_1st = sorted(list(set(self.test_id_list_category_1st)))
+        self.test_id_list_category_2nd = sorted(list(set(self.test_id_list_category_2nd)))
+        self.test_id_list_category_3rd = sorted(list(set(self.test_id_list_category_3rd)))
+        self.test_id_list_category_4th = sorted(list(set(self.test_id_list_category_4th)))
+        self.test_id_list_category_5th = sorted(list(set(self.test_id_list_category_5th)))
         self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
-        self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
-        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
-        tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
-        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
-        del tdms_file_manager
+        # self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
+        # tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
+        # tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
+        # tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
+        # del tdms_file_manager
 
 
 '''##############################################
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Linux", "AMTL-Test-Data")
+    # test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Linux", "AMTL-Test-Data")
+    test_id_manager = TestIDManager("2020 Tesla Model 3", "MCT", "Windows", "AMTL-Test-Data")
     test_id_manager.manage_test_data()

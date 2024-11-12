@@ -474,7 +474,10 @@ class TdmsFileManager:
             ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.02, f'{yval:.1f}%', ha='center', va='bottom')
 
         # Save the chart as an image and close the plot
-        chart_path = r'Data\Tesla-Model3\grouped_bar_chart.png'
+        # chart_path = r'Data\Tesla-Model3\grouped_bar_chart.png'
+        # Dynamically set the file name based on self.bar_chart_name_list
+        chart_path = rf'Data\Tesla-Model3\{self.bar_chart_name_list[0]}_vs_{self.bar_chart_name_list[1]}_bar_chart.png'
+
         plt.tight_layout()
         plt.savefig(chart_path)
         plt.close()

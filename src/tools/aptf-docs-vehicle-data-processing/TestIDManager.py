@@ -23,6 +23,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from TdmsFileManager import TdmsFileManager
+from openpyxl.styles import Border, Side, Font, Alignment
 
 class TestIDManager:
     def __init__(self, vehicle_name, drive_cycle, platform, tdms_data_directory):
@@ -153,6 +154,9 @@ class TestIDManager:
                     if field == "Test ID [#]" and desired_subcycle_name == "SSS 65mph depletion":
                         self.depletion_test_id_list.append(df.loc[index, field])
 
+                    if field == "Test ID [#]" and desired_subcycle_name == "Charge L2 23C":
+                        self.depletion_test_id_list.append(df.loc[index, field])
+
                     elif field == "Test ID [#]":
                         self.desired_test_id_list.append(df.loc[index, field])            
 
@@ -250,6 +254,8 @@ class TestIDManager:
             for dict_name, dictionary in cycle_type_dicts.items():
                 # Convert dictionary to DataFrame
                 df = self.dict_to_df(dictionary)
+                # Round the DataFrame to 2 decimal places
+                df = df.round(2)
                 
                 # Add dictionary name before DataFrame
                 worksheet = writer.book.create_sheet(self.output_sheet_name) if start_row == 0 else writer.sheets[self.output_sheet_name]
@@ -257,7 +263,9 @@ class TestIDManager:
                 
                 # Write the DataFrame to the sheet starting at the next row
                 df.to_excel(writer, sheet_name=self.output_sheet_name, startrow=start_row + 1, index=False)
-                
+                # Apply styling for each DataFrame written
+                workbook = writer.book
+                self.style_dataframe(workbook, self.output_sheet_name, start_row=start_row + 2, dataframe=df)
                 # Update start_row for the next dictionary
                 start_row += len(df) + 3
 
@@ -275,6 +283,44 @@ class TestIDManager:
         # Save the updated workbook
         workbook.save(self.output_file_path)
         print(f"File created successfully: {self.output_file_path}")
+
+
+    def style_dataframe(self, wb, sheet_name, start_row, dataframe):
+        # Load the specified sheet
+        sheet = wb[sheet_name]
+
+        # Define border style
+        thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), 
+                             top=Side(style='thin'), bottom=Side(style='thin'))
+        
+        # Bold font for column headers
+        bold_font = Font(bold=True)
+
+        # Set text alignment to wrap text
+        wrap_alignment = Alignment(wrap_text=True)
+
+        # Get the number of rows and columns in the DataFrame
+        n_rows, n_cols = dataframe.shape
+        
+        # Apply styles to the column headers (first row of the DataFrame or summary)
+        for col_idx in range(1, n_cols + 1):
+            cell = sheet.cell(row=start_row, column=col_idx)
+            cell.font = bold_font  # Bold the column header
+            cell.border = thin_border  # Apply border to the column header
+            cell.alignment = wrap_alignment
+        
+        # Apply borders only to the range where the DataFrame has actual data
+        for row_idx in range(start_row + 1, start_row + n_rows + 1):
+            for col_idx in range(1, n_cols + 1):
+                # Get the actual value from the DataFrame for this cell
+                # cell_value = dataframe.iloc[row_idx - start_row - 1, col_idx - 1]
+                
+                # # Only apply border if the cell has non-NaN, non-empty data
+                # if pd.notna(cell_value) and cell_value != "":
+                cell = sheet.cell(row=row_idx, column=col_idx)
+                cell.border = thin_border  # Apply border to each non-empty cell
+                cell.alignment = wrap_alignment
+
                      
     def manage_test_data(self):
         """
@@ -290,11 +336,13 @@ class TestIDManager:
         self.test_id_list_category_4th = sorted(list(set(self.test_id_list_category_4th)))
         self.test_id_list_category_5th = sorted(list(set(self.test_id_list_category_5th)))
         self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
-        # self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))        
-        # tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
-        # tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
-        # tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
-        # del tdms_file_manager
+        self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))
+                
+        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
+        tdms_file_manager.set_test_id_list(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
+        tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
+        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
+        del tdms_file_manager
 
 
 '''##############################################

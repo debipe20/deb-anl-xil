@@ -42,8 +42,7 @@ class TdmsFileManager:
         for test_id in test_ID_list:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
-            
-            # print("TDMS file path is:\n", self.tdms_file_path)
+            print(f"Processing '{self.tdms_file_path}' TDMS file")
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
             
             # Get the DataFrame and summary data
@@ -79,6 +78,7 @@ class TdmsFileManager:
 
     def fill_cumulative_list(self, source_list):
         cumulative_list = []
+        
         for i in range(len(source_list)):
             if i == 0:
                 cumulative_list.append((source_list[i] * 0.1) / 3600)
@@ -174,6 +174,7 @@ class TdmsFileManager:
             ["u_sqrt (Energy) [%]", u_energy_sqrt_percent[0], u_energy_sqrt_percent[1], u_energy_sqrt_percent[2], u_energy_sqrt_percent[3], u_energy_sqrt_percent[4], ((sum(u_energy_sqrt) - u_energy_sqrt[0]) / sum(energy_values))* 100 ]
         ]
         
+        # For MCT every sub-cycle has two test id. self.u_energy_percent_1 and self.u_energy_percent_2 contain data for those test ids two generate plot if required
         if not self.u_energy_percent_1:
             self.u_energy_percent_1.append(u_energy_percent[1])
             self.u_energy_percent_1.append(u_energy_percent[2])
@@ -220,8 +221,7 @@ class TdmsFileManager:
         for test_id in test_ID_list:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
-            
-            print(self.tdms_file_path)
+            print(f"Processing '{self.tdms_file_path}' TDMS file")
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
 
             # Get the DataFrame and summary data
@@ -396,7 +396,7 @@ class TdmsFileManager:
                 for col_idx, cell_value in enumerate(row_data, start=1):
                     sheet.cell(row=row_idx, column=col_idx, value=cell_value)
             self.style_dataframe(wb, sheet_name, start_row, dataframe=pd.DataFrame(ube_summary_data))
-            self.plot_uncertainty_analysis(wb, sheet_name)
+            # self.plot_uncertainty_analysis(wb, sheet_name)
 
         # Save workbook after writing the summary
         wb.save(self.output_file_path)
@@ -474,8 +474,6 @@ class TdmsFileManager:
             ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.02, f'{yval:.1f}%', ha='center', va='bottom')
 
         # Save the chart as an image and close the plot
-        # chart_path = r'Data\Tesla-Model3\grouped_bar_chart.png'
-        # Dynamically set the file name based on self.bar_chart_name_list
         chart_path = rf'Data\Tesla-Model3\{self.bar_chart_name_list[0]}_vs_{self.bar_chart_name_list[1]}_bar_chart.png'
 
         plt.tight_layout()

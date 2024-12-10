@@ -16,13 +16,8 @@ class TdmsFileManager:
         self.u_energy_percent_1, self.u_energy_percent_2 = ([] for i in range(2))
         self.bar_chart_name_list = []
         
-        self.ube_wh, self.u_ube_wh, self.u_ube_rms, self.fre_wh, self.u_fre_wh = 0, 0, 0, 0, 0
-        self.ube_wh_1st, self.u_ube_wh_1st, self.u_ube_rms_1st, self.fre_wh_1st, self.u_fre_wh_1st = 0, 0, 0, 0, 0
-        self.ube_wh_2nd, self.u_ube_wh_2nd, self.u_ube_rms_2nd, self.fre_wh_2nd, self.u_fre_wh_2nd = 0, 0, 0, 0, 0
-        self.ube_wh_3rd, self.u_ube_wh_3rd, self.u_ube_rms_3rd, self.fre_wh_3rd, self.u_fre_wh_3rd = 0, 0, 0, 0, 0
-        self.ube_wh_4th, self.u_ube_wh_4th, self.u_ube_rms_4th, self.fre_wh_4th, self.u_fre_wh_4th = 0, 0, 0, 0, 0
-        self.ube_wh_5th, self.u_ube_wh_5th, self.u_ube_rms_5th, self.fre_wh_5th, self.u_fre_wh_5th = 0, 0, 0, 0, 0
         self.set_tdms_data_directory(tdms_directory)
+        self.initialize_ube_fre_variables()
     
     def set_tdms_data_directory(self, tdms_directory):
         base_directory = os.path.expanduser("~")  # Gets the user's home directory
@@ -31,10 +26,166 @@ class TdmsFileManager:
         else:  # For Windows
             self.tdms_data_directory = os.path.join(base_directory, "Documents", "Data", tdms_directory)
 
+    def initialize_ube_fre_variables(self):
+        self.ube_wh, self.u_ube_wh, self.u_ube_rms, self.fre_wh, self.u_fre_wh, self.u_fre_percent, self.u_fre_rms, self.u_fre_rms_percent = 0, 0, 0, 0, 0, 0, 0, 0
+        self.ube_wh_1st, self.u_ube_wh_1st, self.u_ube_rms_1st, self.fre_wh_1st, self.u_fre_wh_1st = 0, 0, 0, 0, 0
+        self.ube_wh_2nd, self.u_ube_wh_2nd, self.u_ube_rms_2nd, self.fre_wh_2nd, self.u_fre_wh_2nd = 0, 0, 0, 0, 0
+        self.ube_wh_3rd, self.u_ube_wh_3rd, self.u_ube_rms_3rd, self.fre_wh_3rd, self.u_fre_wh_3rd = 0, 0, 0, 0, 0
+        self.ube_wh_4th, self.u_ube_wh_4th, self.u_ube_rms_4th, self.fre_wh_4th, self.u_fre_wh_4th = 0, 0, 0, 0, 0
+        self.ube_wh_5th, self.u_ube_wh_5th, self.u_ube_rms_5th, self.fre_wh_5th, self.u_fre_wh_5th = 0, 0, 0, 0, 0
+
     def set_test_id_list(self, test_id_list1, test_id_list2, test_id_list3, test_id_list4, test_id_list5):
 
         self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th = test_id_list1, test_id_list2, test_id_list3, test_id_list4, test_id_list5
         # self.test_id_list_category_1st =[62005016, 62005018]
+        # self.test_id_list_category_1st = [62005016, 62005017, 62005018, 62005019, 62005020]
+        
+    def manage_mct_test(self, test_id_list):
+        group_channel_dataframe_sequence1, group_channel_dataframe_depletion1, group_channel_dataframe_sequence2, group_channel_dataframe_depletion2, group_channel_dataframe_charge = (pd.DataFrame() for i in range(5))
+        summary_data_sequence1, summary_data_depletion1, summary_data_sequence2, summary_data_depletion2, summary_data_charge = ([] for i in range(5))
+        summary_title_list = []
+        
+        for test_id in test_id_list:
+            
+            self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
+            print(f"Processing '{self.tdms_file_path}' TDMS file")
+            tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
+             
+            test_id_index = test_id_list.index(test_id)
+            summary_title_list =  summary_title_list.append("Summary Data of Test ID " + str(test_id))
+            
+            if test_id_index == 0:
+                group_channel_dataframe_sequence1 = self.get_sequence_group_channel_dataframe(tdms_file, test_id_index)
+                summary_data_sequence1 = self.get_summary_table(group_channel_dataframe_sequence1)
+                
+            elif test_id_index == 1:
+                group_channel_dataframe_depletion1 = self.get_data_group_channel_dataframe(tdms_file)
+                summary_data_depletion1 = self.get_summary_table(group_channel_dataframe_depletion1)
+                
+            elif test_id_index == 2:
+                group_channel_dataframe_sequence2 = self.get_sequence_group_channel_dataframe(tdms_file, test_id_index)
+                summary_data_sequence2 = self.get_summary_table(group_channel_dataframe_sequence2)
+                
+            elif test_id_index == 3:
+                group_channel_dataframe_depletion2 = self.get_data_group_channel_dataframe(tdms_file)
+                summary_data_depletion2 = self.get_summary_table(group_channel_dataframe_depletion2)
+
+            elif test_id_index == 4:
+                group_channel_dataframe_charge = self.get_data_group_channel_dataframe(tdms_file)
+                summary_data_charge= self.get_summary_table(group_channel_dataframe_charge)
+                self.manage_categorial_summary(test_id_list[0], summary_data_sequence1, summary_title_list[0])
+                self.manage_categorial_summary(test_id_list[1], summary_data_depletion1, summary_title_list[1])
+                self.manage_categorial_summary(test_id_list[2], summary_data_sequence2, summary_title_list[2])
+                self.manage_categorial_summary(test_id_list[3], summary_data_depletion2, summary_title_list[3])
+                self.manage_categorial_summary(test_id_list[4], summary_data_charge, summary_title_list[4])
+                
+    def get_sequence_group_channel_dataframe(self, tdms_file, test_id_index):
+        
+        """
+        Method to create a data frame that contains energy data for no_cycle, UDDS1, UDDS2, Highway, US06 energy consumption data
+        """    
+        group_channel_dataframe = pd.DataFrame()
+        no_cycle_wh, udds1_wh, udds2_wh, highway_wh, us06_wh = ([] for i in range(5))
+        # Access the 'Data' group
+        group_data = tdms_file["Data"]
+
+        # Read the DAQ_Time[s] and P2 channels
+        daq_time = group_data["DAQ_Time[s]"].data
+        p2_data = group_data["P2"].data
+        exhaust_bag = group_data["Exhaust_Bag"].data
+        time_values = [i * 0.1 for i in range(len(daq_time))]
+
+        if test_id_index == 0:
+            no_cycle = [p2_data[i] if exhaust_bag[i] == 0 else 0 for i in range(len(p2_data))]
+            udds1_w =  [p2_data[i] if (exhaust_bag[i] == 1 or exhaust_bag[i] == 2) else 0 for i in range(len(p2_data))]
+            highway_w = [p2_data[i] if exhaust_bag[i] == 3 else 0 for i in range(len(p2_data))]
+            udds2_w =  [p2_data[i] if (exhaust_bag[i] == 4 or exhaust_bag[i] == 5) else 0 for i in range(len(p2_data))]            
+            us06_w = [p2_data[i] if (exhaust_bag[i] == 6 or exhaust_bag[i] == 7) else 0 for i in range(len(p2_data))]
+            
+        elif test_id_index == 2:
+            no_cycle = [p2_data[i] if exhaust_bag[i] == 0 else 0 for i in range(len(p2_data))]
+            us06_w = [p2_data[i] if (exhaust_bag[i] == 1 or exhaust_bag[i] == 2) else 0 for i in range(len(p2_data))]
+            udds1_w =  [p2_data[i] if (exhaust_bag[i] == 3 or exhaust_bag[i] == 4) else 0 for i in range(len(p2_data))]
+            highway_w = [p2_data[i] if exhaust_bag[i] == 5 else 0 for i in range(len(p2_data))]
+            udds2_w =  [p2_data[i] if (exhaust_bag[i] == 6 or exhaust_bag[i] == 7) else 0 for i in range(len(p2_data))]     
+                    
+        no_cycle_wh = self.fill_cumulative_list(no_cycle)
+        udds1_wh = self.fill_cumulative_list(udds1_w)
+        udds2_wh = self.fill_cumulative_list(udds2_w)
+        highway_wh = self.fill_cumulative_list(highway_w)
+        us06_wh = self.fill_cumulative_list(us06_w)
+
+        u_p_no_cycle = [0 if no_cycle[i] == 0 else ((0.0035 * no_cycle[i]) + 54) for i in range(len(p2_data))]
+        u_p_no_cycle_percentage = [0 if no_cycle[i] == 0 else (u_p_no_cycle[i] / no_cycle[i]) for i in range(len(p2_data))]
+        u_p_udds1 = [0 if udds1_w[i] == 0 else ((0.0035 * udds1_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_udds1_percentage = [0 if udds1_w[i] == 0 else (u_p_udds1[i] / udds1_w[i]) for i in range(len(p2_data))]
+        u_p_udds2 = [0 if udds2_w[i] == 0 else ((0.0035 * udds2_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_udds2_percentage = [0 if udds2_w[i] == 0 else (u_p_udds2[i] / udds2_w[i]) for i in range(len(p2_data))]
+        u_p_highway = [0 if highway_w[i] == 0 else ((0.0035 * highway_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_highway_percentage = [0 if highway_w[i] == 0 else (u_p_highway[i] / highway_w[i]) for i in range(len(p2_data))]
+        u_p_us06 = [0 if us06_w[i] == 0 else ((0.0035 * us06_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_us06_percentage = [0 if us06_w[i] == 0 else (u_p_us06[i] / us06_w[i]) for i in range(len(p2_data))]
+        
+        # Prepare a DataFrame with the values for easy export to Excel
+        if test_id_index == 0:
+            group_channel_dataframe = pd.DataFrame({
+                "DAQ_Time[s]": daq_time,
+                "Time[s]": time_values,
+                "P2": p2_data,
+                "Exhaust_Bag": exhaust_bag,
+                "No_cycle": no_cycle,
+                "UDDS1_[W]": udds1_w,
+                "Highway_[W]": highway_w,
+                "UDDS2_[W]": udds2_w,            
+                "US06_[W]": us06_w,
+                "No_cycle_[Wh]": no_cycle_wh,
+                "UDDS1_[Wh]": udds1_wh,
+                "UDDS2_[Wh]": udds2_wh,
+                "Highway_[Wh]": highway_wh,
+                "US06_[Wh]": us06_wh,
+                "u(P)_no_cycle": u_p_no_cycle,  
+                "u(P)_no_cycle_[%]": u_p_no_cycle_percentage,
+                "u(P)_UDDS1": u_p_udds1,  
+                "u(P)_UDDS1_[%]": u_p_udds1_percentage,
+                "u(P)_UDDS2": u_p_udds2,  
+                "u(P)_UDDS2_[%]": u_p_udds2_percentage,
+                "u(P)_Highway": u_p_highway,  
+                "u(P)_Highway_[%]": u_p_highway_percentage,
+                "u(P)_US06": u_p_us06,  
+                "u(P)_US06_[%]": u_p_us06_percentage   
+            }) 
+            
+        elif test_id_index == 2:
+            group_channel_dataframe = pd.DataFrame({
+            "DAQ_Time[s]": daq_time,
+            "Time[s]": time_values,
+            "P2": p2_data,
+            "Exhaust_Bag": exhaust_bag,
+            "No_cycle": no_cycle,
+            "US06_[W]": us06_w,
+            "UDDS1_[W]": udds1_w,
+            "Highway_[W]": highway_w,
+            "UDDS2_[W]": udds2_w,                    
+            "No_cycle_[Wh]": no_cycle_wh,
+            "UDDS1_[Wh]": udds1_wh,
+            "UDDS2_[Wh]": udds2_wh,
+            "Highway_[Wh]": highway_wh,
+            "US06_[Wh]": us06_wh,
+            "u(P)_no_cycle": u_p_no_cycle,  
+            "u(P)_no_cycle_[%]": u_p_no_cycle_percentage,
+            "u(P)_UDDS1": u_p_udds1,  
+            "u(P)_UDDS1_[%]": u_p_udds1_percentage,
+            "u(P)_UDDS2": u_p_udds2,  
+            "u(P)_UDDS2_[%]": u_p_udds2_percentage,
+            "u(P)_Highway": u_p_highway,  
+            "u(P)_Highway_[%]": u_p_highway_percentage,
+            "u(P)_US06": u_p_us06,  
+            "u(P)_US06_[%]": u_p_us06_percentage   
+        })
+              
+        return group_channel_dataframe
+    
+        
     def manage_tdms_file(self, test_ID_list):
         # test_ID_list = [62005016, 62005018]
         # test_ID_list = [62005016]
@@ -42,8 +193,7 @@ class TdmsFileManager:
         for test_id in test_ID_list:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
-            
-            # print("TDMS file path is:\n", self.tdms_file_path)
+            print(f"Processing '{self.tdms_file_path}' TDMS file")
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
             
             # Get the DataFrame and summary data
@@ -52,9 +202,10 @@ class TdmsFileManager:
             
             # First, write the summary table to the sheet
             sheet_name = "wh_cal_" + str(test_id)
+            summary_title = "Summary Data of Test ID " + str(test_id)
             self.bar_chart_name_list.append(str(test_id))
             self.add_summary_table(sheet_name, summary_data)
-            self.manage_categorial_summary(test_id, summary_data)
+            self.manage_categorial_summary(test_id, summary_data, summary_title)
             
             # Write the DataFrame below the summary table using pd.ExcelWriter
             with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
@@ -79,6 +230,7 @@ class TdmsFileManager:
 
     def fill_cumulative_list(self, source_list):
         cumulative_list = []
+        
         for i in range(len(source_list)):
             if i == 0:
                 cumulative_list.append((source_list[i] * 0.1) / 3600)
@@ -174,6 +326,7 @@ class TdmsFileManager:
             ["u_sqrt (Energy) [%]", u_energy_sqrt_percent[0], u_energy_sqrt_percent[1], u_energy_sqrt_percent[2], u_energy_sqrt_percent[3], u_energy_sqrt_percent[4], ((sum(u_energy_sqrt) - u_energy_sqrt[0]) / sum(energy_values))* 100 ]
         ]
         
+        # For MCT every sub-cycle has two test id. self.u_energy_percent_1 and self.u_energy_percent_2 contain data for those test ids two generate plot if required
         if not self.u_energy_percent_1:
             self.u_energy_percent_1.append(u_energy_percent[1])
             self.u_energy_percent_1.append(u_energy_percent[2])
@@ -194,7 +347,7 @@ class TdmsFileManager:
 
         return summary_data
 
-    def add_summary_table(self, sheet_name, summary_data):
+    def add_summary_table(self, sheet_name, summary_data , title=None):
         # Load the workbook and create a new sheet if it doesn't exist
         wb = openpyxl.load_workbook(self.output_file_path)
         
@@ -204,34 +357,46 @@ class TdmsFileManager:
         else:
             sheet = wb[sheet_name]
 
-        # Write the summary data to the sheet, starting from row 1
-        for row_idx, row_data in enumerate(summary_data, start=1):
+        start_row = 1  # Define starting row
+    
+        # Add a title or description if provided
+        if title:
+            sheet.cell(row=start_row, column=1, value=title)
+            sheet.cell(row=start_row, column=1).font = Font(bold=True)
+            start_row += 1  
+
+        # Write the summary data to the sheet, starting from the next row
+        for row_idx, row_data in enumerate(summary_data, start=start_row):
             for col_idx, cell_value in enumerate(row_data, start=1):
                 sheet.cell(row=row_idx, column=col_idx, value=cell_value)
+        # # Write the summary data to the sheet, starting from row 1
+        # for row_idx, row_data in enumerate(summary_data, start=1):
+        #     for col_idx, cell_value in enumerate(row_data, start=1):
+        #         sheet.cell(row=row_idx, column=col_idx, value=cell_value)
 
         # Save workbook after writing the summary
         wb.save(self.output_file_path)
         wb.close()
 
-    def manage_depletion_tdms_file(self, test_ID_list):
-        # test_ID_list = [62005017, 62005019, 62005020]
+    def manage_depletion_tdms_file(self, test_ID_list, depletion_test_status = True):
+        # test_ID_list = [62005020]
         # test_ID_list = [62005017]
         # Loop through each test ID in the list
         for test_id in test_ID_list:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
-            
-            print(self.tdms_file_path)
+            print(f"Processing '{self.tdms_file_path}' TDMS file")
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
 
             # Get the DataFrame and summary data
-            group_channel_dataframe = self.get_depletion_data_group_channel_dataframe(tdms_file)
+            group_channel_dataframe = self.get_depletion_data_group_channel_dataframe(tdms_file, depletion_test_status)
             summary_data = self.get_depletion_summary_table(group_channel_dataframe)
             
             # First, write the summary table to the sheet
             sheet_name = "wh_cal_" + str(test_id)
+            summary_title = "Summary Data of Test ID " + str(test_id)
             self.add_summary_table(sheet_name, summary_data)
-            self.manage_categorial_summary(test_id, summary_data)
+            self.manage_categorial_summary(test_id, summary_data, summary_title)
             
             # Write the DataFrame below the summary table using pd.ExcelWriter
             with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
@@ -254,7 +419,7 @@ class TdmsFileManager:
             print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
 
 
-    def get_depletion_data_group_channel_dataframe(self, tdms_file):
+    def get_depletion_data_group_channel_dataframe(self, tdms_file, depletion_test_status = True):
             
         group_channel_dataframe = pd.DataFrame()
    
@@ -263,10 +428,18 @@ class TdmsFileManager:
 
         # Read the DAQ_Time[s] and P2 channels
         daq_time = group_data["DAQ_Time[s]"].data
-        pwr_w = group_data["P2"].data
         time_values = [i * 0.1 for i in range(len(daq_time))]
-        eng_wh = self.fill_cumulative_list(pwr_w)
-        u_p = [0 if pwr_w[i] == 0 else ((0.35/100 * pwr_w[i]) + (0.09/100*60000)) for i in range(len(pwr_w))]
+        
+        if depletion_test_status:
+            pwr_w = group_data["P2"].data
+            eng_wh = self.fill_cumulative_list(pwr_w)
+            u_p = [0 if pwr_w[i] == 0 else ((0.35/100 * pwr_w[i]) + (0.09/100*60000)) for i in range(len(pwr_w))]
+            
+        else: 
+            pwr_w = group_data["P9"].data
+            eng_wh = self.fill_cumulative_list(pwr_w)
+            u_p = [0 if pwr_w[i] == 0 else ((0.35/100 * pwr_w[i]) + (0.08/100*60000)) for i in range(len(pwr_w))]       
+        
         u_p_percentage = [0 if pwr_w[i] == 0 else (u_p[i] / pwr_w[i]) for i in range(len(pwr_w))]
         pwr_min = [(pwr_w[i] - u_p[i]) for i in range(len(pwr_w))]
         pwr_max = [(pwr_w[i] + u_p[i]) for i in range(len(pwr_w))]
@@ -309,52 +482,60 @@ class TdmsFileManager:
         self.ube_wh = energy_values
         self.u_ube_wh = u_energy_values
         self.u_ube_rms = u_energy_sqrt * u_energy_sqrt
+        
+        self.fre_wh = energy_values
+        self.u_fre_wh = u_energy_values
+        self.u_fre_percent = u_energy_percent
+        self.u_fre_rms = u_energy_sqrt
+        self.u_fre_rms_percent = u_energy_sqrt_percent
+        
+        
         return summary_data
     
-    def manage_categorial_summary(self, test_id, summary_data):
+    def manage_categorial_summary(self, test_id, summary_data, title=None):
         """
         create a summary sheet based on each category
         summary sheet will contain summary table and different plots
         """
         if test_id in self.test_id_list_category_1st:
             sheet_name = "1_Summary"
+            ube_title =  "UBE Summary of Category1"
+            fre_title = "FRE Summary of Category1"
             ube_wh = self.ube_wh_1st = self.ube_wh_1st + self.ube_wh
             u_ube_wh = self.u_ube_wh_1st = self.u_ube_wh_1st + self.u_ube_wh
             u_ube_rms = self.u_ube_rms_1st = self.u_ube_rms_1st + self.u_ube_rms
-            self.fre_wh_1st = self.fre_wh_1st + self.fre_wh
-            self.u_fre_wh_1st = self.u_fre_wh_1st + self.u_fre_wh
 
         elif test_id in self.test_id_list_category_2nd:
             sheet_name = "2_Summary"
+            ube_title =  "UBE Summary of Category2"
+            fre_title = "FRE Summary of Category2"
             ube_wh = self.ube_wh_2nd = self.ube_wh_2nd + self.ube_wh
             u_ube_wh = self.u_ube_wh_2nd = self.u_ube_wh_2nd + self.u_ube_wh
             u_ube_rms = self.u_ube_rms_2nd = self.u_ube_rms_2nd + self.u_ube_rms
-            self.fre_wh_2nd = self.fre_wh_2nd + self.fre_wh
-            self.u_fre_wh_2nd = self.u_fre_wh_2nd + self.u_fre_wh
 
         elif test_id in self.test_id_list_category_3rd:
             sheet_name = "3_Summary"
+            ube_title =  "UBE Summary of Category3"
+            fre_title = "FRE Summary of Category3"
             ube_wh = self.ube_wh_3rd = self.ube_wh_3rd + self.ube_wh
             u_ube_wh = self.u_ube_wh_3rd = self.u_ube_wh_3rd + self.u_ube_wh
             u_ube_rms = self.u_ube_rms_3rd = self.u_ube_rms_3rd + self.u_ube_rms
-            self.fre_wh_3rd = self.fre_wh_3rd + self.fre_wh
-            self.u_fre_wh_3rd = self.u_fre_wh_3rd + self.u_fre_wh
 
         elif test_id in self.test_id_list_category_4th:
             sheet_name = "4_Summary"
+            ube_title =  "UBE Summary of Category4"
+            fre_title = "FRE Summary of Category4"
             ube_wh = self.ube_wh_4th = self.ube_wh_4th + self.ube_wh
             u_ube_wh = self.u_ube_wh_4th = self.u_ube_wh_4th + self.u_ube_wh
             u_ube_rms = self.u_ube_rms_4th = self.u_ube_rms_4th + self.u_ube_rms
-            self.fre_wh_4th = self.fre_wh_4th + self.fre_wh
-            self.u_fre_wh_4th = self.u_fre_wh_4th + self.u_fre_wh
 
         elif test_id in self.test_id_list_category_5th:
             sheet_name = "5_Summary"
+            ube_title =  "UBE Summary of Category5"
+            fre_title = "FRE Summary of Category5"
             ube_wh = self.ube_wh_5th = self.ube_wh_5th + self.ube_wh
             u_ube_wh = self.u_ube_wh_5th = self.u_ube_wh_5th + self.u_ube_wh
             u_ube_rms = self.u_ube_rms_5th = self.u_ube_rms_5th + self.u_ube_rms
-            self.fre_wh_5th = self.fre_wh_5th + self.fre_wh
-            self.u_fre_wh_5th = self.u_fre_wh_5th + self.u_fre_wh
 
         ube_summary_data = [
             ["UBE SUMMARY", "Value"],
@@ -363,6 +544,15 @@ class TdmsFileManager:
             ["u(UBE) [%]", (u_ube_wh /ube_wh) if ube_wh != 0 else None],
             ["u(UBE) - RMS", u_ube_rms],
             ["u(UBE) [%] - RMS", (u_ube_rms / ube_wh) if ube_wh != 0 else None]
+        ]
+                
+        fre_summary_data = [
+            ["FRE SUMMARY", "Value"],
+            ["FRE [Wh]", self.fre_wh],
+            ["u(FRE)", self.u_fre_wh],
+            ["u(FRE) [%]", self.u_fre_percent],
+            ["u(FRE) - RMS", self.u_fre_rms],
+            ["u(FRE) [%] - RMS", self.u_fre_rms_percent]
         ]   
 
         wb = openpyxl.load_workbook(self.output_file_path)
@@ -375,6 +565,11 @@ class TdmsFileManager:
 
         # Find the next available row to append data
         start_row = sheet.max_row + 2 if sheet.max_row > 1 else 1  # Start at row 1 for the first table
+        
+        if title:
+            sheet.cell(row=start_row, column=1, value=title)
+            sheet.cell(row=start_row, column=1).font = Font(bold=True)
+            start_row += 1
 
         # Write the summary data to the sheet, starting from the next available row
         for row_idx, row_data in enumerate(summary_data, start=start_row):
@@ -389,14 +584,32 @@ class TdmsFileManager:
             (self.test_id_list_category_4th and test_id == self.test_id_list_category_4th[-1]) or 
             (self.test_id_list_category_5th and test_id == self.test_id_list_category_5th[-1])): 
             # Find the next available row after summary data
-            start_row += len(summary_data) + 2  # Leave a gap of one row
+            start_row += len(summary_data) + 3  # Leave gap of two rows
+            
+            sheet.cell(row=start_row, column=1, value=ube_title)
+            sheet.cell(row=start_row, column=1).font = Font(bold=True)
+            start_row += 1
             
             # Write the ube_summary data to the sheet, starting from the next available row
             for row_idx, row_data in enumerate(ube_summary_data, start=start_row):
                 for col_idx, cell_value in enumerate(row_data, start=1):
                     sheet.cell(row=row_idx, column=col_idx, value=cell_value)
             self.style_dataframe(wb, sheet_name, start_row, dataframe=pd.DataFrame(ube_summary_data))
+            
+            
+            start_row += len(ube_summary_data) + 3  # Leave gap of two rows
+            
+            sheet.cell(row=start_row, column=1, value=fre_title)
+            sheet.cell(row=start_row, column=1).font = Font(bold=True)
+            start_row += 1
+            
+            # Write the fre_summary data to the sheet, starting from the next available row
+            for row_idx, row_data in enumerate(fre_summary_data, start=start_row):
+                for col_idx, cell_value in enumerate(row_data, start=1):
+                    sheet.cell(row=row_idx, column=col_idx, value=cell_value)
+            self.style_dataframe(wb, sheet_name, start_row, dataframe=pd.DataFrame(fre_summary_data))
             self.plot_uncertainty_analysis(wb, sheet_name)
+            self.initialize_ube_fre_variables()
 
         # Save workbook after writing the summary
         wb.save(self.output_file_path)
@@ -474,8 +687,6 @@ class TdmsFileManager:
             ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.02, f'{yval:.1f}%', ha='center', va='bottom')
 
         # Save the chart as an image and close the plot
-        # chart_path = r'Data\Tesla-Model3\grouped_bar_chart.png'
-        # Dynamically set the file name based on self.bar_chart_name_list
         chart_path = rf'Data\Tesla-Model3\{self.bar_chart_name_list[0]}_vs_{self.bar_chart_name_list[1]}_bar_chart.png'
 
         plt.tight_layout()

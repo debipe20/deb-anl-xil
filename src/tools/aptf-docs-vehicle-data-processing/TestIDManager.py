@@ -40,6 +40,7 @@ class TestIDManager:
         self.iteration_keys = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
         self.desired_test_id_list = []
         self.depletion_test_id_list = []
+        self.charge_test_id_list = []
         self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th = ([] for i in range(5))
 
     def get_config_file(self, vehicle_name):
@@ -80,6 +81,9 @@ class TestIDManager:
     def matching_cycles(self, dataframe):
         """
         Method to find index number in the test file dataframe that matches desired drive cycle (e.g., MCT)
+            - identifies series / list of rows that matches with the element of sub cycle name list
+            - stores only the index number that matches with the element of cycle  list
+            - calls populate_dictionary() function to append data into each cycle type dictionary 
         """
         
         # create dictionaries dynamically for cycle types (e.g., UDDS_dictionary, US06_dictionary, etc.)
@@ -94,11 +98,10 @@ class TestIDManager:
         sub_phase_number = 1
         sub_cycle_name_counter = 0
         iteration_index = 0
-        desired_index_list  =[]
+        desired_index_list = []
         sub_cycle_finding_status = True
             
-        for index, row in dataframe.loc[:].iterrows():
-        
+        for index, row in dataframe.loc[:].iterrows():       
             if row['Cycle'] == self.sub_cycle_names_list[sub_cycle_name_counter]:
                 sub_cycle_name_counter += 1
                 sub_cycle_finding_status = True            
@@ -150,15 +153,15 @@ class TestIDManager:
 
                     # else:
                     #     print(f"Field '{field}' does not exist in the dataframe. Skipping this field.")
-
+                    
                     if field == "Test ID [#]" and desired_subcycle_name == "SSS 65mph depletion":
                         self.depletion_test_id_list.append(df.loc[index, field])
 
-                    if field == "Test ID [#]" and desired_subcycle_name == "Charge L2 23C":
-                        self.depletion_test_id_list.append(df.loc[index, field])
-
+                    elif field == "Test ID [#]" and desired_subcycle_name == "Charge L2 23C":
+                        self.charge_test_id_list.append(df.loc[index, field])
+                        
                     elif field == "Test ID [#]":
-                        self.desired_test_id_list.append(df.loc[index, field])            
+                        self.desired_test_id_list.append(df.loc[index, field])         
 
                 if desired_subcycle_name in ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined']:
                     lists_dict["Sub-Phase"].append(sub_phase_number)
@@ -337,11 +340,16 @@ class TestIDManager:
         self.test_id_list_category_5th = sorted(list(set(self.test_id_list_category_5th)))
         self.desired_test_id_list =  sorted(list(set(self.desired_test_id_list)))
         self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))
+        self.charge_test_id_list = sorted(list(set(self.charge_test_id_list)))
                 
         tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
         tdms_file_manager.set_test_id_list(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
+        print(f"Desired cycle test id list is following: '{self.desired_test_id_list}'")
+        print(f"Desired depletion test id list is following: '{self.depletion_test_id_list}'")
+        print(f"Desired charge test id list is following: '{self.charge_test_id_list}'")        
         tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
-        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list)
+        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list, True)
+        tdms_file_manager.manage_depletion_tdms_file(self.charge_test_id_list, False)
         del tdms_file_manager
 
 

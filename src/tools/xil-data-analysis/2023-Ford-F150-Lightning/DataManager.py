@@ -9,19 +9,22 @@ class DataManager:
     def __init__(self, config):
         self.config = config
         self.platform = self.config['Platform']
+        self.smoothing_method = self.config['SmothingMethod']
         self.window_size = self.config['WindowSize']
         self.start_data_to_discard = self.config['NoOfStartDataDiscard']
         self.end_data_to_discard = self.config['NoOfEndDataDiscard']
+        self.starting_speed = self.config['StartingSpeed']
+        self.starting_accel = self.config['StartingAcceleration']
         self.output_file_name = self.config['OutputFileName']
         self.plot_manager = PlotManager(config)
 
     def get_files(self):
         if self.platform == "Linux":
-            filePath = os.path.expanduser("~") + "/Downloads/2023-Ford-F150-Lightning"
+            filePath = os.path.expanduser("~") + "/Downloads/2023-Ford-F150-Lightning/"
             
 
         else: filePath = "C:\\Users\ddas\\Documents\\Data\\2023-Ford-F150-Lightning\\"
-        self.tdms_file = TdmsFile.read(filePath + "62412003 Test Data.tdms")
+        self.tdms_file = TdmsFile.read(filePath + "62412006 Test Data.tdms")
 
     def get_groups_channels_name(self):
         # Get all groups in the TDMS file
@@ -60,10 +63,21 @@ class DataManager:
         print("got channel data")
 
     def calculate_acceleration_achv(self):
+        """
+        """
+        
+        # Initialize variables for Kalman Filter
+        process_variance = 1e-4  # Variance in the process (tuning parameter)
+        measurement_variance = 0.2 ** 2  # Variance in the measurements (tuning parameter)
+        estimated_accel = 0  # Initial estimate of acceleration
+        error_covariance = 1.0  # Initial estimate uncertainty
+
         # Initialize an array of the same shape as speed_data_mps with zeros
         self.accel_achv = np.zeros_like(self.speed_data_mps, dtype=float)
+        self.accel_calculated = np.zeros_like(self.speed_data_mps, dtype=float)
 
         # Variable to check for two consecutive non-zero elements
+        test_start_status = False
         found_consecutive_non_zero = False
         self.accel_achv[0] = self.accel_data_rqst[0]
         previous_accel_value = self.accel_data_rqst[0]
@@ -76,14 +90,19 @@ class DataManager:
         for i in range(1, len(self.speed_data_mps)):
             previous_accel_value = self.accel_achv[i-1]
             accel_value = 0  # Initialize accel_value to avoid UnboundLocalError
+
+            if (self.speed_data_mph[i] >= (self.starting_speed - 2)) and (self.accel_data_rqst[i] == self.starting_accel):
+                test_start_status = True
+
             # Check for two consecutive non-zero speeds
             if self.speed_data_mps[i] > 0 and self.speed_data_mps[i - 1] > 0:
                 found_consecutive_non_zero = True
             else:
                 found_consecutive_non_zero = False
 
+
             # Calculate acceleration if consecutive non-zero speeds are found
-            if found_consecutive_non_zero:
+            if test_start_status and found_consecutive_non_zero and self.smoothing_method == "Moving-Average":
                 # if (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) > 0: 
                 accel_value = (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) / (self.time_data[i] - self.time_data[i - 1])
                 # Update the smoothing window
@@ -92,12 +111,28 @@ class DataManager:
                     window.pop(0)  # Remove the oldest value to keep the window size consistent
 
                 self.accel_achv[i] = sum(window) / len(window)
+
+            
+
+            elif found_consecutive_non_zero and self.smoothing_method == "Kalman-Filter":
+                # if (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) > 0: 
+                accel_value = (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) / (self.time_data[i] - self.time_data[i - 1])
                 
+                # Prediction Step
+                error_covariance += process_variance  # Increase uncertainty
+                # Update Step
+                kalman_gain = error_covariance / (error_covariance + measurement_variance)  # Calculate Kalman gain
+                estimated_accel = estimated_accel + kalman_gain * (accel_value - estimated_accel)  # Update estimate
+                error_covariance = (1 - kalman_gain) * error_covariance  # Update uncertainty
+                # Store the smoothed acceleration value
+                self.accel_achv[i] = estimated_accel
+
                 # if abs(self.accel_achv[i-1] - accel_value) > 0.03:
                 #     # Calculate the average of the current window and assign it to accel_achv
                 #     self.accel_achv[i] = sum(window) / len(window)
 
                 # else: self.accel_achv[i] = accel_value
+
             
             elif not found_consecutive_non_zero and self.accel_data_rqst[i] > 0:
                 self.accel_achv[i] = self.accel_achv[i-1] 
@@ -105,6 +140,11 @@ class DataManager:
             else:
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
+        
+            if self.accel_data_rqst[i] == -0.25:
+                print("Deceleration starts")
+
+            # To take care of the damping acceleration
             if self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] < 1.85  and (accel_value > 1.85 and accel_value < 2.1):
                 self.accel_achv[i] = accel_value
 
@@ -123,7 +163,18 @@ class DataManager:
             # elif self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] < 0.22  and (accel_value > 0.2 and accel_value < 0.3):
             #     self.accel_achv[i] = accel_value
 
-            if self.accel_data_rqst[i] == -0.25 and (self.accel_achv[i] > -0.15 or self.accel_achv[i] < -0.35) :
+            # To take care of the amplification of  acceleration
+            if self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] > 0.3  and accel_value > 0.3:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+            
+            elif self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] > 0.3  and (accel_value > 0.2 and accel_value < 0.3):
+                self.accel_achv[i] = accel_value
+
+            # To take care of the damping Deceleration
+            if self.accel_data_rqst[i] == -0.25 and (self.accel_achv[i] > -0.15 or self.accel_achv[i] < -0.30) :
+                self.accel_achv[i] = self.accel_data_rqst[i]
+
+            elif self.accel_data_rqst[i] == -0.25 and (self.accel_achv[i] < -0.15 and self.accel_achv[i-1] == -0.25) :
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
             elif self.accel_data_rqst[i] == -0.5 and (self.accel_achv[i] > -0.30 or self.accel_achv[i] < -0.65):
@@ -140,6 +191,9 @@ class DataManager:
 
             elif self.accel_data_rqst[i] == -2.0 and (self.accel_achv[i] > -1.95 or self.accel_achv[i] < -2.15):
                 self.accel_achv[i] = self.accel_data_rqst[i]
+
+
+            self.accel_calculated[i] = accel_value
 
     def calculate_acceleration_achv_nonsmoothed(self):
         # Initialize an array of the same shape as speed_data_mps with zeros
@@ -216,7 +270,8 @@ class DataManager:
             "Speed [mph]": self.speed_data_mph,
             "Speed [mps]": self.speed_data_mps,
             "Acceleration Command [m/s²]": self.accel_data_rqst,
-            "Calculated Acceleration [m/s²]": self.accel_achv
+            "Acceleration Achieved [ m/s²]": self.accel_achv,
+            "Calculated Acceleration [m/s²]":self.accel_calculated
         })
 
         # Save to CSV
@@ -234,12 +289,12 @@ class DataManager:
         # self.calculate_acceleration_achv_nonsmoothed()
         # self.calculate_acceleration_achv_avg()
         self.save_data_to_csv()
-        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
-        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
-        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_resize")      
+        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "50-70_mph_time_vs_speed")
+        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")      
+        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_resize")      
         
-        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
-        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_achv")
+        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_rqst_achv")
         # specific_accelerations = [0.25, -0.25]
         # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")
 '''##############################################

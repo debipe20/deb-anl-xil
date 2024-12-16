@@ -24,7 +24,7 @@ class DataManager:
             
 
         else: filePath = "C:\\Users\ddas\\Documents\\Data\\2023-Ford-F150-Lightning\\"
-        self.tdms_file = TdmsFile.read(filePath + "62412006 Test Data.tdms")
+        self.tdms_file = TdmsFile.read(filePath + "62412003 Test Data.tdms")
 
     def get_groups_channels_name(self):
         # Get all groups in the TDMS file
@@ -58,7 +58,7 @@ class DataManager:
         self.time_data = self.time_channel[self.start_data_to_discard:-self.end_data_to_discard]
         # self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]* 0.621371
         self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]
-        self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]* 0.277778
+        self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]* 0.44704
         self.accel_data_rqst = self.accel_channel[self.start_data_to_discard:-self.end_data_to_discard]
         print("got channel data")
 
@@ -141,8 +141,8 @@ class DataManager:
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
         
-            if self.accel_data_rqst[i] == -0.25:
-                print("Deceleration starts")
+            # if self.accel_data_rqst[i] == -0.25:
+            #     print("Deceleration starts")
 
             # To take care of the damping acceleration
             if self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] < 1.85  and (accel_value > 1.85 and accel_value < 2.1):
@@ -288,15 +288,15 @@ class DataManager:
         self.calculate_acceleration_achv()
         # self.calculate_acceleration_achv_nonsmoothed()
         # self.calculate_acceleration_achv_avg()
-        self.save_data_to_csv()
-        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "50-70_mph_time_vs_speed")
-        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")      
-        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_resize")      
+        # self.save_data_to_csv()
+        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
+        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
+        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_resize")      
         
-        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_achv")
-        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_rqst_achv")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
+        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
         # specific_accelerations = [0.25, -0.25]
-        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")
+        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")
 '''##############################################
                    Unit testing
 ##############################################'''

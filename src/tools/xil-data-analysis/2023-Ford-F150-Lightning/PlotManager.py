@@ -1,8 +1,5 @@
-import pandas as pd
-import os
-import numpy as np
 import matplotlib.pyplot as plt
-from nptdms import TdmsFile
+from matplotlib.ticker import MultipleLocator
 
 class PlotManager:
     def __init__(self, config):
@@ -103,7 +100,9 @@ class PlotManager:
         tertiary_axis_line, = ax2.plot(x_data, y_data3, color='tab:green', label='Accel Achv[m/s²]')
         # ax2.tick_params(axis='y', labelcolor='tab:red')
         ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=12)
-
+        # Set secondary y-axis ticks at intervals of 0.5
+        ax2.yaxis.set_major_locator(MultipleLocator(0.5))
+                                
         # Combine legends from all axes
         lines = [primary_axis_line, secondary_axis_line, tertiary_axis_line]
         labels = [line.get_label() for line in lines]

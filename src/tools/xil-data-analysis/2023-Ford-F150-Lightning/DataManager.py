@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import platform
 import numpy as np
 import matplotlib.pyplot as plt
 from nptdms import TdmsFile
@@ -8,7 +9,6 @@ from PlotManager import PlotManager
 class DataManager:
     def __init__(self, config):
         self.config = config
-        self.platform = self.config['Platform']
         self.smoothing_method = self.config['SmothingMethod']
         self.window_size = self.config['WindowSize']
         self.start_data_to_discard = self.config['NoOfStartDataDiscard']
@@ -19,12 +19,23 @@ class DataManager:
         self.plot_manager = PlotManager(config)
 
     def get_files(self):
-        if self.platform == "Linux":
-            filePath = os.path.expanduser("~") + "/Downloads/2023-Ford-F150-Lightning/"
-            
+        current_os = platform.system()
 
-        else: filePath = "C:\\Users\ddas\\Documents\\Data\\2023-Ford-F150-Lightning\\"
-        self.tdms_file = TdmsFile.read(filePath + "62412003 Test Data.tdms")
+        if current_os == "Linux":
+            filePath = os.path.join(os.path.expanduser("~"), "Downloads", "2023-Ford-F150-Lightning")
+        elif current_os == "Windows":
+            filePath = os.path.join("C:", "Users", "ddas", "Documents", "Data", "2023-Ford-F150-Lightning")
+        else:
+            raise OSError(f"Unsupported operating system: {current_os}")
+
+        # Construct the full path to the TDMS file
+        tdms_file_path = os.path.join(filePath, "62412006 Test Data.tdms")
+
+        # Check if the file exists
+        if not os.path.isfile(tdms_file_path):
+            raise FileNotFoundError(f"No such file: {tdms_file_path}")
+
+        self.tdms_file = TdmsFile.read(tdms_file_path)
 
     def get_groups_channels_name(self):
         # Get all groups in the TDMS file
@@ -81,6 +92,7 @@ class DataManager:
         found_consecutive_non_zero = False
         self.accel_achv[0] = self.accel_data_rqst[0]
         previous_accel_value = self.accel_data_rqst[0]
+        accel_value = 0
 
         # A list to store the last 'window_size' acceleration values for averaging
         window = []
@@ -88,31 +100,42 @@ class DataManager:
 
         # Loop to calculate acceleration with smoothing
         for i in range(1, len(self.speed_data_mps)):
-            previous_accel_value = self.accel_achv[i-1]
+            previous_accel_value = accel_value
             accel_value = 0  # Initialize accel_value to avoid UnboundLocalError
 
+            # to account initial oscillation in data
             if (self.speed_data_mph[i] >= (self.starting_speed - 2)) and (self.accel_data_rqst[i] == self.starting_accel):
                 test_start_status = True
 
+            #append accel value in the window when acceleration command is changing
+            if (abs(self.accel_data_rqst[i] - self.accel_data_rqst[i-1]) >= 0.1):
+                window.clear()
+
+            if not found_consecutive_non_zero and self.speed_data_mps[i] > 0 and self.speed_data_mps[i - 1] > 0:
+                accel_value = (self.speed_data_mps[i-1] - self.speed_data_mps[i - 2]) / (self.time_data[i-1] - self.time_data[i - 2])
+                window = [accel_value]
             # Check for two consecutive non-zero speeds
             if self.speed_data_mps[i] > 0 and self.speed_data_mps[i - 1] > 0:
                 found_consecutive_non_zero = True
+        
             else:
                 found_consecutive_non_zero = False
-
 
             # Calculate acceleration if consecutive non-zero speeds are found
             if test_start_status and found_consecutive_non_zero and self.smoothing_method == "Moving-Average":
                 # if (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) > 0: 
                 accel_value = (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) / (self.time_data[i] - self.time_data[i - 1])
+                                    
                 # Update the smoothing window
                 window.append(accel_value)
+                
                 if len(window) > self.window_size:
                     window.pop(0)  # Remove the oldest value to keep the window size consistent
 
                 self.accel_achv[i] = sum(window) / len(window)
 
-            
+                if self.accel_data_rqst[i] < 0  and (self.accel_achv[i] > self.accel_data_rqst[i]) and (self.accel_data_rqst[i] == self.accel_data_rqst[i-1] == self.accel_data_rqst[i-2]):
+                    self.accel_achv[i] = self.accel_data_rqst[i]
 
             elif found_consecutive_non_zero and self.smoothing_method == "Kalman-Filter":
                 # if (self.speed_data_mps[i] - self.speed_data_mps[i - 1]) > 0: 
@@ -140,56 +163,60 @@ class DataManager:
             else:
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
-        
-            # if self.accel_data_rqst[i] == -0.25:
-            #     print("Deceleration starts")
-
             # To take care of the damping acceleration
-            if self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] < 1.85  and (accel_value > 1.85 and accel_value < 2.1):
+            # if self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] < 1.85  and 1.85 < accel_value < 2.1:
+            #     self.accel_achv[i] = accel_value
+            if self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] < 1.5 and (1.32 < accel_value < 2.1):
+                self.accel_achv[i] = accel_value # only for 50-70
+
+            # elif self.accel_data_rqst[i] == 1.5 and self.accel_achv[i] < 1.3 and 1.35 < accel_value < 1.6:
+            #     self.accel_achv[i] = accel_value
+            
+            elif self.accel_data_rqst[i] == 1.5 and self.accel_achv[i] < 1.30 and 1.32 < accel_value < 1.6:
+                self.accel_achv[i] = accel_value # only for 50-70
+
+            elif self.accel_data_rqst[i] == 1.0 and self.accel_achv[i] < 0.9 and 0.9 < accel_value < 1.1:
                 self.accel_achv[i] = accel_value
 
-            elif self.accel_data_rqst[i] == 1.5 and self.accel_achv[i] < 1.3  and (accel_value > 1.35 and accel_value < 1.6):
+            elif self.accel_data_rqst[i] == 0.75 and self.accel_achv[i] < 0.6 and 0.6 < accel_value < 0.85:
                 self.accel_achv[i] = accel_value
 
-            elif self.accel_data_rqst[i] == 1.0 and self.accel_achv[i] < 0.9  and (accel_value > 0.9 and accel_value < 1.1):
-                self.accel_achv[i] = accel_value
-
-            elif self.accel_data_rqst[i] == 0.75 and self.accel_achv[i] < 0.6  and (accel_value > 0.6 and accel_value < 0.85):
-                self.accel_achv[i] = accel_value
-
-            # elif self.accel_data_rqst[i] == 0.5 and self.accel_achv[i] < 0.4  and (accel_value > 0.35 and accel_value < 0.65):
+            # elif self.accel_data_rqst[i] == 0.5 and self.accel_achv[i] < 0.4 and 0.35 < accel_value < 0.65:
             #     self.accel_achv[i] = accel_value
 
-            # elif self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] < 0.22  and (accel_value > 0.2 and accel_value < 0.3):
+            # elif self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] < 0.22 and and 0.2 < accel_value < 0.3:
             #     self.accel_achv[i] = accel_value
 
             # To take care of the amplification of  acceleration
-            if self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] > 0.3  and accel_value > 0.3:
+            if self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] > 0.35 and accel_value > 0.35:
                 self.accel_achv[i] = self.accel_data_rqst[i]
             
-            elif self.accel_data_rqst[i] == 0.25 and self.accel_achv[i] > 0.3  and (accel_value > 0.2 and accel_value < 0.3):
-                self.accel_achv[i] = accel_value
+            elif self.accel_data_rqst[i] == 0.5 and self.accel_achv[i] > 0.6 and accel_value > 0.6:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+
+            elif self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] > 2.05 and accel_value > 2.05:
+                self.accel_achv[i] = self.accel_data_rqst[i]
 
             # To take care of the damping Deceleration
             if self.accel_data_rqst[i] == -0.25 and (self.accel_achv[i] > -0.15 or self.accel_achv[i] < -0.30) :
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
-            elif self.accel_data_rqst[i] == -0.25 and (self.accel_achv[i] < -0.15 and self.accel_achv[i-1] == -0.25) :
-                self.accel_achv[i] = self.accel_data_rqst[i]
+            # elif self.accel_data_rqst[i] == -0.25 and (self.accel_achv[i] < -0.15 and self.accel_achv[i-1] == -0.25) :
+            #     self.accel_achv[i] = self.accel_data_rqst[i]
 
-            elif self.accel_data_rqst[i] == -0.5 and (self.accel_achv[i] > -0.30 or self.accel_achv[i] < -0.65):
+            elif self.accel_data_rqst[i] == -0.5 and (self.accel_achv[i] > -0.30 or self.accel_achv[i] < -0.60):
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
             elif self.accel_data_rqst[i] == -0.75 and (self.accel_achv[i] > -0.55 or self.accel_achv[i] < -0.85):
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
-            elif self.accel_data_rqst[i] == -1.0 and (self.accel_achv[i] > -0.75 or self.accel_achv[i] < -1.15):
+            elif self.accel_data_rqst[i] == -1.0 and (self.accel_achv[i] > -0.75 or self.accel_achv[i] < -1.1):
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
-            elif self.accel_data_rqst[i] == -1.5 and (self.accel_achv[i] > -1.25 or self.accel_achv[i] < -1.65):
+            elif self.accel_data_rqst[i] == -1.5 and (self.accel_achv[i] > -1.25 or self.accel_achv[i] < -1.6):
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
-            elif self.accel_data_rqst[i] == -2.0 and (self.accel_achv[i] > -1.95 or self.accel_achv[i] < -2.15):
+            elif self.accel_data_rqst[i] == -2.0 and (self.accel_achv[i] > -1.95 or self.accel_achv[i] < -2.1):
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
 
@@ -288,15 +315,15 @@ class DataManager:
         self.calculate_acceleration_achv()
         # self.calculate_acceleration_achv_nonsmoothed()
         # self.calculate_acceleration_achv_avg()
-        # self.save_data_to_csv()
-        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
-        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
-        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_resize")      
+        self.save_data_to_csv()
+        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "50-70_mph_time_vs_speed")
+        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")      
+        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_resize")      
         
-        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_achv")
-        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_achv")
+        self.plot_manager.plot_twice_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel_rqst_achv")
         # specific_accelerations = [0.25, -0.25]
-        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")
+        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "50-70_mph_time_vs_speed_Accel")
 '''##############################################
                    Unit testing
 ##############################################'''

@@ -36,8 +36,8 @@ class PlotManager:
     def plot_primary_secondary_yaxis(self, fig_size_status, x_data, y_data1, y_data2, x_label, y_label1, y_label2, title, fileName):
         # # Create a figure and axis object
         if fig_size_status:
-            # fig, ax1 = plt.subplots(figsize=(10,4.55))
-            fig, ax1 = plt.subplots(figsize=(14,5))
+            fig, ax1 = plt.subplots(figsize=(10,5))
+            # fig, ax1 = plt.subplots(figsize=(14,5))
         else: fig, ax1 = plt.subplots()
 
         # ax1.set_xlabel(x_label, color='tab:green', fontsize=16)

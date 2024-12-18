@@ -76,7 +76,7 @@ class DataManager:
     def calculate_acceleration_achv(self):
         """
         """
-        
+        self.experimental_time_data = [0]
         # Initialize variables for Kalman Filter
         process_variance = 1e-4  # Variance in the process (tuning parameter)
         measurement_variance = 0.2 ** 2  # Variance in the measurements (tuning parameter)
@@ -100,6 +100,7 @@ class DataManager:
 
         # Loop to calculate acceleration with smoothing
         for i in range(1, len(self.speed_data_mps)):
+            self.experimental_time_data.append(self.experimental_time_data[-1]+0.1)
             previous_accel_value = accel_value
             accel_value = 0  # Initialize accel_value to avoid UnboundLocalError
 
@@ -293,7 +294,7 @@ class DataManager:
     def save_data_to_csv(self):
 
         data = pd.DataFrame({
-            "Time [s]": self.time_data,
+            "Time [s]": self.experimental_time_data,
             "Speed [mph]": self.speed_data_mph,
             "Speed [mps]": self.speed_data_mps,
             "Acceleration Command [m/s²]": self.accel_data_rqst,
@@ -313,17 +314,17 @@ class DataManager:
         self.get_data_from_channel()
         # # self.get_groups_channels_name()
         self.calculate_acceleration_achv()
-        # self.calculate_acceleration_achv_nonsmoothed()
+        # self.calculate_acceleration_achv_nonsmoothed()s
         # self.calculate_acceleration_achv_avg()
-        self.save_data_to_csv()
-        self.plot_manager.plot_primary_yaxis(self.time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "decel-limit-20-40-60_mph_time_vs_speed")
-        self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-20-40-60_mph_time_vs_speed_Accel")      
-        self.plot_manager.plot_primary_secondary_yaxis(True, self.time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-20-40-60_mph_time_vs_speed_Accel_resize")      
+        # self.save_data_to_csv()
+        # self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "decel-limit-60_mph_time_vs_speed")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-60_mph_time_vs_speed_Accel")      
+        self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-60_mph_time_vs_speed_Accel_resize")      
         
-        # self.plot_manager.plot_primary_secondary_yaxis(False, self.time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-20-40-60_mph_time_vs_speed_Accel_achv")
-        self.plot_manager.plot_two_data_on_secondary_yaxis(self.time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "decel-limit-20-40-60_mph_time_vs_speed_Accel_rqst_achv")
+        # self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-60_mph_time_vs_speed_Accel_achv")
+        # self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "decel-limit-60_mph_time_vs_speed_Accel_rqst_achv")
         # specific_accelerations = [0.25, -0.25]
-        # self.plot_manager.plot_specific_accelerations(self.time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-20-40-60_mph_time_vs_speed_Accel")
+        # self.plot_manager.plot_specific_accelerations(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, specific_accelerations, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "decel-limit-60_mph_time_vs_speed_Accel")
 '''##############################################
                    Unit testing
 ##############################################'''

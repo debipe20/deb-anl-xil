@@ -3,7 +3,7 @@
     "PlotSave": true,
     "SmothingMethod": "Moving-Average",
     "WindowSize": 20,
-    "NoOfStartDataDiscard":10,
+    "NoOfStartDataDiscard":6100,
     "NoOfEndDataDiscard": 10,
     "StartingSpeed": 0,
     "StartingAcceleration": 0.25,

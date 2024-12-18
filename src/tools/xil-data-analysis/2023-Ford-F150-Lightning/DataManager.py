@@ -24,7 +24,7 @@ class DataManager:
         if current_os == "Linux":
             filePath = os.path.join(os.path.expanduser("~"), "Downloads", "2023-Ford-F150-Lightning")
         elif current_os == "Windows":
-            filePath = os.path.join("C:", "Users", "ddas", "Documents", "Data", "2023-Ford-F150-Lightning")
+            filePath = os.path.join("C:\\", "Users", "ddas", "Documents", "Data", "2023-Ford-F150-Lightning")
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
 

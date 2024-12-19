@@ -316,7 +316,7 @@ class DataManager:
         self.calculate_acceleration_achv()
         # self.calculate_acceleration_achv_nonsmoothed()s
         # self.calculate_acceleration_achv_avg()
-        # self.save_data_to_csv()
+        self.save_data_to_csv()
         # self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "resume-0_mph_time_vs_speed")
         # self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-0_mph_time_vs_speed_Accel")      
         self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-0_mph_time_vs_speed_Accel_resize")      

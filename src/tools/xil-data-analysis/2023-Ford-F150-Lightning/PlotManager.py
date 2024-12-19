@@ -177,5 +177,36 @@ class PlotManager:
         plt.close(fig)
 
 
+    def generate_vehicle_envelope_scatter_plot(self, acc_override_speed_mph, acc_override_acceleration, stock_acc_speed_mph, stock_acc_acceleration):
+        """
+        Generates a scatter plot for acceleration vs speed in mps, with additional overlay for ACC override data.
+        """
+        if not acc_override_acceleration or not acc_override_speed_mph:
+            print("No data available for plotting. Please ensure data is processed first.")
+            return
 
+        plt.figure(figsize=(12, 8))
         
+        # Plot the main vehicle envelope data
+        plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
+        
+        # Plot the Stock ACC  data
+        if stock_acc_speed_mph and stock_acc_acceleration:
+            plt.scatter(stock_acc_speed_mph, stock_acc_acceleration, alpha=0.7, label="ACC Override OFF", color="orange", s=10)
+        
+        # Add labels, title, and legend
+        plt.title("2023 Ford F-150 Lightning Acceleration Envelope", fontsize=16, weight="bold")
+        plt.xlabel("Speed [mph]", fontsize=14)
+        plt.ylabel("Acceleration [g]", fontsize=14)
+        plt.legend(loc="upper right", fontsize=12)
+        
+        # Grid and formatting
+        plt.grid(True, linestyle="--", alpha=0.6)
+
+        # Save or show the plot
+        if self.plot_save:
+            file_directory = "figure/acceleration-envelop.jpg"
+            plt.savefig(file_directory, dpi=300)
+            print("saved file")
+        else:
+            plt.show()       

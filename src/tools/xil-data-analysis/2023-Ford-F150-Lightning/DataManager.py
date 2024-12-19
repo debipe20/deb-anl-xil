@@ -2,7 +2,6 @@ import pandas as pd
 import os
 import platform
 import numpy as np
-import matplotlib.pyplot as plt
 from nptdms import TdmsFile
 from PlotManager import PlotManager
 
@@ -65,13 +64,14 @@ class DataManager:
         self.accel_channel = self.group_data['Accel_Command__mps2']
 
     def get_data_from_channel(self):
-   
+        """
+            Method to discard / chop data from the beginning and ending
+        """
         self.time_data = self.time_channel[self.start_data_to_discard:-self.end_data_to_discard]
         # self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]* 0.621371
         self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]
         self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard]* 0.44704
         self.accel_data_rqst = self.accel_channel[self.start_data_to_discard:-self.end_data_to_discard]
-        print("got channel data")
 
     def calculate_acceleration_achv(self):
         """

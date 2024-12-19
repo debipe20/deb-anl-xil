@@ -16,5 +16,7 @@
         {"Accel-Limit-Test-0-40-60mph":"62412007 Test Data.tdms"},
         {"Decel-Limit-Test-20-40-60mph":"62412008 Test Data.tdms"},
         {"Resume-Test-0mph":"62412009 Test Data.tdms"}
-    ]
+    ],
+    "AccOverrideTestFileList":["62412003 Test Data.tdms", "62412004 Test Data.tdms", "62412005 Test Data.tdms", "62412006 Test Data.tdms"],
+    "StockAccTestFileList":[]
 }

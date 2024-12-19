@@ -39,13 +39,9 @@ class AccelerationEnvelopeManager:
     def get_groups_channels(self):
 
         self.group_data = self.tdms_file["Data"]
-        self.group_vspy = self.tdms_file["Scantool"]
 
-        # self.time_channel = self.group_vspy['Time[s]']
         self.time_channel = self.group_data['Time[s]']
         self.speed_channel_mph = self.group_data['Dyno_Spd[mph]']
-        
-        self.accel_channel = self.group_data['Accel_Command__mps2']
 
         self.time_data = self.time_channel[:]
         self.speed_data_mph = self.speed_channel_mph[:]

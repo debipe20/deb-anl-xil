@@ -187,13 +187,13 @@ class PlotManager:
 
         plt.figure(figsize=(12, 8))
         
-        # Plot the main vehicle envelope data
-        plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
-        
         # Plot the Stock ACC  data
         if stock_acc_speed_mph and stock_acc_acceleration:
             plt.scatter(stock_acc_speed_mph, stock_acc_acceleration, alpha=0.7, label="ACC Override OFF", color="orange", s=10)
         
+        # Plot the main vehicle envelope data
+        plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
+                
         # Add labels, title, and legend
         plt.title("2023 Ford F-150 Lightning Acceleration Envelope", fontsize=16, weight="bold")
         plt.xlabel("Speed [mph]", fontsize=14)

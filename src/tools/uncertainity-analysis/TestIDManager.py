@@ -11,7 +11,7 @@ Transportation and Power Systems Division
 Description:
 ------------
 The methods available from this class are the following:
-- get_cycles_list(): Method to get list of cycles from config file
+- set_cycles_list(): Method to get list of cycles from config file
 - is_description_row(row): Method dentify description rows
 - dict_to_df(dictionary): Method to create pandas dataframe from dictionary
 ********
@@ -26,7 +26,7 @@ from TdmsFileManager import TdmsFileManager
 from openpyxl.styles import Border, Side, Font, Alignment
 
 class TestIDManager:
-    def __init__(self, vehicle_name, drive_cycle, platform, tdms_data_directory):
+    def __init__(self, vehicle_name, drive_cycle, platform, tdms_data_directory, clamp):
         
         configFile = open(self.get_config_file(vehicle_name), 'r', encoding='utf-8')
         self.config = (json.load(configFile))
@@ -35,7 +35,8 @@ class TestIDManager:
         self.tdms_data_directory = tdms_data_directory
         print(self.output_file_path)
         
-        self.get_cycles_list(drive_cycle)
+        self.set_cycles_list(drive_cycle)
+        self.set_accuracy(clamp)
         self.output_sheet_name = "72F_Cycle_Data_Hioki"
         self.iteration_keys = ["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
         self.desired_test_id_list = []
@@ -62,7 +63,7 @@ class TestIDManager:
         return config_file_name
 
 
-    def get_cycles_list(self, drive_cycle):
+    def set_cycles_list(self, drive_cycle):
         """
         Method to get list of cycles from config file
         """
@@ -72,6 +73,14 @@ class TestIDManager:
             self.cycles_list_dic = [{'UDDS': ['UDDS 1 , Combined', 'UDDS 2, combined', 'UDDS 3, combined', 'UDDS 4, combined']}, {
                 'HWY': ['HWY 1', 'HWY']}, {'US06': ['US06 1, combined', 'US06 2, combined']}, {'SSS 65mph': ['SSS 65mph depletion']}, {'Charge L2 23C': ['Charge L2 23C']}]
             
+    def set_accuracy(self, clamp):
+        """
+        Method to set instrument accuracy based on the selected clamp
+        """
+        if clamp == "CT6843-05":
+            self.accuracy_parameter1 = 0.35
+            self.accuracy_parameter2 = 0.09
+                
     def check_description_row(self, row):
         """
         Define a function to identify description rows
@@ -342,14 +351,14 @@ class TestIDManager:
         self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))
         self.charge_test_id_list = sorted(list(set(self.charge_test_id_list)))
                 
-        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory)
+        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2)
         tdms_file_manager.set_test_id_list(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
         print(f"Desired cycle test id list is following: '{self.desired_test_id_list}'")
         print(f"Desired depletion test id list is following: '{self.depletion_test_id_list}'")
         print(f"Desired charge test id list is following: '{self.charge_test_id_list}'")        
-        tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
-        tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list, True)
-        tdms_file_manager.manage_depletion_tdms_file(self.charge_test_id_list, False)
+        # tdms_file_manager.manage_tdms_file(self.desired_test_id_list)
+        # tdms_file_manager.manage_depletion_tdms_file(self.depletion_test_id_list, True)
+        # tdms_file_manager.manage_depletion_tdms_file(self.charge_test_id_list, False)
         del tdms_file_manager
 
 
@@ -357,6 +366,6 @@ class TestIDManager:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    # test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Linux", "AMTL-Test-Data")
-    test_id_manager = TestIDManager("2020 Tesla Model 3", "MCT", "Windows", "AMTL-Test-Data")
+    # test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Linux", "AMTL-Test-Data", "CT6843-05")
+    test_id_manager = TestIDManager("2020 Tesla Model 3", "MCT", "Windows", "AMTL-Test-Data", "CT6843-05")
     test_id_manager.manage_test_data()

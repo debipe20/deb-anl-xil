@@ -9,7 +9,7 @@ class GuiManager:
         self.selection_callback = selection_callback  # Store the callback function
         
         # Set initial window size and background color
-        self.root.geometry("800x600")
+        self.root.geometry("1200x800")
         self.root.configure(bg="#e5e5f7")  # Light pastel background
         
         # Set up tab control with style
@@ -89,7 +89,7 @@ class GuiManager:
         self.selected_cycle = tk.StringVar(value="MCT")
         cycle_frame = tk.Frame(uncertainity_analysis_tab, bg="#e5e5f7")
         cycle_frame.pack()
-        cycle_options = ["MCT", "FTP-75", "WLTC"]
+        cycle_options = ["MCT", "SMCT", "WLTC"]
         for cycle in cycle_options:
             radio_button = tk.Radiobutton(
                 cycle_frame, text=cycle, variable=self.selected_cycle, value=cycle,
@@ -100,7 +100,7 @@ class GuiManager:
 
         # Platform Selection Label and Dropdown
         platform_label = tk.Label(
-            uncertainity_analysis_tab, text="Platform:", 
+            uncertainity_analysis_tab, text="Select Platform:", 
             font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
         )
         platform_label.pack(pady=(20, 5))
@@ -128,6 +128,22 @@ class GuiManager:
             font=("Segoe UI", 10), width=50
         )
         data_dir_entry.pack(pady=5)
+        
+        # Clamp Selection Label and Dropdown
+        clamp_label = tk.Label(
+            uncertainity_analysis_tab, text="Select Clamp:", 
+            font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
+        )
+        clamp_label.pack(pady=5)
+
+        clamp_options = ["CT6843-05", "CT6844-05", "CT6846-05"]
+        self.selected_clamp = tk.StringVar()
+        clamp_dropdown = ttk.Combobox(
+            uncertainity_analysis_tab, textvariable=self.selected_clamp, 
+            font=("Segoe UI", 10), values=clamp_options
+        )
+        clamp_dropdown.pack(pady=5)
+        clamp_dropdown.set("CT6843-05")
 
         # Run Analysis Button
         get_selection_button = tk.Button(
@@ -151,10 +167,11 @@ class GuiManager:
         selected_cycle = self.selected_cycle.get()
         selected_platform = self.selected_platform.get()
         tdms_data_directory = self.data_directory.get()
+        selected_clamp = self.selected_clamp.get()
         
         # Perform analysis with selected values
         try:
-            self.selection_callback(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory)
+            self.selection_callback(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory, selected_clamp)
             self.status_label.config(text="Successfully Completed Uncertainty Analysis!", fg="green", font=("Segoe UI", 14, "bold"))
         except Exception as e:
             self.status_label.config(text="Uncertainty Analysis Failed!", fg="red", font=("Segoe UI", 14, "bold"))

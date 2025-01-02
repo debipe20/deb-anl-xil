@@ -8,10 +8,12 @@ from openpyxl.styles import Border, Side, Font, Alignment
 from openpyxl.drawing.image import Image
 
 class TdmsFileManager:
-    def __init__(self, object_name, platform, output_file_path, tdms_directory):
+    def __init__(self, object_name, platform, output_file_path, tdms_directory, accuracy_parameter1, accuracy_parameter2):
         self.object_name = object_name
         self.platform = platform
         self.output_file_path = output_file_path
+        self.accuracy_parameter1 = accuracy_parameter1
+        self.accuracy_parameter2 = accuracy_parameter2
         
         self.u_energy_percent_1, self.u_energy_percent_2 = ([] for i in range(2))
         self.bar_chart_name_list = []
@@ -37,8 +39,9 @@ class TdmsFileManager:
     def set_test_id_list(self, test_id_list1, test_id_list2, test_id_list3, test_id_list4, test_id_list5):
 
         self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th = test_id_list1, test_id_list2, test_id_list3, test_id_list4, test_id_list5
-        # self.test_id_list_category_1st =[62005016, 62005018]
-        # self.test_id_list_category_1st = [62005016, 62005017, 62005018, 62005019, 62005020]
+
+        if self.test_id_list_category_1st:
+            self.manage_mct_test(self.test_id_list_category_1st)
         
     def manage_mct_test(self, test_id_list):
         group_channel_dataframe_sequence1, group_channel_dataframe_depletion1, group_channel_dataframe_sequence2, group_channel_dataframe_depletion2, group_channel_dataframe_charge = (pd.DataFrame() for i in range(5))
@@ -52,32 +55,36 @@ class TdmsFileManager:
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
              
             test_id_index = test_id_list.index(test_id)
-            summary_title_list =  summary_title_list.append("Summary Data of Test ID " + str(test_id))
+            summary_title_list.append("Summary Data of Test ID " + str(test_id))
             
             if test_id_index == 0:
                 group_channel_dataframe_sequence1 = self.get_sequence_group_channel_dataframe(tdms_file, test_id_index)
                 summary_data_sequence1 = self.get_summary_table(group_channel_dataframe_sequence1)
+                self.write_test_data(test_id, group_channel_dataframe_sequence1, summary_data_sequence1)
                 
-            elif test_id_index == 1:
-                group_channel_dataframe_depletion1 = self.get_data_group_channel_dataframe(tdms_file)
-                summary_data_depletion1 = self.get_summary_table(group_channel_dataframe_depletion1)
+            # elif test_id_index == 1:
+            #     group_channel_dataframe_depletion1 = self.get_data_group_channel_dataframe(tdms_file)
+            #     summary_data_depletion1 = self.get_summary_table(group_channel_dataframe_depletion1)
                 
             elif test_id_index == 2:
                 group_channel_dataframe_sequence2 = self.get_sequence_group_channel_dataframe(tdms_file, test_id_index)
                 summary_data_sequence2 = self.get_summary_table(group_channel_dataframe_sequence2)
-                
-            elif test_id_index == 3:
-                group_channel_dataframe_depletion2 = self.get_data_group_channel_dataframe(tdms_file)
-                summary_data_depletion2 = self.get_summary_table(group_channel_dataframe_depletion2)
-
-            elif test_id_index == 4:
-                group_channel_dataframe_charge = self.get_data_group_channel_dataframe(tdms_file)
-                summary_data_charge= self.get_summary_table(group_channel_dataframe_charge)
+                self.write_test_data(test_id, group_channel_dataframe_sequence2, summary_data_sequence2)
                 self.manage_categorial_summary(test_id_list[0], summary_data_sequence1, summary_title_list[0])
-                self.manage_categorial_summary(test_id_list[1], summary_data_depletion1, summary_title_list[1])
                 self.manage_categorial_summary(test_id_list[2], summary_data_sequence2, summary_title_list[2])
-                self.manage_categorial_summary(test_id_list[3], summary_data_depletion2, summary_title_list[3])
-                self.manage_categorial_summary(test_id_list[4], summary_data_charge, summary_title_list[4])
+                
+            # elif test_id_index == 3:
+            #     group_channel_dataframe_depletion2 = self.get_data_group_channel_dataframe(tdms_file)
+            #     summary_data_depletion2 = self.get_summary_table(group_channel_dataframe_depletion2)
+
+            # elif test_id_index == 4:
+            #     group_channel_dataframe_charge = self.get_data_group_channel_dataframe(tdms_file)
+            #     summary_data_charge= self.get_summary_table(group_channel_dataframe_charge)
+            #     self.manage_categorial_summary(test_id_list[0], summary_data_sequence1, summary_title_list[0])
+            #     self.manage_categorial_summary(test_id_list[1], summary_data_depletion1, summary_title_list[1])
+            #     self.manage_categorial_summary(test_id_list[2], summary_data_sequence2, summary_title_list[2])
+            #     self.manage_categorial_summary(test_id_list[3], summary_data_depletion2, summary_title_list[3])
+            #     self.manage_categorial_summary(test_id_list[4], summary_data_charge, summary_title_list[4])
                 
     def get_sequence_group_channel_dataframe(self, tdms_file, test_id_index):
         
@@ -115,15 +122,15 @@ class TdmsFileManager:
         highway_wh = self.fill_cumulative_list(highway_w)
         us06_wh = self.fill_cumulative_list(us06_w)
 
-        u_p_no_cycle = [0 if no_cycle[i] == 0 else ((0.0035 * no_cycle[i]) + 54) for i in range(len(p2_data))]
+        u_p_no_cycle = [0 if no_cycle[i] == 0 else (((self.accuracy_parameter1/100) * no_cycle[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_no_cycle_percentage = [0 if no_cycle[i] == 0 else (u_p_no_cycle[i] / no_cycle[i]) for i in range(len(p2_data))]
-        u_p_udds1 = [0 if udds1_w[i] == 0 else ((0.0035 * udds1_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_udds1 = [0 if udds1_w[i] == 0 else (((self.accuracy_parameter1/100) * udds1_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_udds1_percentage = [0 if udds1_w[i] == 0 else (u_p_udds1[i] / udds1_w[i]) for i in range(len(p2_data))]
-        u_p_udds2 = [0 if udds2_w[i] == 0 else ((0.0035 * udds2_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_udds2 = [0 if udds2_w[i] == 0 else (((self.accuracy_parameter1/100) * udds2_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_udds2_percentage = [0 if udds2_w[i] == 0 else (u_p_udds2[i] / udds2_w[i]) for i in range(len(p2_data))]
-        u_p_highway = [0 if highway_w[i] == 0 else ((0.0035 * highway_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_highway = [0 if highway_w[i] == 0 else (((self.accuracy_parameter1/100) * highway_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_highway_percentage = [0 if highway_w[i] == 0 else (u_p_highway[i] / highway_w[i]) for i in range(len(p2_data))]
-        u_p_us06 = [0 if us06_w[i] == 0 else ((0.0035 * us06_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_us06 = [0 if us06_w[i] == 0 else (((self.accuracy_parameter1/100) * us06_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_us06_percentage = [0 if us06_w[i] == 0 else (u_p_us06[i] / us06_w[i]) for i in range(len(p2_data))]
         
         # Prepare a DataFrame with the values for easy export to Excel
@@ -184,6 +191,37 @@ class TdmsFileManager:
         })
               
         return group_channel_dataframe
+    
+    
+    def write_test_data(self,test_id, group_channel_dataframe, summary_data):
+        """
+        Method to create a sheet and write the test data
+        """
+        
+        # First, write the summary table to the sheet
+        sheet_name = "wh_cal_" + str(test_id)
+        self.bar_chart_name_list.append(str(test_id))
+        self.add_summary_table(sheet_name, summary_data)
+        
+        # Write the DataFrame below the summary table using pd.ExcelWriter
+        with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+            # Write the DataFrame to the specified sheet, below the summary table
+            group_channel_dataframe.to_excel(writer, sheet_name=sheet_name, index=False, startrow=len(summary_data) + 2)
+
+        # Load workbook to apply formatting
+        wb = openpyxl.load_workbook(self.output_file_path)
+        
+        # Apply borders and bold column headers to the summary table
+        self.style_dataframe(wb, sheet_name, start_row=1, dataframe=pd.DataFrame(summary_data))
+
+        # Apply borders and bold column headers after writing the DataFrame
+        self.style_dataframe(wb, sheet_name, start_row=len(summary_data) + 3, dataframe=group_channel_dataframe)
+
+        # Save and close the workbook
+        wb.save(self.output_file_path)
+        wb.close()
+        
+        print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
     
         
     def manage_tdms_file(self, test_ID_list):
@@ -265,15 +303,15 @@ class TdmsFileManager:
         highway_wh = self.fill_cumulative_list(highway_w)
         us06_wh = self.fill_cumulative_list(us06_w)
 
-        u_p_no_cycle = [0 if no_cycle[i] == 0 else ((0.0035 * no_cycle[i]) + 54) for i in range(len(p2_data))]
+        u_p_no_cycle = [0 if no_cycle[i] == 0 else (((self.accuracy_parameter1/100) * no_cycle[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_no_cycle_percentage = [0 if no_cycle[i] == 0 else (u_p_no_cycle[i] / no_cycle[i]) for i in range(len(p2_data))]
-        u_p_udds1 = [0 if udds1_w[i] == 0 else ((0.0035 * udds1_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_udds1 = [0 if udds1_w[i] == 0 else (((self.accuracy_parameter1/100) * udds1_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_udds1_percentage = [0 if udds1_w[i] == 0 else (u_p_udds1[i] / udds1_w[i]) for i in range(len(p2_data))]
-        u_p_udds2 = [0 if udds2_w[i] == 0 else ((0.0035 * udds2_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_udds2 = [0 if udds2_w[i] == 0 else (((self.accuracy_parameter1/100) * udds2_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_udds2_percentage = [0 if udds2_w[i] == 0 else (u_p_udds2[i] / udds2_w[i]) for i in range(len(p2_data))]
-        u_p_highway = [0 if highway_w[i] == 0 else ((0.0035 * highway_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_highway = [0 if highway_w[i] == 0 else (((self.accuracy_parameter1/100) * highway_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_highway_percentage = [0 if highway_w[i] == 0 else (u_p_highway[i] / highway_w[i]) for i in range(len(p2_data))]
-        u_p_us06 = [0 if us06_w[i] == 0 else ((0.0035 * us06_w[i]) + 54) for i in range(len(p2_data))]
+        u_p_us06 = [0 if us06_w[i] == 0 else (((self.accuracy_parameter1/100) * us06_w[i]) + ((self.accuracy_parameter2 / 100) * 60000)) for i in range(len(p2_data))]
         u_p_us06_percentage = [0 if us06_w[i] == 0 else (u_p_us06[i] / us06_w[i]) for i in range(len(p2_data))]
         
         # Prepare a DataFrame with the values for easy export to Excel
@@ -433,12 +471,12 @@ class TdmsFileManager:
         if depletion_test_status:
             pwr_w = group_data["P2"].data
             eng_wh = self.fill_cumulative_list(pwr_w)
-            u_p = [0 if pwr_w[i] == 0 else ((0.35/100 * pwr_w[i]) + (0.09/100*60000)) for i in range(len(pwr_w))]
+            u_p = [0 if pwr_w[i] == 0 else ((self.accuracy_parameter1/100 * pwr_w[i]) + (self.accuracy_parameter2/100*60000)) for i in range(len(pwr_w))]
             
         else: 
             pwr_w = group_data["P9"].data
             eng_wh = self.fill_cumulative_list(pwr_w)
-            u_p = [0 if pwr_w[i] == 0 else ((0.35/100 * pwr_w[i]) + (0.08/100*60000)) for i in range(len(pwr_w))]       
+            u_p = [0 if pwr_w[i] == 0 else ((self.accuracy_parameter1/100 * pwr_w[i]) + (0.08/100*60000)) for i in range(len(pwr_w))]       
         
         u_p_percentage = [0 if pwr_w[i] == 0 else (u_p[i] / pwr_w[i]) for i in range(len(pwr_w))]
         pwr_min = [(pwr_w[i] - u_p[i]) for i in range(len(pwr_w))]

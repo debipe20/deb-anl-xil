@@ -20,21 +20,20 @@ The methods available from this class are the following:
 import pandas as pd
 import json
 import os
+import platform
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from TdmsFileManager import TdmsFileManager
 from openpyxl.styles import Border, Side, Font, Alignment
 
 class TestIDManager:
-    def __init__(self, vehicle_name, drive_cycle, platform, tdms_data_directory, clamp):
+    def __init__(self, vehicle_name, drive_cycle, tdms_data_directory, clamp):
         
-        configFile = open(self.get_config_file(vehicle_name), 'r', encoding='utf-8')
+        configFile = open(self.set_config_file(vehicle_name), 'r', encoding='utf-8')
         self.config = (json.load(configFile))
         configFile.close()
-        self.platform = platform
-        self.tdms_data_directory = tdms_data_directory
-        print(self.output_file_path)
-        
+
+        self.set_tdms_data_directory(tdms_data_directory)        
         self.set_cycles_list(drive_cycle)
         self.set_accuracy(clamp)
         self.output_sheet_name = "72F_Cycle_Data_Hioki"
@@ -44,18 +43,34 @@ class TestIDManager:
         self.charge_test_id_list = []
         self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th = ([] for i in range(5))
 
-    def get_config_file(self, vehicle_name):
+    def set_tdms_data_directory(self, tdms_directory):
+        """
+        Method to set tdms file directory based on the OS
+        """
+
+        current_os = platform.system()
+
+        if current_os == "Linux":
+            self.tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
+        
+        elif current_os == "Windows":  # For Windows
+            self.tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
+        
+        else:
+            raise OSError(f"Unsupported operating system: {current_os}")
+
+    def set_config_file(self, vehicle_name):
         if vehicle_name == "2020 Tesla Model 3":
             config_file_name = os.path.join("config-files", "configuration_tesla.json")
-            self.output_file_path = os.path.join("Data", "Tesla-Model3", "2020-tesla-model3-uncertainity-analysis.xlsx")
+            self.output_file_path = os.path.join("Data", "Tesla-Model3", "2020-tesla-model3-uncertainty-analysis.xlsx")
 
         elif vehicle_name == "2020 Chevrolet Bolt":
             config_file_name = os.path.join("config-files", "configuration_bolt.json")
-            self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainity-analysis.xlsx")
+            self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainty-analysis.xlsx")
 
         elif vehicle_name == "2019 Nissan Leaf":
             config_file_name = os.path.join("config-files", "configuration_leaf.json")
-            self.output_file_path = os.path.join("Data", "Nissan-Leaf", "2019-nissan-leaf-uncertainity-analysis.xlsx")
+            self.output_file_path = os.path.join("Data", "Nissan-Leaf", "2019-nissan-leaf-uncertainty-analysis.xlsx")
             
         else:
             raise ValueError("Unknown vehicle name")
@@ -351,7 +366,7 @@ class TestIDManager:
         self.depletion_test_id_list = sorted(list(set(self.depletion_test_id_list)))
         self.charge_test_id_list = sorted(list(set(self.charge_test_id_list)))
                 
-        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.platform, self.output_file_path, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2)
+        tdms_file_manager = TdmsFileManager("TDMS File Manager object", self.output_file_path, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2)
         tdms_file_manager.set_test_id_list(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
         print(f"Desired cycle test id list is following: '{self.desired_test_id_list}'")
         print(f"Desired depletion test id list is following: '{self.depletion_test_id_list}'")
@@ -366,6 +381,5 @@ class TestIDManager:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    # test_id_manager = TestIDManager("2019 Nissan Leaf", "MCT", "Linux", "AMTL-Test-Data", "CT6843-05")
-    test_id_manager = TestIDManager("2020 Tesla Model 3", "MCT", "Windows", "AMTL-Test-Data", "CT6843-05")
+    test_id_manager = TestIDManager("2020 Tesla Model 3", "MCT",  "AMTL-Test-Data", "CT6843-05")
     test_id_manager.manage_test_data()

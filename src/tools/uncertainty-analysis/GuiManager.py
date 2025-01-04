@@ -98,22 +98,22 @@ class GuiManager:
             )
             radio_button.pack(anchor="w", padx=10)
 
-        # Platform Selection Label and Dropdown
-        platform_label = tk.Label(
-            uncertainity_analysis_tab, text="Select Platform:", 
-            font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
-        )
-        platform_label.pack(pady=(20, 5))
+        # # Platform Selection Label and Dropdown
+        # platform_label = tk.Label(
+        #     uncertainity_analysis_tab, text="Select Platform:", 
+        #     font=("Segoe UI", 12), bg="#e5e5f7", fg="#333"
+        # )
+        # platform_label.pack(pady=(20, 5))
 
-        platform_options = ["Windows", "Linux"]
-        self.selected_platform = tk.StringVar()
-        platform_dropdown = ttk.Combobox(
-            uncertainity_analysis_tab, textvariable=self.selected_platform, 
-            font=("Segoe UI", 10), values=platform_options, state="readonly"
-        )
-        platform_dropdown.pack(pady=5)
+        # platform_options = ["Windows", "Linux"]
+        # self.selected_platform = tk.StringVar()
+        # platform_dropdown = ttk.Combobox(
+        #     uncertainity_analysis_tab, textvariable=self.selected_platform, 
+        #     font=("Segoe UI", 10), values=platform_options, state="readonly"
+        # )
+        # platform_dropdown.pack(pady=5)
         # platform_dropdown.set("Linux")  # Set default visible selection
-        platform_dropdown.set("Windows") 
+        # platform_dropdown.set("Windows") 
         # Specify Data Directory Label and Entry
         data_dir_label = tk.Label(
             uncertainity_analysis_tab, text="Specify Test File (TDMS) Data Directory:", 
@@ -165,13 +165,13 @@ class GuiManager:
         # Get selected values
         selected_vehicle = self.selected_vehicle.get()
         selected_cycle = self.selected_cycle.get()
-        selected_platform = self.selected_platform.get()
+        # selected_platform = self.selected_platform.get()
         tdms_data_directory = self.data_directory.get()
         selected_clamp = self.selected_clamp.get()
         
         # Perform analysis with selected values
         try:
-            self.selection_callback(selected_vehicle, selected_cycle, selected_platform, tdms_data_directory, selected_clamp)
+            self.selection_callback(selected_vehicle, selected_cycle, tdms_data_directory, selected_clamp)
             self.status_label.config(text="Successfully Completed Uncertainty Analysis!", fg="green", font=("Segoe UI", 14, "bold"))
         except Exception as e:
             self.status_label.config(text="Uncertainty Analysis Failed!", fg="red", font=("Segoe UI", 14, "bold"))

@@ -1,9 +1,47 @@
+"""
+**********************************************************************************
+
+GuiManager.py
+Created by: Debashis Das
+Argonne National Laboratory
+Transportation and Power Systems Division
+
+**********************************************************************************
+
+Description:
+------------
+The `GuiManager` class is responsible for creating a Graphical User Interface (GUI) for the AMTL Uncertainty Analysis Tool. 
+It provides a user-friendly interface for selecting vehicles, drive cycles, clamps, and data directories. 
+
+Features include:
+- Tabbed layout with home and analysis tabs.
+- Dynamic selection of vehicles, drive cycles, and clamps.
+- Data directory entry field for specifying test data location.
+- Real-time feedback on analysis success or failure.
+- Integration with a callback function for analysis execution.
+
+Methods:
+--------
+- __init__(self, root, selection_callback): Initializes the GUI.
+- setup_home_tab(self): Sets up the Home tab with a logo and welcome message.
+- setup_uncertainity_analysis_tab(self): Sets up the Uncertainty Analysis tab.
+- submit_selection(self): Handles the user input and executes the callback for analysis.
+
+"""
+
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 
 class GuiManager:
     def __init__(self, root, selection_callback):
+        """
+        Initializes the GuiManager instance.
+
+        Args:
+        - root (tk.Tk): The root Tkinter window object.
+        - selection_callback (function): Callback function to execute analysis based on user inputs.
+        """
         self.root = root
         self.root.title("AMTL Uncertainty Analysis GUI")
         self.selection_callback = selection_callback  # Store the callback function
@@ -29,6 +67,14 @@ class GuiManager:
         self.tab_control.pack(expand=1, fill="both")
     
     def setup_home_tab(self):
+        """
+        Configures the Home tab in the GUI.
+
+        Displays:
+        - ANL logo.
+        - Welcome message.
+        - Note about following SAE J1634 Standards.
+        """
         # Home tab with logo display
         home_tab = tk.Frame(self.tab_control, bg="#dbe9f5")
         self.tab_control.add(home_tab, text="Home")
@@ -58,6 +104,17 @@ class GuiManager:
         note_label.pack(side="bottom", pady=10)
 
     def setup_uncertainity_analysis_tab(self):
+        """
+        Configures the Uncertainty Analysis tab in the GUI.
+
+        Features:
+        - Dropdown for vehicle selection.
+        - Radiobuttons for selecting driving cycles.
+        - Entry field for specifying the TDMS data directory.
+        - Dropdown for clamp selection.
+        - Button to execute uncertainty analysis.
+        - Status label to display analysis results.
+        """
         # Uncertainty Analysis tab setup
         uncertainity_analysis_tab = tk.Frame(self.tab_control, bg="#e5e5f7")
         self.tab_control.add(uncertainity_analysis_tab, text="Uncertainty Analysis")
@@ -162,6 +219,19 @@ class GuiManager:
         self.status_label.pack(pady=10)
 
     def submit_selection(self):
+        """
+        Gathers user selections from the GUI and executes the analysis via the callback function.
+
+        Inputs:
+        - Vehicle selection.
+        - Driving cycle selection.
+        - TDMS data directory.
+        - Clamp selection.
+
+        Provides:
+        - Success or failure feedback in the status label.
+        - Prints error message in case of failure.
+        """
         # Get selected values
         selected_vehicle = self.selected_vehicle.get()
         selected_cycle = self.selected_cycle.get()
@@ -176,7 +246,13 @@ class GuiManager:
         except Exception as e:
             self.status_label.config(text="Uncertainty Analysis Failed!", fg="red", font=("Segoe UI", 14, "bold"))
             print("Error during analysis:", e)
-
+    
+    def __del__(self):
+        """
+        Cleans up resources upon object destruction.
+        """
+        object_name = "GuiManager object"
+        print(f"{object_name} is destroyed.")
 
 # Initialize the application
 if __name__ == "__main__":

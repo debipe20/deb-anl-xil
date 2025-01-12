@@ -50,6 +50,7 @@ class TdmsFileManager:
             tdms_directory (str): Directory path where TDMS files are stored.
             accuracy_parameter1 (float): Accuracy parameter 1 for uncertainty calculations.
             accuracy_parameter2 (float): Accuracy parameter 2 for uncertainty calculations.
+            accuracy_parameter3 (float): Accuracy parameter 3 for uncertainty calculations.
         """
         self.output_file_path = output_file_path
         self.plot_directory = plot_directory
@@ -57,9 +58,6 @@ class TdmsFileManager:
         self.accuracy_parameter1 = accuracy_parameter1
         self.accuracy_parameter2 = accuracy_parameter2
         self.accuracy_parameter3 = accuracy_parameter3
-        
-        self.u_energy_percent_1, self.u_energy_percent_2 = ([] for i in range(2))
-        self.bar_chart_test_id_list = []
 
         self.initialize_ube_fre_variables()
 
@@ -69,6 +67,7 @@ class TdmsFileManager:
         """
         self.ube_wh, self.u_ube_wh, self.u_ube_rms, self.u_ube_sq = 0, 0, 0, 0
         self.fre_wh, self.u_fre_wh, self.u_fre_percent, self.u_fre_rms, self.u_fre_rms_percent = 0, 0, 0, 0, 0
+        self.bar_chart_test_id_list = []
 
     def set_test_id_list(self, test_id_list1, test_id_list2, test_id_list3, test_id_list4, test_id_list5):
         """

@@ -179,6 +179,7 @@ class TestIdManager:
         if clamp == "CT6843-05":
             self.accuracy_parameter1 = 0.35
             self.accuracy_parameter2 = 0.09
+            self.accuracy_parameter3 = 0.08
                 
     def check_description_row(self, row):
         """
@@ -492,7 +493,7 @@ class TestIdManager:
         self.test_id_list_category_4th = sorted(list(set(self.test_id_list_category_4th)))
         self.test_id_list_category_5th = sorted(list(set(self.test_id_list_category_5th)))
                 
-        tdms_file_manager = TdmsFileManager(self.output_file_path, self.plot_directory, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2)
+        tdms_file_manager = TdmsFileManager(self.output_file_path, self.plot_directory, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2, self.accuracy_parameter3)
         # tdms_file_manager.set_test_id_list(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
         tdms_file_manager.conduct_mct_test_analysis(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
         del tdms_file_manager

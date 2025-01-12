@@ -40,7 +40,7 @@ from openpyxl.styles import Border, Side, Font, Alignment
 from PlotManager import PlotManager
 
 class TdmsFileManager:
-    def __init__(self, output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2):
+    def __init__(self, output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3):
         """
         Initializes the TdmsFileManager with file paths and parameters.
 
@@ -56,6 +56,7 @@ class TdmsFileManager:
         self.tdms_data_directory = tdms_directory
         self.accuracy_parameter1 = accuracy_parameter1
         self.accuracy_parameter2 = accuracy_parameter2
+        self.accuracy_parameter3 = accuracy_parameter3
         
         self.u_energy_percent_1, self.u_energy_percent_2 = ([] for i in range(2))
         self.bar_chart_test_id_list = []
@@ -212,15 +213,15 @@ class TdmsFileManager:
         highway_wh = self.fill_cumulative_list(highway_w)
         us06_wh = self.fill_cumulative_list(us06_w)
 
-        u_p_no_cycle = [0 if no_cycle[i] == 0 else abs((((self.accuracy_parameter1/100) * no_cycle[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
+        u_p_no_cycle = [0 if no_cycle[i] == 0 else abs((((self.accuracy_parameter1 / 100) * no_cycle[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
         u_p_no_cycle_percentage = [0 if no_cycle[i] == 0 else (u_p_no_cycle[i] / no_cycle[i]) for i in range(len(p2_data))]
-        u_p_udds1 = [0 if udds1_w[i] == 0 else abs((((self.accuracy_parameter1/100) * udds1_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
+        u_p_udds1 = [0 if udds1_w[i] == 0 else abs((((self.accuracy_parameter1 / 100) * udds1_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
         u_p_udds1_percentage = [0 if udds1_w[i] == 0 else (u_p_udds1[i] / udds1_w[i]) for i in range(len(p2_data))]
-        u_p_udds2 = [0 if udds2_w[i] == 0 else abs((((self.accuracy_parameter1/100) * udds2_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
+        u_p_udds2 = [0 if udds2_w[i] == 0 else abs((((self.accuracy_parameter1 / 100) * udds2_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
         u_p_udds2_percentage = [0 if udds2_w[i] == 0 else (u_p_udds2[i] / udds2_w[i]) for i in range(len(p2_data))]
-        u_p_highway = [0 if highway_w[i] == 0 else abs((((self.accuracy_parameter1/100) * highway_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
+        u_p_highway = [0 if highway_w[i] == 0 else abs((((self.accuracy_parameter1 / 100) * highway_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
         u_p_highway_percentage = [0 if highway_w[i] == 0 else (u_p_highway[i] / highway_w[i]) for i in range(len(p2_data))]
-        u_p_us06 = [0 if us06_w[i] == 0 else abs((((self.accuracy_parameter1/100) * us06_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
+        u_p_us06 = [0 if us06_w[i] == 0 else abs((((self.accuracy_parameter1 / 100) * us06_w[i]) + ((self.accuracy_parameter2 / 100) * 60000))) for i in range(len(p2_data))]
         u_p_us06_percentage = [0 if us06_w[i] == 0 else (u_p_us06[i] / us06_w[i]) for i in range(len(p2_data))]
     
         # Prepare a DataFrame with the values for easy export to Excel
@@ -305,17 +306,17 @@ class TdmsFileManager:
         if test_id_index == 1:
             pwr_w = group_data["P2"].data
             eng_wh = self.fill_cumulative_list(pwr_w)
-            u_p = [((self.accuracy_parameter1/100 * pwr_w[i]) + (self.accuracy_parameter2/100*60000)) for i in range(len(pwr_w))]
+            u_p = [((self.accuracy_parameter1/100 * pwr_w[i]) + (self.accuracy_parameter2 / 100*60000)) for i in range(len(pwr_w))]
 
         elif test_id_index == 3:
             pwr_w = group_data["P1"].data
             eng_wh = self.fill_cumulative_list(pwr_w)
-            u_p = [((self.accuracy_parameter1/100 * pwr_w[i]) + (self.accuracy_parameter2/100*60000)) for i in range(len(pwr_w))]
+            u_p = [((self.accuracy_parameter1/100 * pwr_w[i]) + (self.accuracy_parameter2 / 100*60000)) for i in range(len(pwr_w))]
             
         elif test_id_index == 4: 
             pwr_w = group_data["P9"].data
             eng_wh = self.fill_cumulative_list(pwr_w)
-            u_p = [((self.accuracy_parameter1/100 * pwr_w[i]) + (0.08/100*60000)) for i in range(len(pwr_w))]
+            u_p = [((self.accuracy_parameter1/100 * pwr_w[i]) + (self.accuracy_parameter3 / 100*60000)) for i in range(len(pwr_w))]
 
         u_p_percentage = [0 if pwr_w[i] == 0 else (u_p[i] / pwr_w[i]) for i in range(len(pwr_w))]
         # pwr_min = [(pwr_w[i] - u_p[i]) for i in range(len(pwr_w))]

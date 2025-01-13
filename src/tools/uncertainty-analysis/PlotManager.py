@@ -174,7 +174,7 @@ class PlotManager:
         ax1.set_xticks(x)
         ax1.set_xticklabels(categories)
         ax1.grid(True, which='both', axis='y', linestyle='--', linewidth=0.7, color='gray')
-        ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=4, fontsize=10)
+        # ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=4, fontsize=10)
 
         # Create the secondary y-axis
         ax2 = ax1.twinx()

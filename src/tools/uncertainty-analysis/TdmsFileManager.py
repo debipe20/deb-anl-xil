@@ -730,12 +730,20 @@ class TdmsFileManager:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
-    tdms_directory = "/home/debashis/Documents/Data/AMTL-Test-Data"
-    accuracy_parameter1, accuracy_parameter2 = 0.35, 0.09
+    import os
+    import platform
 
+    current_os = platform.system()
+
+    tdms_directory = "AMTL-Test-Data"
+    output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
+    plot_directory = os.path.join("Analysis", "Tesla-Model3")
+    tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
+    
+    accuracy_parameter1, accuracy_parameter2, accuracy_parameter3 = 0.35, 0.09, 0.08
     test_id_list_category_1st = [62005016, 62005017, 62005018, 62005019, 62005020]
     test_id_list_category_2nd = [62006032, 62006033, 62006034, 62006035, 62006036]
     test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th = ([] for i in range(3))
-    tdms_file_manager = TdmsFileManager(output_file_path, tdms_directory, accuracy_parameter1, accuracy_parameter2)
+    
+    tdms_file_manager = TdmsFileManager(output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
     tdms_file_manager.set_test_id_list(test_id_list_category_1st, test_id_list_category_2nd, test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th)

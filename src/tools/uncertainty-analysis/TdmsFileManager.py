@@ -58,7 +58,7 @@ class TdmsFileManager:
         self.accuracy_parameter1 = accuracy_parameter1
         self.accuracy_parameter2 = accuracy_parameter2
         self.accuracy_parameter3 = accuracy_parameter3
-
+        self.bar_chart_test_id_list = []
         self.initialize_ube_fre_variables()
 
     def initialize_ube_fre_variables(self):
@@ -67,7 +67,7 @@ class TdmsFileManager:
         """
         self.ube_wh, self.u_ube_wh, self.u_ube_rms, self.u_ube_sq = 0, 0, 0, 0
         self.fre_wh, self.u_fre_wh, self.u_fre_percent, self.u_fre_rms, self.u_fre_rms_percent = 0, 0, 0, 0, 0
-        self.bar_chart_test_id_list = []
+        
 
     def set_test_id_list(self, test_id_list1, test_id_list2, test_id_list3, test_id_list4, test_id_list5):
         """
@@ -111,7 +111,7 @@ class TdmsFileManager:
             if test_id_list:  # Check if the list is not empty
                 print(f"Processing {category_name} with Test IDs: {test_id_list}")
                 self.manage_mct_test_analysis(test_id_list)
-
+                self.bar_chart_test_id_list.clear()
         
     def manage_mct_test_analysis(self, test_id_list):
         """
@@ -730,7 +730,7 @@ class TdmsFileManager:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    output_file_path = "Data/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
+    output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
     tdms_directory = "/home/debashis/Documents/Data/AMTL-Test-Data"
     accuracy_parameter1, accuracy_parameter2 = 0.35, 0.09
 

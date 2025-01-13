@@ -167,8 +167,8 @@ class PlotManager:
         # Plot Energy [Wh] on the primary y-axis
         # bars1 = ax1.bar(x - width / 2, self.energy_values_1, width, label=self.bar_chart_test_id_list[0], color='gray')
         # bars2 = ax1.bar(x + width / 2, self.energy_values_2, width, label=self.bar_chart_test_id_list[1], color='orange')
-        bars1 = ax1.bar(x - width / 2, self.energy_values_1, width, label=f'Energy_{self.bar_chart_test_id_list[0]}', color='gray')
-        bars2 = ax1.bar(x + width / 2, self.energy_values_2, width, label=f'Energy_{self.bar_chart_test_id_list[1]}', color='orange')
+        bars1 = ax1.bar(x - width / 2, self.energy_values_1, width, label=f'Energy_{self.bar_chart_test_id_list[0]}', color='slateblue')
+        bars2 = ax1.bar(x + width / 2, self.energy_values_2, width, label=f'Energy_{self.bar_chart_test_id_list[1]}', color='goldenrod')
         ax1.set_ylabel('Discharge Energy [Wh]', fontsize=12)
         ax1.set_title('Discharge Energy and Uncertainty by Drive Cycle', fontsize=14)
         ax1.set_xticks(x)
@@ -195,19 +195,17 @@ class PlotManager:
             yval = bar.get_height()
             ax1.text(bar.get_x() + bar.get_width() / 2, yval + 50, f'{yval:.0f}', ha='center', va='bottom', fontsize=8)
 
-        # Combine legends from ax1 and the lines on ax2
-        # Fetch legend handles and labels from both axes
-        handles1, labels1 = ax1.get_legend_handles_labels()
-        handles2, labels2 = ax2.get_legend_handles_labels()
-
-        # Combine handles and labels from both axes for the legend
+        # Fetch legend handles and labels from both axes, and combine all legend elements
+        handles1, labels1 = ax1.get_legend_handles_labels()  # Bar chart handles and labels
+        handles2, labels2 = ax2.get_legend_handles_labels()  # Line chart handles and labels
         fig.legend(handles1 + handles2, labels1 + labels2,
-                loc='lower center', bbox_to_anchor=(0.5, -0.2), ncol=4, fontsize=10)
+                        loc='lower center', ncol=4, fontsize=10)
 
         # Save the chart
         chart_name = f'{self.bar_chart_test_id_list[0]}_vs_{self.bar_chart_test_id_list[1]}_energy_with_uncertainty.png'
         chart_path = os.path.join(self.plot_directory, chart_name)
         plt.tight_layout()
+        plt.subplots_adjust(bottom=0.15)  # Push the plot upward to make space for the legend
         plt.savefig(chart_path)
         plt.close()
 

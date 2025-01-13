@@ -137,18 +137,18 @@ class TestIdManager:
         """
         if vehicle_name == "2020 Tesla Model 3":
             config_file_name = os.path.join("config-files", "configuration_tesla.json")
-            self.output_file_path = os.path.join("Data", "Tesla-Model3", "2020-tesla-model3-uncertainty-analysis.xlsx")
-            self.plot_directory = os.path.join("Data", "Tesla-Model3")
+            self.output_file_path = os.path.join("Analysis", "Tesla-Model3", "2020-tesla-model3-uncertainty-analysis.xlsx")
+            self.plot_directory = os.path.join("Analysis", "Tesla-Model3")
 
         elif vehicle_name == "2020 Chevrolet Bolt":
             config_file_name = os.path.join("config-files", "configuration_bolt.json")
-            self.output_file_path = os.path.join("Data", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainty-analysis.xlsx")
-            self.plot_directory = os.path.join("Data", "Chevrolet_Bolt")
+            self.output_file_path = os.path.join("Analysis", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainty-analysis.xlsx")
+            self.plot_directory = os.path.join("Analysis", "Chevrolet_Bolt")
 
         elif vehicle_name == "2019 Nissan Leaf":
             config_file_name = os.path.join("config-files", "configuration_leaf.json")
-            self.output_file_path = os.path.join("Data", "Nissan-Leaf", "2019-nissan-leaf-uncertainty-analysis.xlsx")
-            self.plot_directory = os.path.join("Data", "Nissan-Leaf")
+            self.output_file_path = os.path.join("Analysis", "Nissan-Leaf", "2019-nissan-leaf-uncertainty-analysis.xlsx")
+            self.plot_directory = os.path.join("Analysis", "Nissan-Leaf")
 
         else:
             raise ValueError("Unknown vehicle name")

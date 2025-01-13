@@ -1,0 +1,22 @@
+{
+    "InputFileName": "Analysis/Tesla-Model3/2020_Tesla_Model_3_TestPlanInstru_MasterSummary_211112.xlsm",
+    "InputSheetName": "TestSummary",
+    "NoOfSkipRows": 6,
+    "MaxSubPhase": 2,
+    "DataFields": [
+        "Test ID [#]",
+        "Sub-Phase",
+        "Cycle Distance [mi]",
+        "Start SOC",
+        "End SOC",
+        "HV Batt (500A)\nStart \nWP1 [Wh]\n",
+        "HV Batt Out (500A) End\nWP1 [Wh]",
+        "HV Batt (500A)\nΔ [Wh]",
+        "HV Batt (500A) Energy consumption\n[Wh/mi]",
+        "HV Batt (1000A) Start WP2 [Wh]",
+        "HV Batt (1000A)  End WP2 [Wh]",      
+        "HV Batt (1000A) \nΔ WP2 [Wh]",
+        "HV Batt (1000A) Δ WP2 [Wh/mi]",
+        "Recharge Allocation Factor"
+    ]
+}

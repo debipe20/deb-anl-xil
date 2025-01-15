@@ -119,7 +119,7 @@ class TestIdManager:
         if current_os == "Linux":
             self.tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
         
-        elif current_os == "Windows":  # For Windows
+        elif current_os == "Windows":  
             self.tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
         
         else:

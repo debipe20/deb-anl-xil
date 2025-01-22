@@ -21,14 +21,16 @@ Methods:
 import os
 import platform
 import numpy as np
+import openpyxl
 import matplotlib.pyplot as plt
+from openpyxl.drawing.image import Image
 from nptdms import TdmsFile
 from scipy.integrate import cumulative_trapezoid
 from scipy.stats import linregress
 
 
 class HiokiCANAnalyzer:
-    def __init__(self):
+    def __init__(self, test_id_list: list, output_file_path: str, plot_directory: str, sheet_name: str):
         """
         Initialize the HiokiCANAnalyzer class.
 
@@ -36,14 +38,23 @@ class HiokiCANAnalyzer:
         hioki_data (dict): Dictionary containing Hioki data with keys like 'voltage', 'current', 'power', etc.
         can_data (dict): Dictionary containing CAN data with keys like 'voltage', 'current', 'power', etc.
         """
-        # self.test_id_list = [62005016]
-        # self.test_id_list = [62008001]
-        self.test_id_list = [62007023]
-
-        self.get_files()
-        self.manage_linear_fit_analysis(self.test_id_list)
-
-    def get_files(self):
+        self.test_id_list = test_id_list
+        self.output_file_path = output_file_path
+        self.plot_directory = plot_directory
+        self.hioki_can_analysis_sheet_name = sheet_name
+        self.image_position_List = ['A5', 'A30', 'K5', 'K30', 'U5', 'U30']
+        self.image_position_index = -1
+        
+        # Validate workbook
+        try:
+            self.wb = openpyxl.load_workbook(self.output_file_path)
+        except Exception as e:
+            raise FileNotFoundError(f"Failed to load workbook from {self.output_file_path}: {e}")
+        
+        self.sheet = self.wb.create_sheet(self.hioki_can_analysis_sheet_name)
+        print("Open Sheet")
+        
+    def set_tdms_data_directory(self):
         current_os = platform.system()
 
         if current_os == "Linux":
@@ -55,7 +66,11 @@ class HiokiCANAnalyzer:
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
 
-    def manage_linear_fit_analysis(self, test_id_list):
+    def manage_linear_fit_analysis(self):
+        
+        
+        self.set_tdms_data_directory()
+        
         for test_id in test_id_list:
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
             print(f"Conducting Linear Fit Analysis for '{self.tdms_file_path}' TDMS file")
@@ -102,23 +117,21 @@ class HiokiCANAnalyzer:
             # Compute Hioki integrated power in kW by removing initial power
             hioki_inP = (hioki_WP1[start_index:] - hioki_WP1[start_index]) / 1000
             
-            Pe = (can_power_integrated - hioki_inP) / hioki_inP
+            percentage_of_error = (can_power_integrated - hioki_inP) / hioki_inP
 
             # Filter logical conndition to address edge condition
             filter_condition = (hv_batt_power_filtered >= -np.inf) & (hioki_U1_filtered >= 250) & (Dyno_spd_filtered >= 0.01)
 
-            # self.plot_voltage_current_power(daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered)
+            self.plot_voltage_current_power(daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered, test_id)
             # Plot Linear Fit
-            self.plot_linear_fit(
-                [
+            self.plot_linear_fit([
                     (hv_batt_voltage_filtered[filter_condition], hioki_U1_filtered[filter_condition], "CAN Voltage [V]", "Hioki Voltage [V]"),
                     (hv_batt_current_filtered[filter_condition], hioki_I1_filtered[filter_condition], "CAN Current [A]", "Hioki Current [A]"),
                     (hv_batt_power_filtered[filter_condition] / 1000, hioki_P1_filtered[filter_condition] / 1000, "CAN Power [kW]", "Hioki Power [kW]"),
                     (np.abs(can_power_integrated), hioki_inP, "CAN Integrated Power [kWh]", "Hioki Integrated Power [kWh]")
-                ]
-            )
+                ], test_id)
 
-    def plot_voltage_current_power(self, daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered):
+    def plot_voltage_current_power(self, daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered, test_id):
  
             plt.figure(figsize=(10, 8))
 
@@ -147,9 +160,19 @@ class HiokiCANAnalyzer:
             plt.legend()
 
             plt.tight_layout()
-            plt.show()
+            # plt.show()
+            # Save the chart as an image and close the plot
+            chart_name = f'{test_id}_voltage_current_power_plot.jpg'
+            chart_path = os.path.join(self.plot_directory, chart_name)
+            plt.savefig(chart_path)
+            plt.close()
+            
+            # Insert the chart image into the workbook at the specified cell
+            self.image_position_index += 1
+            img = Image(chart_path)
+            self.sheet.add_image(img, self.image_position_index) 
 
-    def plot_linear_fit(self, datasets):
+    def plot_linear_fit(self, datasets, test_id):
         """
         Plot multiple linear fits in a 2x2 grid and display slope, intercept, R^2, RMS, and Pearson correlation coefficient on the graph.
 
@@ -200,11 +223,35 @@ class HiokiCANAnalyzer:
                     verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", edgecolor="black", facecolor="white"))
 
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        chart_name = f'{test_id}_linear_fit_plot.jpg'
+        chart_path = os.path.join(self.plot_directory, chart_name)
+        plt.savefig(chart_path)
+        plt.close()
+        
+        # Insert the chart image into the workbook at the specified cell
+        self.image_position_index += 1
+        img = Image(chart_path)
+        self.sheet.add_image(img, self.image_position_index)
 
+    def __del__(self):
+        """
+        Cleans up resources upon object destruction.
+        """
+        self.wb.save(self.output_file_path)
+        self.wb.close()
+        
+        object_name = "HiokiCANAnalyzer object"
+        print(f"{object_name} is destroyed.")
         
 '''##############################################
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    hioki_CAN_analyzer = HiokiCANAnalyzer()
+    output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
+    plot_directory = os.path.join("Analysis", "Tesla-Model3")
+    sheet_name = "1_Hioki_vs_CAN"
+    test_id_list = [62007023]
+    # test_id_list = [62005016, 62005018]
+    hioki_CAN_analyzer = HiokiCANAnalyzer(test_id_list, output_file_path, plot_directory, sheet_name)
+    hioki_CAN_analyzer.manage_linear_fit_analysis()

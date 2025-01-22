@@ -38,6 +38,7 @@ import pandas as pd
 from nptdms import TdmsFile
 from openpyxl.styles import Border, Side, Font, Alignment
 from PlotManager import PlotManager
+from HiokiCANAnalyzer import HiokiCANAnalyzer
 
 class TdmsFileManager:
     def __init__(self, output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3):
@@ -112,6 +113,10 @@ class TdmsFileManager:
                 print(f"Processing {category_name} with Test IDs: {test_id_list}")
                 self.manage_mct_test_analysis(test_id_list)
                 self.bar_chart_test_id_list.clear()
+                
+                hioki_CAN_analyzer = HiokiCANAnalyzer(test_id_list, self.output_file_path, self.plot_directory, self.hioki_can_analysis_sheet_name)
+                hioki_CAN_analyzer.manage_linear_fit_analysis()
+                del hioki_CAN_analyzer
         
     def manage_mct_test_analysis(self, test_id_list):
         """
@@ -576,18 +581,23 @@ class TdmsFileManager:
         
         if test_id in self.test_id_list_category_1st:
             self.categorial_summary_sheet_name = "1_Summary"
+            self.hioki_can_analysis_sheet_name = "1_Hioki_vs_CAN"
 
         elif test_id in self.test_id_list_category_2nd:
             self.categorial_summary_sheet_name = "2_Summary"
+            self.hioki_can_analysis_sheet_name = "2_Hioki_vs_CAN"
 
         elif test_id in self.test_id_list_category_3rd:
             self.categorial_summary_sheet_name = "3_Summary"
+            self.hioki_can_analysis_sheet_name = "3_Hioki_vs_CAN"
 
         elif test_id in self.test_id_list_category_4th:
             self.categorial_summary_sheet_name = "4_Summary"
+            self.hioki_can_analysis_sheet_name = "4_Hioki_vs_CAN"
 
         elif test_id in self.test_id_list_category_5th:
             self.categorial_summary_sheet_name = "5_Summary" 
+            self.hioki_can_analysis_sheet_name = "5_Hioki_vs_CAN"
 
         if test_id_index == 4:
             ube_title =  "UBE Summary of Category1"

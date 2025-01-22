@@ -20,7 +20,12 @@ Methods:
 
 import os
 import platform
+import numpy as np
+import matplotlib.pyplot as plt
 from nptdms import TdmsFile
+from scipy.integrate import cumulative_trapezoid
+from scipy.stats import linregress
+
 
 class HiokiCANAnalyzer:
     def __init__(self):
@@ -31,7 +36,10 @@ class HiokiCANAnalyzer:
         hioki_data (dict): Dictionary containing Hioki data with keys like 'voltage', 'current', 'power', etc.
         can_data (dict): Dictionary containing CAN data with keys like 'voltage', 'current', 'power', etc.
         """
-        self.test_id_list = [62005016]
+        # self.test_id_list = [62005016]
+        # self.test_id_list = [62008001]
+        self.test_id_list = [62007023]
+
         self.get_files()
         self.manage_linear_fit_analysis(self.test_id_list)
 
@@ -48,33 +56,153 @@ class HiokiCANAnalyzer:
             raise OSError(f"Unsupported operating system: {current_os}")
 
     def manage_linear_fit_analysis(self, test_id_list):
-        
         for test_id in test_id_list:
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
             print(f"Conducting Linear Fit Analysis for '{self.tdms_file_path}' TDMS file")
+            
             self.tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
             group_data = self.tdms_file["Data"]
-            self.time_data = group_data['DAQ_Time[s]']
-            self.get_groups_channels_name()
-
-    def get_groups_channels_name(self):
-        # Get all groups in the TDMS file
-        groups = self.tdms_file.groups()
-
-        # Iterate over groups and print their names and channels
-        for group in groups:
-            print(f"Group: {group.name}")
-
-            # Get all channels in the current group
-            channels = group.channels()
             
-            # Iterate over channels in the group and print their names
-            for channel in channels:
-                print(f"  Channel: {channel.name}")
+            daq_time = group_data["DAQ_Time[s]"].data
+            hv_batt_voltage = group_data["HVBatt_voltage_CAN5__V"].data
+            hv_batt_current = group_data["HVBatt_current_wide_CAN5__A"].data
+            hioki_U1 = group_data["U1"].data
+            hioki_I1 = group_data["I1"].data
+            hioki_P1 = group_data["P1"].data
+            hioki_WP1 = group_data["WP1"].data
+            Dyno_spd = group_data["Dyno_Spd_Front[mph]"].data
 
-    def get_voltage_data(self):
-        pass
-    
+            # Calculate HVbatt power
+            hv_batt_power = hv_batt_current * hv_batt_voltage
+
+            # Find start index
+            start_index = np.argmin(daq_time)
+
+            # Define filtered data
+            daqtime_filtered = daq_time[start_index:]
+            hv_batt_voltage_filtered = hv_batt_voltage[start_index:]
+            hv_batt_current_filtered = -hv_batt_current[start_index:]
+            hv_batt_power_filtered = -hv_batt_power[start_index:]
+            hioki_U1_filtered = hioki_U1[start_index:]
+            hioki_I1_filtered = hioki_I1[start_index:]
+            hioki_P1_filtered = hioki_P1[start_index:]
+            Dyno_spd_filtered = Dyno_spd[start_index:]
+
+            # Energy calculations
+            CAN_power_cal = hv_batt_power_filtered / 1000  # Convert to kW
+            index_ps = CAN_power_cal > 0
+            index_ng = CAN_power_cal < 0
+            hv_batt_pos = np.where(index_ps, CAN_power_cal, 0)
+            hv_batt_neg = np.where(index_ng, CAN_power_cal, 0)
+
+            can_power_pos = cumulative_trapezoid(hv_batt_pos, daqtime_filtered, initial=0)
+            can_power_neg = cumulative_trapezoid(hv_batt_neg, daqtime_filtered, initial=0) 
+            can_power_integrated = (can_power_pos + can_power_neg) / 3600  # Convert from seconds to hours
+
+            # Compute Hioki integrated power in kW by removing initial power
+            hioki_inP = (hioki_WP1[start_index:] - hioki_WP1[start_index]) / 1000
+            
+            Pe = (can_power_integrated - hioki_inP) / hioki_inP
+
+            # Filter logical conndition to address edge condition
+            filter_condition = (hv_batt_power_filtered >= -np.inf) & (hioki_U1_filtered >= 250) & (Dyno_spd_filtered >= 0.01)
+
+            # self.plot_voltage_current_power(daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered)
+            # Plot Linear Fit
+            self.plot_linear_fit(
+                [
+                    (hv_batt_voltage_filtered[filter_condition], hioki_U1_filtered[filter_condition], "CAN Voltage [V]", "Hioki Voltage [V]"),
+                    (hv_batt_current_filtered[filter_condition], hioki_I1_filtered[filter_condition], "CAN Current [A]", "Hioki Current [A]"),
+                    (hv_batt_power_filtered[filter_condition] / 1000, hioki_P1_filtered[filter_condition] / 1000, "CAN Power [kW]", "Hioki Power [kW]"),
+                    (np.abs(can_power_integrated), hioki_inP, "CAN Integrated Power [kWh]", "Hioki Integrated Power [kWh]")
+                ]
+            )
+
+    def plot_voltage_current_power(self, daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered):
+ 
+            plt.figure(figsize=(10, 8))
+
+            plt.subplot(3, 1, 1)
+            plt.plot(daqtime_filtered, hv_batt_voltage_filtered, label="CAN Voltage")
+            plt.plot(daqtime_filtered, hioki_U1_filtered, label="Hioki Voltage", linestyle="--")
+            plt.grid(True)
+            plt.xlabel("DAQ Time [s]")
+            plt.ylabel("Voltage [V]")
+            plt.legend()
+
+            plt.subplot(3, 1, 2)
+            plt.plot(daqtime_filtered, hv_batt_current_filtered, label="CAN Current")
+            plt.plot(daqtime_filtered, hioki_I1_filtered, label="Hioki Current", linestyle="--")
+            plt.grid(True)
+            plt.xlabel("DAQ Time [s]")
+            plt.ylabel("Current [A]")
+            plt.legend()
+
+            plt.subplot(3, 1, 3)
+            plt.plot(daqtime_filtered, hv_batt_power_filtered, label="CAN Power")
+            plt.plot(daqtime_filtered, hioki_P1_filtered, label="Hioki Power", linestyle="--")
+            plt.grid(True)
+            plt.xlabel("DAQ Time [s]")
+            plt.ylabel("Power [W]")
+            plt.legend()
+
+            plt.tight_layout()
+            plt.show()
+
+    def plot_linear_fit(self, datasets):
+        """
+        Plot multiple linear fits in a 2x2 grid and display slope, intercept, R^2, RMS, and Pearson correlation coefficient on the graph.
+
+        Parameters:
+        datasets (list of tuples): Each tuple contains (x, y, xlabel, ylabel).
+        """
+        fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+
+        for ax, (x, y, xlabel, ylabel) in zip(axs.flat, datasets):
+            # Linear regression
+            slope, intercept, r_value, _, _ = linregress(x, y)
+
+            # RMS calculation
+            # residuals = y - (slope * x + intercept) # quantifies how far the observed data (y) is from the predicted data based on the linear regression (slope * x + intercept).
+            # rms = np.sqrt(np.mean(residuals**2))
+            rms = np.sqrt(np.mean((x - y)**2)) #direct differences between two datasets (x and y), element by element.
+
+            # Pearson correlation coefficient
+            pearson_corr = r_value  # Directly from linregress
+
+            # Debugging outputs
+            print(f"Dataset: {xlabel} vs {ylabel}")
+            print(f"  Slope: {slope:.4f}")
+            print(f"  Intercept: {intercept:.4f}")
+            print(f"  R^2: {r_value**2:.4f}")
+            print(f"  RMS: {rms:.4f}")
+            print(f"  Pearson Coefficient: {pearson_corr:.4f}")
+
+            # Scatter plot and regression line
+            ax.scatter(x, y, s=10, label="Data")
+            ax.plot(x, slope * x + intercept, "r-", label=f"Fit: y={slope:.2f}x + {intercept:.2f}")
+
+            # Axis labels
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.grid(True)
+            ax.legend()
+
+            # Annotate slope, intercept, R^2, RMS, and Pearson correlation
+            annotation_text = (
+                f"Slope: {slope:.5f}\n"
+                f"Intercept: {intercept:.2f}\n"
+                f"$R^2$: {r_value**2:.1f}\n"
+                f"RMS: {rms:.5f}\n"
+                f"$\\rho$: {pearson_corr:.1f}"  # Pearson correlation coefficient
+            )
+            ax.text(0.75, 0.3, annotation_text, transform=ax.transAxes, fontsize=10,
+                    verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", edgecolor="black", facecolor="white"))
+
+        plt.tight_layout()
+        plt.show()
+
+        
 '''##############################################
                    Unit testing
 ##############################################'''

@@ -21,12 +21,16 @@
     ],
     "Hioki-CAN-Analysis-Field":{
         "DAQ_Time": "DAQ_Time[s]",
-        "CAN_Voltage": "HVBatt_voltage_CAN5__V",
-        "CAN_Current": "HVBatt_current_wide_CAN5__A",
-        "Hioki_Voltage": "U1",
-        "Hioki_Current": "I1",
-        "Hioki_Power":"P1",
-        "IntegratedPower": "WP1",
+        "CAN_Voltage": "BMS_packCurrent__A",
+        "CAN_Current": "BMS_packVoltage__V",
+        "Hioki_Voltage": "U2",
+        "Hioki_Current": "I2",
+        "Hioki_Power":"P2",
+        "Hioki_IntegratedPower": "WP2",
+        "Hioki_Voltage_Charge": "U9",
+        "Hioki_Current_Charge": "I9",
+        "Hioki_Power_Charge":"P9",
+        "Hioki_IntegratedPower_Charge": "WP9",
         "Dyno_Speed": "Dyno_Spd_Front[mph]"
     }
 }

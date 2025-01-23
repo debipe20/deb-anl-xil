@@ -30,7 +30,11 @@
         "Hioki_Voltage": "U1",
         "Hioki_Current": "I1",
         "Hioki_Power":"P1",
-        "IntegratedPower": "WP1",
+        "Hioki_IntegratedPower": "WP2",
+        "Hioki_Voltage_Charge": "U9",
+        "Hioki_Current_Charge": "I9",
+        "Hioki_Power_Charge":"P9",
+        "Hioki_IntegratedPower_Charge": "WP9",
         "Dyno_Speed": "Dyno_Spd_Front[mph]"
     }
 }

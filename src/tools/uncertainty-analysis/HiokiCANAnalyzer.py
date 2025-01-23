@@ -68,13 +68,11 @@ class HiokiCANAnalyzer:
 
     def manage_linear_fit_analysis(self):
         
-        
         self.set_tdms_data_directory()
         
         for test_id in self.test_id_list:
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
             print(f"Conducting Linear Fit Analysis for '{self.tdms_file_path}' TDMS file")
-            
             self.tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
             
             group_data = self.tdms_file["Data"]
@@ -82,11 +80,19 @@ class HiokiCANAnalyzer:
             daq_time = group_data[self.config["Hioki-CAN-Analysis-Field"]["DAQ_Time"]].data
             hv_batt_voltage = group_data[self.config["Hioki-CAN-Analysis-Field"]["CAN_Voltage"]].data
             hv_batt_current = group_data[self.config["Hioki-CAN-Analysis-Field"]["CAN_Current"]].data
-            hioki_U1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Voltage"]].data
-            hioki_I1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Current"]].data
-            hioki_P1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Power"]].data
-            hioki_WP1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["IntegratedPower"]].data
             Dyno_spd = group_data[self.config["Hioki-CAN-Analysis-Field"]["Dyno_Speed"]].data
+            
+            if test_id == self.test_id_list[-1]:
+                hioki_U1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Voltage_Charge"]].data
+                hioki_I1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Current_Charge"]].data
+                hioki_P1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Power_Charge"]].data
+                hioki_WP1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_IntegratedPower_Charge"]].data
+                
+            else:
+                hioki_U1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Voltage"]].data
+                hioki_I1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Current"]].data
+                hioki_P1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Power"]].data
+                hioki_WP1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_IntegratedPower"]].data
 
             # Calculate HVbatt power
             hv_batt_power = hv_batt_current * hv_batt_voltage
@@ -186,6 +192,17 @@ class HiokiCANAnalyzer:
         fig, axs = plt.subplots(2, 2, figsize=(10, 6))
 
         for ax, (x, y, xlabel, ylabel) in zip(axs.flat, datasets):
+            
+            # Check if inputs are empty
+            if len(x) == 0 or len(y) == 0:
+                ax.text(0.5, 0.5, "Empty dataset", transform=ax.transAxes,
+                        fontsize=12, ha="center", va="center", bbox=dict(boxstyle="round,pad=0.3", edgecolor="red", facecolor="white"))
+                ax.set_title("Empty Dataset")
+                ax.set_xlabel(xlabel)
+                ax.set_ylabel(ylabel)
+                ax.grid(True)
+                continue
+        
             # Linear regression
             slope, intercept, r_value, _, _ = linregress(x, y)
 
@@ -207,7 +224,7 @@ class HiokiCANAnalyzer:
 
             # Scatter plot and regression line
             ax.scatter(x, y, s=10, label="Data")
-            ax.plot(x, slope * x + intercept, "r-", label=f"Fit: y={slope:.2f}x + {intercept:.2f}")
+            ax.plot(x, slope * x + intercept, "r-", label=f"Fit: y={slope:.2f}x + ({intercept:.2f})")
             ax.set_title(f'Linear Fit Plot for Test ID: {test_id}')
             # Axis labels
             ax.set_xlabel(xlabel)
@@ -223,7 +240,7 @@ class HiokiCANAnalyzer:
                 f"RMS: {rms:.5f}\n"
                 f"$\\rho$: {pearson_corr:.1f}"  # Pearson correlation coefficient
             )
-            ax.text(0.7, 0.45, annotation_text, transform=ax.transAxes, fontsize=10,
+            ax.text(0.65, 0.45, annotation_text, transform=ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", edgecolor="black", facecolor="white"))
 
         plt.tight_layout()
@@ -264,7 +281,7 @@ if __name__ == "__main__":
     plot_directory = os.path.join("Analysis", "Tesla-Model3")
     sheet_name = "1_Hioki_vs_CAN"
     # test_id_list = [62007023]
-    test_id_list = [62005016]
+    test_id_list = [62005016, 62005017, 62005018, 62005019, 62005020]
     hioki_CAN_analyzer = HiokiCANAnalyzer(config, test_id_list, output_file_path, plot_directory, sheet_name)
     hioki_CAN_analyzer.manage_linear_fit_analysis()
     del hioki_CAN_analyzer

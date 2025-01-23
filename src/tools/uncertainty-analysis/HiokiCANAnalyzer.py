@@ -30,7 +30,7 @@ from scipy.stats import linregress
 
 
 class HiokiCANAnalyzer:
-    def __init__(self, test_id_list: list, output_file_path: str, plot_directory: str, sheet_name: str):
+    def __init__(self, config: dict, test_id_list: list, output_file_path: str, plot_directory: str, sheet_name: str):
         """
         Initialize the HiokiCANAnalyzer class.
 
@@ -38,6 +38,7 @@ class HiokiCANAnalyzer:
         hioki_data (dict): Dictionary containing Hioki data with keys like 'voltage', 'current', 'power', etc.
         can_data (dict): Dictionary containing CAN data with keys like 'voltage', 'current', 'power', etc.
         """
+        self.config = config
         self.test_id_list = test_id_list
         self.output_file_path = output_file_path
         self.plot_directory = plot_directory
@@ -52,7 +53,6 @@ class HiokiCANAnalyzer:
             raise FileNotFoundError(f"Failed to load workbook from {self.output_file_path}: {e}")
         
         self.sheet = self.wb.create_sheet(self.hioki_can_analysis_sheet_name)
-        print("Open Sheet")
         
     def set_tdms_data_directory(self):
         current_os = platform.system()
@@ -76,16 +76,17 @@ class HiokiCANAnalyzer:
             print(f"Conducting Linear Fit Analysis for '{self.tdms_file_path}' TDMS file")
             
             self.tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
+            
             group_data = self.tdms_file["Data"]
             
-            daq_time = group_data["DAQ_Time[s]"].data
-            hv_batt_voltage = group_data["HVBatt_voltage_CAN5__V"].data
-            hv_batt_current = group_data["HVBatt_current_wide_CAN5__A"].data
-            hioki_U1 = group_data["U1"].data
-            hioki_I1 = group_data["I1"].data
-            hioki_P1 = group_data["P1"].data
-            hioki_WP1 = group_data["WP1"].data
-            Dyno_spd = group_data["Dyno_Spd_Front[mph]"].data
+            daq_time = group_data[self.config["Hioki-CAN-Analysis-Field"]["DAQ_Time"]].data
+            hv_batt_voltage = group_data[self.config["Hioki-CAN-Analysis-Field"]["CAN_Voltage"]].data
+            hv_batt_current = group_data[self.config["Hioki-CAN-Analysis-Field"]["CAN_Current"]].data
+            hioki_U1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Voltage"]].data
+            hioki_I1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Current"]].data
+            hioki_P1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["Hioki_Power"]].data
+            hioki_WP1 = group_data[self.config["Hioki-CAN-Analysis-Field"]["IntegratedPower"]].data
+            Dyno_spd = group_data[self.config["Hioki-CAN-Analysis-Field"]["Dyno_Speed"]].data
 
             # Calculate HVbatt power
             hv_batt_power = hv_batt_current * hv_batt_voltage
@@ -222,7 +223,7 @@ class HiokiCANAnalyzer:
                 f"RMS: {rms:.5f}\n"
                 f"$\\rho$: {pearson_corr:.1f}"  # Pearson correlation coefficient
             )
-            ax.text(0.75, 0.3, annotation_text, transform=ax.transAxes, fontsize=10,
+            ax.text(0.7, 0.45, annotation_text, transform=ax.transAxes, fontsize=10,
                     verticalalignment='top', bbox=dict(boxstyle="round,pad=0.3", edgecolor="black", facecolor="white"))
 
         plt.tight_layout()
@@ -251,11 +252,19 @@ class HiokiCANAnalyzer:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
+    import json
+    
+    # config_file_name = os.path.join("config-files", "configuration_leaf.json")
+    config_file_name = os.path.join("config-files", "configuration_tesla.json")
+    configFile = open(config_file_name, 'r', encoding='utf-8')
+    config = (json.load(configFile))
+    configFile.close()
+    
     output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
     plot_directory = os.path.join("Analysis", "Tesla-Model3")
     sheet_name = "1_Hioki_vs_CAN"
-    test_id_list = [62007023]
-    # test_id_list = [62005016, 62005018]
-    hioki_CAN_analyzer = HiokiCANAnalyzer(test_id_list, output_file_path, plot_directory, sheet_name)
+    # test_id_list = [62007023]
+    test_id_list = [62005016]
+    hioki_CAN_analyzer = HiokiCANAnalyzer(config, test_id_list, output_file_path, plot_directory, sheet_name)
     hioki_CAN_analyzer.manage_linear_fit_analysis()
     del hioki_CAN_analyzer

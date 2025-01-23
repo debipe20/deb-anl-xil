@@ -18,5 +18,15 @@
         "HV Batt (1000A) \nΔ WP2 [Wh]",
         "HV Batt (1000A) Δ WP2 [Wh/mi]",
         "Recharge Allocation Factor"
-    ]
+    ],
+    "Hioki-CAN-Analysis-Field":{
+        "DAQ_Time": "DAQ_Time[s]",
+        "CAN_Voltage": "HVBatt_voltage_CAN5__V",
+        "CAN_Current": "HVBatt_current_wide_CAN5__A",
+        "Hioki_Voltage": "U1",
+        "Hioki_Current": "I1",
+        "Hioki_Power":"P1",
+        "IntegratedPower": "WP1",
+        "Dyno_Speed": "Dyno_Spd_Front[mph]"
+    }
 }

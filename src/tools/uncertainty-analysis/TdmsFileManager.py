@@ -41,11 +41,12 @@ from PlotManager import PlotManager
 from HiokiCANAnalyzer import HiokiCANAnalyzer
 
 class TdmsFileManager:
-    def __init__(self, output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3):
+    def __init__(self, config: dict, output_file_path: str, plot_directory, tdms_directory: str, accuracy_parameter1: float, accuracy_parameter2: float, accuracy_parameter3: float):
         """
         Initializes the TdmsFileManager with file paths and parameters.
 
         Args:
+            config (dict): dictionary conatin config information
             output_file_path (str): Path to the Excel file for saving results.
             plot_directory (str): Directory path for saving plots.
             tdms_directory (str): Directory path where TDMS files are stored.
@@ -53,6 +54,7 @@ class TdmsFileManager:
             accuracy_parameter2 (float): Accuracy parameter 2 for uncertainty calculations.
             accuracy_parameter3 (float): Accuracy parameter 3 for uncertainty calculations.
         """
+        self.config = config
         self.output_file_path = output_file_path
         self.plot_directory = plot_directory
         self.tdms_data_directory = tdms_directory
@@ -114,7 +116,7 @@ class TdmsFileManager:
                 self.manage_mct_test_analysis(test_id_list)
                 self.bar_chart_test_id_list.clear()
                 
-                hioki_CAN_analyzer = HiokiCANAnalyzer(test_id_list, self.output_file_path, self.plot_directory, self.hioki_can_analysis_sheet_name)
+                hioki_CAN_analyzer = HiokiCANAnalyzer(self.config, test_id_list, self.output_file_path, self.plot_directory, self.hioki_can_analysis_sheet_name)
                 hioki_CAN_analyzer.manage_linear_fit_analysis()
                 del hioki_CAN_analyzer
         
@@ -742,6 +744,12 @@ class TdmsFileManager:
 if __name__ == "__main__":
     import os
     import platform
+    import json
+    
+    config_file_name = os.path.join("config-files", "configuration_tesla.json")
+    configFile = open(config_file_name, 'r', encoding='utf-8')
+    config = (json.load(configFile))
+    configFile.close()
 
     current_os = platform.system()
 
@@ -755,5 +763,5 @@ if __name__ == "__main__":
     test_id_list_category_2nd = [62006032, 62006033, 62006034, 62006035, 62006036]
     test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th = ([] for i in range(3))
     
-    tdms_file_manager = TdmsFileManager(output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
+    tdms_file_manager = TdmsFileManager(config, output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
     tdms_file_manager.set_test_id_list(test_id_list_category_1st, test_id_list_category_2nd, test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th)

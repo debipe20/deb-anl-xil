@@ -42,7 +42,7 @@ class HiokiCANAnalyzer:
         self.output_file_path = output_file_path
         self.plot_directory = plot_directory
         self.hioki_can_analysis_sheet_name = sheet_name
-        self.image_position_List = ['A5', 'A30', 'K5', 'K30', 'U5', 'U30']
+        self.image_position_List = ['A5', 'A40', 'S5', 'S40', 'AK5', 'AK40', 'BC5','BC40', 'BV5','BV40']
         self.image_position_index = -1
         
         # Validate workbook
@@ -71,7 +71,7 @@ class HiokiCANAnalyzer:
         
         self.set_tdms_data_directory()
         
-        for test_id in test_id_list:
+        for test_id in self.test_id_list:
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
             print(f"Conducting Linear Fit Analysis for '{self.tdms_file_path}' TDMS file")
             
@@ -117,7 +117,9 @@ class HiokiCANAnalyzer:
             # Compute Hioki integrated power in kW by removing initial power
             hioki_inP = (hioki_WP1[start_index:] - hioki_WP1[start_index]) / 1000
             
-            percentage_of_error = (can_power_integrated - hioki_inP) / hioki_inP
+            # percentage_of_error = (can_power_integrated - hioki_inP) / hioki_inP
+            with np.errstate(divide='ignore', invalid='ignore'):
+                percentage_of_error = np.where(hioki_inP != 0, (can_power_integrated - hioki_inP) / hioki_inP, 0)
 
             # Filter logical conndition to address edge condition
             filter_condition = (hv_batt_power_filtered >= -np.inf) & (hioki_U1_filtered >= 250) & (Dyno_spd_filtered >= 0.01)
@@ -133,7 +135,7 @@ class HiokiCANAnalyzer:
 
     def plot_voltage_current_power(self, daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered, test_id):
  
-            plt.figure(figsize=(10, 8))
+            plt.figure(figsize=(10, 6))
 
             plt.subplot(3, 1, 1)
             plt.plot(daqtime_filtered, hv_batt_voltage_filtered, label="CAN Voltage")
@@ -159,7 +161,8 @@ class HiokiCANAnalyzer:
             plt.ylabel("Power [W]")
             plt.legend()
 
-            plt.tight_layout()
+            plt.suptitle(f"Voltage, Current, and Power Analysis for Test ID: {test_id}", fontsize=14, fontweight="bold")
+            plt.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust layout to make room for the title
             # plt.show()
             # Save the chart as an image and close the plot
             chart_name = f'{test_id}_voltage_current_power_plot.jpg'
@@ -170,7 +173,7 @@ class HiokiCANAnalyzer:
             # Insert the chart image into the workbook at the specified cell
             self.image_position_index += 1
             img = Image(chart_path)
-            self.sheet.add_image(img, self.image_position_index) 
+            self.sheet.add_image(img, self.image_position_List[self.image_position_index]) 
 
     def plot_linear_fit(self, datasets, test_id):
         """
@@ -179,7 +182,7 @@ class HiokiCANAnalyzer:
         Parameters:
         datasets (list of tuples): Each tuple contains (x, y, xlabel, ylabel).
         """
-        fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+        fig, axs = plt.subplots(2, 2, figsize=(10, 6))
 
         for ax, (x, y, xlabel, ylabel) in zip(axs.flat, datasets):
             # Linear regression
@@ -204,7 +207,7 @@ class HiokiCANAnalyzer:
             # Scatter plot and regression line
             ax.scatter(x, y, s=10, label="Data")
             ax.plot(x, slope * x + intercept, "r-", label=f"Fit: y={slope:.2f}x + {intercept:.2f}")
-
+            ax.set_title(f'Linear Fit Plot for Test ID: {test_id}')
             # Axis labels
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
@@ -232,7 +235,7 @@ class HiokiCANAnalyzer:
         # Insert the chart image into the workbook at the specified cell
         self.image_position_index += 1
         img = Image(chart_path)
-        self.sheet.add_image(img, self.image_position_index)
+        self.sheet.add_image(img, self.image_position_List[self.image_position_index])
 
     def __del__(self):
         """
@@ -255,3 +258,4 @@ if __name__ == "__main__":
     # test_id_list = [62005016, 62005018]
     hioki_CAN_analyzer = HiokiCANAnalyzer(test_id_list, output_file_path, plot_directory, sheet_name)
     hioki_CAN_analyzer.manage_linear_fit_analysis()
+    del hioki_CAN_analyzer

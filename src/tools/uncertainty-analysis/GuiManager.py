@@ -76,7 +76,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 class GuiManager:
-    def __init__(self, root,config_path selection_callback):
+    def __init__(self, root,config_path, selection_callback):
         """
         Initializes the GuiManager instance and sets up the main application window 
         and its tabs.

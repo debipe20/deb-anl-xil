@@ -4,7 +4,6 @@
     "InputSheetName": "TestSummary",
     "OutputSheetName": "72F_Cycle_Data_Hioki",
     "NoOfSkipRows": 6,
-    "MaxSubPhase": 2,
     "IterationKeys": [
         "1st",
         "2nd",

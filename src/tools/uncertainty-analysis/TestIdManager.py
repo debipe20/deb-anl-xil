@@ -216,7 +216,7 @@ class TestIdManager:
                 dict_name = f"{cycle_type_key}_dictionary" 
                 cycle_type_dicts[dict_name] = {}                
 
-        max_sub_phase_number = self.config["MaxSubPhase"]
+        max_sub_phase_number = 2
         sub_phase_number = 1
         sub_cycle_name_counter = 0
         iteration_index = 0
@@ -486,8 +486,10 @@ class TestIdManager:
         - Filters and categorizes data.
         - Writes data to Excel.
         - Generates plots using the PlotManager module.
-        """        
-        data_frame = pd.read_excel(self.config["InputFileDirectory"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])        
+        """   
+    
+        data_frame = pd.read_excel(self.config["InputFileDirectory"], sheet_name = self.config['InputSheetName'],  skiprows = int(self.config['NoOfSkipRows']))        
+        print(data_frame.columns)
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
         
         self.write_in_excel_file(filtered_dataframe)

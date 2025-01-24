@@ -348,7 +348,7 @@ class GuiManager:
         label = tk.Label(tab, text="Input File Information", font=("Segoe UI", 12), bg="#007bff", fg="white", padx=10, pady=5)
         label.pack(fill="x")
         
-        fields = ["InputFileName", "InputSheetName", "NoOfSkipRows", "MaxSubPhase"]
+        fields = ["InputFileDirectory", "InputSheetName", "NoOfSkipRows", "MaxSubPhase"]
         self.input_file_entries = {}
 
         row_colors = ["#f9f9f9", "#e9ecef"]  # Alternating row colors

@@ -115,7 +115,7 @@ def main():
         print(f"  - Instrument Clamp       : {selected_clamp}")
         
         try:
-            test_id_manager = TestIdManager(selected_vehicle, selected_cycle, tdms_data_directory, selected_clamp)
+            test_id_manager = TestIdManager(config_path, selected_vehicle, selected_cycle, tdms_data_directory, selected_clamp)
             test_id_manager.manage_test_data()
             del test_id_manager
             print("\n[INFO] Uncertainty Analysis completed successfully.")

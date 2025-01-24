@@ -487,7 +487,7 @@ class TestIdManager:
         - Writes data to Excel.
         - Generates plots using the PlotManager module.
         """        
-        data_frame = pd.read_excel(self.config["InputFileName"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])        
+        data_frame = pd.read_excel(self.config["InputFileDirectory"], sheet_name = self.config['InputSheetName'],  skiprows = self.config['NoOfSkipRows'])        
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
         
         self.write_in_excel_file(filtered_dataframe)

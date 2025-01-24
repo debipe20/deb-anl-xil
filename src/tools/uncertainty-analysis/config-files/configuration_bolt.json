@@ -1,5 +1,5 @@
 {
-    "InputFileName": "2020_Chevrolet_Bolt_TestPlanInstru_MasterSummary_201005.xlsm",
+    "InputFileDirectory": "2020_Chevrolet_Bolt_TestPlanInstru_MasterSummary_201005.xlsm",
     "OutputFileName": "Analysis/2020_Chevrolet_Bolt/chevy-bolt-data.xlsx",
     "InputSheetName": "TestSummary",
     "OutputSheetName": "72F_Cycle_Data_Hioki",

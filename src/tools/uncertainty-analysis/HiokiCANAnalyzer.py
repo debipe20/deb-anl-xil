@@ -86,11 +86,19 @@ from scipy.stats import linregress
 class HiokiCANAnalyzer:
     def __init__(self, config: dict, test_id_list: list, output_file_directory: str, plot_directory: str, sheet_name: str):
         """
-        Initialize the HiokiCANAnalyzer class.
+        Initializes the HiokiCANAnalyzer class and prepares the Excel workbook for analysis.
 
-        Parameters:
-        hioki_data (dict): Dictionary containing Hioki data with keys like 'voltage', 'current', 'power', etc.
-        can_data (dict): Dictionary containing CAN data with keys like 'voltage', 'current', 'power', etc.
+        Args:
+        -----
+        - config (dict): Configuration dictionary with details about Hioki and CAN fields.
+        - test_id_list (list): List of test IDs for which analysis will be performed.
+        - output_file_directory (str): Path to the output Excel file where analysis results are stored.
+        - plot_directory (str): Directory where generated plots will be saved.
+        - sheet_name (str): Name of the Excel sheet where results will be written.
+
+        Raises:
+        -------
+        - FileNotFoundError: If the output Excel workbook cannot be found or opened.
         """
         self.config = config
         self.test_id_list = test_id_list
@@ -109,6 +117,19 @@ class HiokiCANAnalyzer:
         self.sheet = self.wb.create_sheet(self.hioki_can_analysis_sheet_name)
         
     def set_tdms_data_directory(self):
+        """
+        Dynamically sets the directory path for TDMS data files based on the operating system.
+
+        Supported Platforms:
+        --------------------
+        - Linux: Sets path to "~/Documents/Data/AMTL-Test-Data".
+        - Windows: Sets path to "C:\\Users\\<username>\\Documents\\Data\\AMTL-Test-Data".
+
+        Raises:
+        -------
+        - OSError: If the current operating system is unsupported.
+        """
+        
         current_os = platform.system()
 
         if current_os == "Linux":
@@ -121,7 +142,23 @@ class HiokiCANAnalyzer:
             raise OSError(f"Unsupported operating system: {current_os}")
 
     def manage_linear_fit_analysis(self):
-        
+        """
+        Manages the linear fit analysis for the list of test IDs.
+
+        Process:
+        --------
+        - Reads TDMS data for each test ID.
+        - Extracts voltage, current, and power data from Hioki and CAN.
+        - Calculates power metrics, integrates power, and computes percentage error.
+        - Generates and embeds the following plots for each test ID:
+            1. Voltage, current, and power comparison plots.
+            2. Linear fit plots with regression metrics.
+
+        Raises:
+        -------
+        - FileNotFoundError: If a specified TDMS file does not exist.
+        - KeyError: If required fields are missing from the configuration or TDMS data.
+        """
         self.set_tdms_data_directory()
         
         for test_id in self.test_id_list:
@@ -195,7 +232,25 @@ class HiokiCANAnalyzer:
                 ], test_id)
 
     def plot_voltage_current_power(self, daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered, test_id):
- 
+            """
+            Generates and embeds voltage, current, and power comparison plots for a specific test ID.
+
+            Args:
+            -----
+            - daqtime_filtered (np.ndarray): Filtered DAQ time data.
+            - hv_batt_voltage_filtered (np.ndarray): Filtered CAN voltage data.
+            - hioki_U1_filtered (np.ndarray): Filtered Hioki voltage data.
+            - hv_batt_current_filtered (np.ndarray): Filtered CAN current data.
+            - hioki_I1_filtered (np.ndarray): Filtered Hioki current data.
+            - hv_batt_power_filtered (np.ndarray): Filtered CAN power data.
+            - hioki_P1_filtered (np.ndarray): Filtered Hioki power data.
+            - test_id (int): The test ID associated with the current analysis.
+
+            Outputs:
+            --------
+            - Saves a plot as an image in the specified plot directory.
+            - Embeds the saved plot image into the Excel workbook at a designated cell.
+            """
             plt.figure(figsize=(10, 6))
 
             plt.subplot(3, 1, 1)
@@ -238,10 +293,27 @@ class HiokiCANAnalyzer:
 
     def plot_linear_fit(self, datasets, test_id):
         """
-        Plot multiple linear fits in a 2x2 grid and display slope, intercept, R^2, RMS, and Pearson correlation coefficient on the graph.
+        Generates and embeds linear fit plots for voltage, current, and power comparisons.
 
-        Parameters:
-        datasets (list of tuples): Each tuple contains (x, y, xlabel, ylabel).
+        Args:
+        -----
+        - datasets (list of tuples): Each tuple contains:
+            (x (np.ndarray), y (np.ndarray), xlabel (str), ylabel (str)).
+            Represents data for linear regression and plot labeling.
+
+        - test_id (int): The test ID associated with the current analysis.
+
+        Process:
+        --------
+        - Performs linear regression on the datasets.
+        - Calculates regression metrics (slope, intercept, R², RMS, Pearson correlation).
+        - Annotates plots with regression metrics.
+        - Saves plots as images and embeds them into the Excel workbook.
+
+        Outputs:
+        --------
+        - Saves a linear fit plot image in the specified plot directory.
+        - Embeds the saved plot image into the Excel workbook at a designated cell.
         """
         fig, axs = plt.subplots(2, 2, figsize=(10, 6))
 
@@ -312,6 +384,12 @@ class HiokiCANAnalyzer:
     def __del__(self):
         """
         Cleans up resources upon object destruction.
+
+        Process:
+        --------
+        - Saves any changes to the Excel workbook.
+        - Closes the workbook to release file handles.
+        - Prints a confirmation message indicating the class object has been destroyed.
         """
         self.wb.save(self.output_file_directory)
         self.wb.close()

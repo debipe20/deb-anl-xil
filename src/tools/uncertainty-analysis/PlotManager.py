@@ -18,7 +18,7 @@ The `PlotManager` class is responsible for generating and embedding visualizatio
 
 Methods:
 --------
-- __init__(self, summary1, summary2, test_id_list, output_file_path, plot_directory, sheet_name): Initializes the PlotManager instance.
+- __init__(self, summary1, summary2, test_id_list, output_file_directory, plot_directory, sheet_name): Initializes the PlotManager instance.
 - plot_uncertainty_percentage(self): Plots a bar chart comparing uncertainty percentages for drive cycles and embeds it in the Excel sheet.
 - plot_energy_analysis(self): Plots a bar chart comparing discharge energy and uncertainty for drive cycles and embeds it in the Excel sheet.
 - __del__(self): Cleans up resources by saving and closing the workbook upon object destruction.
@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 from openpyxl.drawing.image import Image
 
 class PlotManager:
-    def __init__(self, summary1: list, summary2: list, test_id_list: list, output_file_path: str, plot_directory: str, sheet_name: str):
+    def __init__(self, summary1: list, summary2: list, test_id_list: list, output_file_directory: str, plot_directory: str, sheet_name: str):
         """
         Initializes the PlotManager instance.
 
@@ -40,7 +40,7 @@ class PlotManager:
         - summary1 (list): Summary data sequence 1 for the drive cycles.
         - summary2 (list): Summary data sequence 2 for the drive cycles.
         - test_id_list (list): List of test IDs for comparison.
-        - output_file_path (str): Path to the Excel file where plots will be embedded.
+        - output_file_directory (str): Path to the Excel file where plots will be embedded.
         - plot_directory (str): Directory where plot images will be saved.
         - sheet_name (str): Name of the sheet in the Excel workbook for embedding plots.
 
@@ -50,7 +50,7 @@ class PlotManager:
         """
         self.summary_data_sequence1, self.summary_data_sequence2 = summary1, summary2
         self.bar_chart_test_id_list = test_id_list
-        self.output_file_path = output_file_path
+        self.output_file_directory = output_file_directory
         self.plot_directory = plot_directory
         self.sheet_name = sheet_name
 
@@ -59,9 +59,9 @@ class PlotManager:
 
         # Validate workbook
         try:
-            self.wb = openpyxl.load_workbook(self.output_file_path)
+            self.wb = openpyxl.load_workbook(self.output_file_directory)
         except Exception as e:
-            raise FileNotFoundError(f"Failed to load workbook from {self.output_file_path}: {e}")
+            raise FileNotFoundError(f"Failed to load workbook from {self.output_file_directory}: {e}")
         
     def plot_uncertainty_percentage(self):
         """
@@ -218,7 +218,7 @@ class PlotManager:
         Cleans up resources upon object destruction.
         """
         # Save workbook before destroying the plot_manager object
-        self.wb.save(self.output_file_path)
+        self.wb.save(self.output_file_directory)
         self.wb.close()
         
         object_name = "PlotManager object"

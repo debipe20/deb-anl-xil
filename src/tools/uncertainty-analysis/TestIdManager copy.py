@@ -37,8 +37,8 @@ Methods:
 - set_tdms_data_directory(self, tdms_directory):
     Sets the TDMS file directory path based on the operating system.
 
-- set_directories(self, vehicle_name):
-    Selects and loads the appropriate output file  directory and plot directory for the vehicle.
+- set_config_file(self, vehicle_name):
+    Selects and loads the appropriate configuration file for the vehicle.
 
 - set_cycles_list(self, drive_cycle):
     Loads the list of drive cycles and sub-cycles from the configuration file.
@@ -86,7 +86,7 @@ from TdmsFileManager import TdmsFileManager
 from openpyxl.styles import Border, Side, Font, Alignment
 
 class TestIdManager:
-    def __init__(self, config_path, vehicle_name, drive_cycle, tdms_data_directory, clamp):
+    def __init__(self, vehicle_name, drive_cycle, tdms_data_directory, clamp):
         """
         Initializes the TestIdManager instance.
 
@@ -96,11 +96,10 @@ class TestIdManager:
         - tdms_data_directory (str): Directory path for TDMS files.
         - clamp (str): Clamp type for setting accuracy parameters.
         """
-        configFile = open(config_path, 'r', encoding='utf-8')
+        configFile = open(self.set_config_file(vehicle_name), 'r', encoding='utf-8')
         self.config = (json.load(configFile))
         configFile.close()
 
-        self.set_directories(vehicle_name)
         self.set_tdms_data_directory(tdms_data_directory)        
         self.set_cycles_list(drive_cycle)
         self.set_accuracy(clamp)
@@ -126,7 +125,7 @@ class TestIdManager:
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
 
-    def set_directories(self, vehicle_name):
+    def set_config_file(self, vehicle_name):
         """
         Loads the appropriate configuration file for the given vehicle name and sets paths.
 
@@ -137,24 +136,24 @@ class TestIdManager:
         - str: Path to the configuration file.
         """
         if vehicle_name == "2020 Tesla Model 3":
-            # config_file_name = os.path.join("config-files", "configuration_tesla.json")
-            self.output_file_directory = os.path.join("Analysis", "Tesla-Model3", "2020-tesla-model3-uncertainty-analysis.xlsx")
+            config_file_name = os.path.join("config-files", "configuration_tesla.json")
+            self.output_file_path = os.path.join("Analysis", "Tesla-Model3", "2020-tesla-model3-uncertainty-analysis.xlsx")
             self.plot_directory = os.path.join("Analysis", "Tesla-Model3")
 
         elif vehicle_name == "2020 Chevrolet Bolt":
-            # config_file_name = os.path.join("config-files", "configuration_bolt.json")
-            self.output_file_directory = os.path.join("Analysis", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainty-analysis.xlsx")
+            config_file_name = os.path.join("config-files", "configuration_bolt.json")
+            self.output_file_path = os.path.join("Analysis", "Chevrolet_Bolt", "2020-chevy-bolt-uncertainty-analysis.xlsx")
             self.plot_directory = os.path.join("Analysis", "Chevrolet_Bolt")
 
         elif vehicle_name == "2019 Nissan Leaf":
-            # config_file_name = os.path.join("config-files", "configuration_leaf.json")
-            self.output_file_directory = os.path.join("Analysis", "Nissan-Leaf", "2019-nissan-leaf-uncertainty-analysis.xlsx")
+            config_file_name = os.path.join("config-files", "configuration_leaf.json")
+            self.output_file_path = os.path.join("Analysis", "Nissan-Leaf", "2019-nissan-leaf-uncertainty-analysis.xlsx")
             self.plot_directory = os.path.join("Analysis", "Nissan-Leaf")
 
         else:
             raise ValueError("Unknown vehicle name")
 
-        # return config_file_name
+        return config_file_name
 
 
     def set_cycles_list(self, drive_cycle):
@@ -275,14 +274,11 @@ class TestIdManager:
         - dictionary_name (str): Name of the dictionary.
         """
         # create lists dynamically
-        # lists_dict = {f"{field}": [] for field in self.config['DataFields']}
-        summary_data_fields = list(self.config.get("DataFields", {}).values())
-        lists_dict = {field: [] for field in summary_data_fields}
-        lists_dict["Sub-Phase"] = []
+        lists_dict = {f"{field}": [] for field in self.config['DataFields']}
         
         for index in index_list:
             if df.loc[index, 'Cycle'] == desired_subcycle_name:
-                for field in summary_data_fields:
+                for field in self.config['DataFields']:
                     if field in df.columns:
                         lists_dict[f"{field}"].append(df.loc[index, field])
 
@@ -388,7 +384,7 @@ class TestIdManager:
         Args:
         - filtered_dataframe (pd.DataFrame): Filtered DataFrame with relevant data.
         """
-        output_dir = os.path.dirname(self.output_file_directory)
+        output_dir = os.path.dirname(self.output_file_path)
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
             print(f"The directory '{output_dir}' was created.")
@@ -398,7 +394,7 @@ class TestIdManager:
         cycle_type_dicts = self.matching_cycles(filtered_dataframe)
         
         # Create a Pandas Excel writer using openpyxl as the engine
-        with pd.ExcelWriter(self.output_file_directory, engine='openpyxl') as writer:
+        with pd.ExcelWriter(self.output_file_path, engine='openpyxl') as writer:
             start_row = 0
             for dict_name, dictionary in cycle_type_dicts.items():
                 # Convert dictionary to DataFrame
@@ -419,7 +415,7 @@ class TestIdManager:
                 start_row += len(df) + 3
 
         # Load the workbook and access the sheet
-        workbook = load_workbook(self.output_file_directory)
+        workbook = load_workbook(self.output_file_path)
         sheet = workbook[self.output_sheet_name]
         
         # Merge cells in 'Category' column for each DataFrame
@@ -430,8 +426,8 @@ class TestIdManager:
             start_row += len(df) + 3
 
         # Save the updated workbook
-        workbook.save(self.output_file_directory)
-        print(f"File created successfully: {self.output_file_directory}")
+        workbook.save(self.output_file_path)
+        print(f"File created successfully: {self.output_file_path}")
 
 
     def style_dataframe(self, wb, sheet_name, start_row, dataframe):
@@ -497,7 +493,7 @@ class TestIdManager:
         self.test_id_list_category_4th = sorted(list(set(self.test_id_list_category_4th)))
         self.test_id_list_category_5th = sorted(list(set(self.test_id_list_category_5th)))
                 
-        tdms_file_manager = TdmsFileManager(self.config, self.output_file_directory, self.plot_directory, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2, self.accuracy_parameter3)
+        tdms_file_manager = TdmsFileManager(self.config, self.output_file_path, self.plot_directory, self.tdms_data_directory, self.accuracy_parameter1, self.accuracy_parameter2, self.accuracy_parameter3)
         # tdms_file_manager.set_test_id_list(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
         tdms_file_manager.conduct_mct_test_analysis(self.test_id_list_category_1st, self.test_id_list_category_2nd, self.test_id_list_category_3rd, self.test_id_list_category_4th, self.test_id_list_category_5th)
         del tdms_file_manager

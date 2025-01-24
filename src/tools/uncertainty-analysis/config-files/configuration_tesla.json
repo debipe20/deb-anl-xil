@@ -3,22 +3,16 @@
     "InputSheetName": "TestSummary",
     "NoOfSkipRows": 6,
     "MaxSubPhase": 2,
-    "DataFields": [
-        "Test ID [#]",
-        "Sub-Phase",
-        "Cycle Distance [mi]",
-        "Start SOC",
-        "End SOC",
-        "HV Batt (500A)\nStart \nWP1 [Wh]\n",
-        "HV Batt Out (500A) End\nWP1 [Wh]",
-        "HV Batt (500A)\nΔ [Wh]",
-        "HV Batt (500A) Energy consumption\n[Wh/mi]",
-        "HV Batt (1000A) Start WP2 [Wh]",
-        "HV Batt (1000A)  End WP2 [Wh]",      
-        "HV Batt (1000A) \nΔ WP2 [Wh]",
-        "HV Batt (1000A) Δ WP2 [Wh/mi]",
-        "Recharge Allocation Factor"
-    ],
+    "DataFields": {
+        "Test_ID": "Test ID [#]",
+        "Cycle_Distance": "Cycle Distance [mi]",
+        "Start_SOC": "Start SOC",
+        "End_SOC": "End SOC",
+        "Hioki_Voltage_Battery_Energy_Start": "HV Batt (1000A) Start WP2 [Wh]",
+        "Hioki_Voltage_Battery_Energy_End": "HV Batt (1000A)  End WP2 [Wh]",
+        "Hioki_Voltage_Battery_Energy_Difference": "HV Batt (1000A) \nΔ WP2 [Wh]",
+        "Hioki_Voltage_Battery_Energy_Consumption": "HV Batt (1000A) Δ WP2 [Wh/mi]"
+    },
     "Hioki-CAN-Analysis-Field":{
         "DAQ_Time": "DAQ_Time[s]",
         "CAN_Voltage": "BMS_packCurrent__A",

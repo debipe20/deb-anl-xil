@@ -46,7 +46,6 @@ To start the application, simply run:
 """
 
 import tkinter as tk
-import json
 from TestIdManager import TestIdManager
 from GuiManager import GuiManager
 
@@ -56,37 +55,25 @@ def main():
 
     Responsibilities:
     ------------------
-    - Reads the configuration settings from a JSON file.
     - Initializes the Tkinter GUI using the `GuiManager` class.
     - Defines the callback function `on_selections_made` to handle user input and
       trigger uncertainty analysis via the `TestIdManager` class.
 
     Workflow:
     ---------
-    1. Reads configuration settings from `configuration.json`.
-    2. Launches the GUI for user interaction, where users select:
+    1. Launches the GUI for user interaction, where users select:
        - Vehicle type.
        - Driving cycle.
        - Data directory (TDMS files).
        - Instrument clamp.
-    3. On user input, the `on_selections_made` callback processes the data and
+    2. On user input, the `on_selections_made` callback processes the data and
        executes the uncertainty analysis.
 
     Returns:
     --------
     None
     """
-    try:
-        # Read the config file into a json object
-        with open("config-files/configuration.json", 'r') as config_file:
-            config = json.load(config_file)
-    except FileNotFoundError:
-        print("[ERROR] Configuration file not found. Please ensure 'configuration.json' is in the correct directory.")
-        return
-    except json.JSONDecodeError:
-        print("[ERROR] Failed to parse the configuration file. Ensure it is a valid JSON file.")
-        return
-
+    config_path = "config-files/configuration.json"
     root = tk.Tk()
 
     # Define callback function to process selections
@@ -135,8 +122,8 @@ def main():
         except Exception as e:
             print("\n[ERROR] An error occurred during the Uncertainty Analysis.")
             print(f"  - Error Details: {e}")
-
-    gui_manager = GuiManager(root, selection_callback=on_selections_made)
+            
+    gui_manager = GuiManager(root, config_path, selection_callback = on_selections_made)
     root.mainloop()
     root.destroy()
     del gui_manager

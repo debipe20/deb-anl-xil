@@ -10,13 +10,67 @@ Transportation and Power Systems Division
 
 Description:
 ------------
-The `HiokiCANAnalyzer` class is responsible for generating and embedding visualizations for uncertainty and energy analysis into an Excel workbook. It integrates seamlessly with the summary data from MCT drive cycles and provides functionality to:
+The `HiokiCANAnalyzer` class is designed for performing detailed energy and uncertainty 
+analyses by comparing Hioki and CAN data from MCT drive cycles. It generates visualizations 
+for linear fit and power analysis, embeds these plots into Excel workbooks, and provides 
+calculations to quantify errors in measurements.
 
+Key Features:
+-------------
+1. **Data Analysis**:
+   - Perform linear regression and calculate error metrics (R², RMS, Pearson correlation).
+   - Compare Hioki and CAN data for voltage, current, and power measurements.
+
+2. **Visualization**:
+   - Generate plots for voltage, current, and power comparisons.
+   - Generate linear fit plots with regression metrics.
+   - Embed all generated visualizations into an Excel workbook.
+
+3. **Configurable**:
+   - Reads configuration details from a JSON file to support flexible parameter management.
+   - Supports custom test ID lists for targeted analysis.
+
+4. **Cross-Platform Support**:
+   - Dynamically detects and configures paths based on the operating system (Windows/Linux).
+
+5. **Error Handling**:
+   - Robustly handles missing files or invalid data with meaningful error messages.
 
 Methods:
 --------
+- __init__(self, config, test_id_list, output_file_directory, plot_directory, sheet_name):
+  Initializes the class, loads the Excel workbook, and prepares the analysis sheet.
 
+- set_tdms_data_directory(self):
+  Dynamically sets the TDMS data directory path based on the operating system.
+
+- manage_linear_fit_analysis(self):
+  Processes each test ID, calculates power and error metrics, and generates plots for 
+  voltage, current, and power comparisons.
+
+- plot_voltage_current_power(self, daqtime_filtered, hv_batt_voltage_filtered, hioki_U1_filtered, 
+  hv_batt_current_filtered, hioki_I1_filtered, hv_batt_power_filtered, hioki_P1_filtered, test_id):
+  Generates and embeds plots for voltage, current, and power comparisons.
+
+- plot_linear_fit(self, datasets, test_id):
+  Generates and embeds linear fit plots with regression metrics for voltage, current, 
+  and power comparisons.
+
+- __del__(self):
+  Saves and closes the workbook, ensuring all changes and embedded plots are retained.
+
+Example Usage:
+--------------
+>>> config = json.load(open("config-files/configuration.json", "r", encoding="utf-8"))
+>>> output_file_directory = "Analysis/Tesla-Model3/uncertainty-analysis.xlsx"
+>>> plot_directory = "Analysis/Tesla-Model3"
+>>> sheet_name = "1_Hioki_vs_CAN"
+>>> test_id_list = [62005016, 62005017, 62005018]
+>>> analyzer = HiokiCANAnalyzer(config, test_id_list, output_file_directory, plot_directory, sheet_name)
+>>> analyzer.manage_linear_fit_analysis()
+>>> del analyzer
 """
+
 
 import os
 import platform
@@ -30,7 +84,7 @@ from scipy.stats import linregress
 
 
 class HiokiCANAnalyzer:
-    def __init__(self, config: dict, test_id_list: list, output_file_path: str, plot_directory: str, sheet_name: str):
+    def __init__(self, config: dict, test_id_list: list, output_file_directory: str, plot_directory: str, sheet_name: str):
         """
         Initialize the HiokiCANAnalyzer class.
 
@@ -40,7 +94,7 @@ class HiokiCANAnalyzer:
         """
         self.config = config
         self.test_id_list = test_id_list
-        self.output_file_path = output_file_path
+        self.output_file_directory = output_file_directory
         self.plot_directory = plot_directory
         self.hioki_can_analysis_sheet_name = sheet_name
         self.image_position_List = ['A5', 'A40', 'S5', 'S40', 'AK5', 'AK40', 'BC5','BC40', 'BV5','BV40']
@@ -48,9 +102,9 @@ class HiokiCANAnalyzer:
         
         # Validate workbook
         try:
-            self.wb = openpyxl.load_workbook(self.output_file_path)
+            self.wb = openpyxl.load_workbook(self.output_file_directory)
         except Exception as e:
-            raise FileNotFoundError(f"Failed to load workbook from {self.output_file_path}: {e}")
+            raise FileNotFoundError(f"Failed to load workbook from {self.output_file_directory}: {e}")
         
         self.sheet = self.wb.create_sheet(self.hioki_can_analysis_sheet_name)
         
@@ -259,7 +313,7 @@ class HiokiCANAnalyzer:
         """
         Cleans up resources upon object destruction.
         """
-        self.wb.save(self.output_file_path)
+        self.wb.save(self.output_file_directory)
         self.wb.close()
         
         object_name = "HiokiCANAnalyzer object"
@@ -277,11 +331,11 @@ if __name__ == "__main__":
     config = (json.load(configFile))
     configFile.close()
     
-    output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
+    output_file_directory = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
     plot_directory = os.path.join("Analysis", "Tesla-Model3")
     sheet_name = "1_Hioki_vs_CAN"
     # test_id_list = [62007023]
     test_id_list = [62005016, 62005017, 62005018, 62005019, 62005020]
-    hioki_CAN_analyzer = HiokiCANAnalyzer(config, test_id_list, output_file_path, plot_directory, sheet_name)
+    hioki_CAN_analyzer = HiokiCANAnalyzer(config, test_id_list, output_file_directory, plot_directory, sheet_name)
     hioki_CAN_analyzer.manage_linear_fit_analysis()
     del hioki_CAN_analyzer

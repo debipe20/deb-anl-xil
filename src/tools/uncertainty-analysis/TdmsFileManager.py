@@ -41,13 +41,13 @@ from PlotManager import PlotManager
 from HiokiCANAnalyzer import HiokiCANAnalyzer
 
 class TdmsFileManager:
-    def __init__(self, config: dict, output_file_path: str, plot_directory, tdms_directory: str, accuracy_parameter1: float, accuracy_parameter2: float, accuracy_parameter3: float):
+    def __init__(self, config: dict, output_file_directory: str, plot_directory, tdms_directory: str, accuracy_parameter1: float, accuracy_parameter2: float, accuracy_parameter3: float):
         """
         Initializes the TdmsFileManager with file paths and parameters.
 
         Args:
             config (dict): dictionary conatin config information
-            output_file_path (str): Path to the Excel file for saving results.
+            output_file_directory (str): Path to the Excel file for saving results.
             plot_directory (str): Directory path for saving plots.
             tdms_directory (str): Directory path where TDMS files are stored.
             accuracy_parameter1 (float): Accuracy parameter 1 for uncertainty calculations.
@@ -55,7 +55,7 @@ class TdmsFileManager:
             accuracy_parameter3 (float): Accuracy parameter 3 for uncertainty calculations.
         """
         self.config = config
-        self.output_file_path = output_file_path
+        self.output_file_directory = output_file_directory
         self.plot_directory = plot_directory
         self.tdms_data_directory = tdms_directory
         self.accuracy_parameter1 = accuracy_parameter1
@@ -116,7 +116,7 @@ class TdmsFileManager:
                 self.manage_mct_test_analysis(test_id_list)
                 self.bar_chart_test_id_list.clear()
                 
-                hioki_CAN_analyzer = HiokiCANAnalyzer(self.config, test_id_list, self.output_file_path, self.plot_directory, self.hioki_can_analysis_sheet_name)
+                hioki_CAN_analyzer = HiokiCANAnalyzer(self.config, test_id_list, self.output_file_directory, self.plot_directory, self.hioki_can_analysis_sheet_name)
                 hioki_CAN_analyzer.manage_linear_fit_analysis()
                 del hioki_CAN_analyzer
         
@@ -172,7 +172,7 @@ class TdmsFileManager:
                 self.manage_categorial_summary(test_id_list[3], 3, summary_data_depletion2, summary_title_list[3])
                 self.manage_categorial_summary(test_id_list[4], test_id_index, summary_data_charge, summary_title_list[4])
 
-                plot_manager = PlotManager(summary_data_sequence1, summary_data_sequence2, self.bar_chart_test_id_list, self.output_file_path, self.plot_directory, self.categorial_summary_sheet_name)
+                plot_manager = PlotManager(summary_data_sequence1, summary_data_sequence2, self.bar_chart_test_id_list, self.output_file_directory, self.plot_directory, self.categorial_summary_sheet_name)
                 plot_manager.plot_uncertainty_percentage()
                 plot_manager.plot_energy_analysis()
                 del plot_manager
@@ -485,12 +485,12 @@ class TdmsFileManager:
         self.add_summary_table(sheet_name, summary_data)
         
         # Write the DataFrame below the summary table using pd.ExcelWriter
-        with pd.ExcelWriter(self.output_file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+        with pd.ExcelWriter(self.output_file_directory, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
             # Write the DataFrame to the specified sheet, below the summary table
             group_channel_dataframe.to_excel(writer, sheet_name=sheet_name, index=False, startrow=len(summary_data) + 2)
 
         # Load workbook to apply formatting
-        wb = openpyxl.load_workbook(self.output_file_path)
+        wb = openpyxl.load_workbook(self.output_file_directory)
         
         # Apply borders and bold column headers to the summary table
         self.style_dataframe(wb, sheet_name, start_row=1, dataframe=pd.DataFrame(summary_data))
@@ -499,10 +499,10 @@ class TdmsFileManager:
         self.style_dataframe(wb, sheet_name, start_row=len(summary_data) + 3, dataframe=group_channel_dataframe)
 
         # Save and close the workbook
-        wb.save(self.output_file_path)
+        wb.save(self.output_file_directory)
         wb.close()
         
-        print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_path}")
+        print(f"Data successfully written to sheet '{sheet_name}' in {self.output_file_directory}")
 
     def fill_cumulative_list(self, source_list):
         """
@@ -536,7 +536,7 @@ class TdmsFileManager:
             None
         """
         # Load the workbook and create a new sheet if it doesn't exist
-        wb = openpyxl.load_workbook(self.output_file_path)
+        wb = openpyxl.load_workbook(self.output_file_directory)
         
         # Check if sheet exists, if not, create it
         if sheet_name not in wb.sheetnames:
@@ -562,7 +562,7 @@ class TdmsFileManager:
         #         sheet.cell(row=row_idx, column=col_idx, value=cell_value)
 
         # Save workbook after writing the summary
-        wb.save(self.output_file_path)
+        wb.save(self.output_file_directory)
         wb.close()
     
     def manage_categorial_summary(self, test_id, test_id_index, summary_data, title=None):
@@ -623,7 +623,7 @@ class TdmsFileManager:
             ["u(FRE)_sqrt [%]", self.u_fre_rms_percent]
         ] 
 
-        wb = openpyxl.load_workbook(self.output_file_path)
+        wb = openpyxl.load_workbook(self.output_file_directory)
         
         # Check if sheet exists, if not, create it
         if self.categorial_summary_sheet_name not in wb.sheetnames:
@@ -676,7 +676,7 @@ class TdmsFileManager:
             self.initialize_ube_fre_variables()
 
         # Save workbook after writing the summary
-        wb.save(self.output_file_path)
+        wb.save(self.output_file_directory)
         wb.close()
         
     def style_dataframe(self, wb, sheet_name, start_row, dataframe):
@@ -754,7 +754,7 @@ if __name__ == "__main__":
     current_os = platform.system()
 
     tdms_directory = "AMTL-Test-Data"
-    output_file_path = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
+    output_file_directory = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
     plot_directory = os.path.join("Analysis", "Tesla-Model3")
     tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
     
@@ -763,5 +763,5 @@ if __name__ == "__main__":
     test_id_list_category_2nd = [62006032, 62006033, 62006034, 62006035, 62006036]
     test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th = ([] for i in range(3))
     
-    tdms_file_manager = TdmsFileManager(config, output_file_path, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
+    tdms_file_manager = TdmsFileManager(config, output_file_directory, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
     tdms_file_manager.set_test_id_list(test_id_list_category_1st, test_id_list_category_2nd, test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th)

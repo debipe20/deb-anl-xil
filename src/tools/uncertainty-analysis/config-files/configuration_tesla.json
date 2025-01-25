@@ -2,7 +2,6 @@
     "InputFileDirectory": "Analysis/Tesla-Model3/2020_Tesla_Model_3_TestPlanInstru_MasterSummary_211112.xlsm",
     "InputSheetName": "TestSummary",
     "NoOfSkipRows": 6,
-    "MaxSubPhase": 2,
     "DataFields": {
         "Test_ID": "Test ID [#]",
         "Cycle_Distance": "Cycle Distance [mi]",

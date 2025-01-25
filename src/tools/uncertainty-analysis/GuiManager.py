@@ -461,8 +461,6 @@ class GuiManager:
                 )
                 self.status_label.pack(anchor="center")
 
-
-
         # Show success message
         # messagebox.showinfo("Configuration Saved", "Your changes have been saved to the configuration file.")
 

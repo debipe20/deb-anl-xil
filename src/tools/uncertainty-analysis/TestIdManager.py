@@ -489,7 +489,6 @@ class TestIdManager:
         """   
     
         data_frame = pd.read_excel(self.config["InputFileDirectory"], sheet_name = self.config['InputSheetName'],  skiprows = int(self.config['NoOfSkipRows']))        
-        print(data_frame.columns)
         filtered_dataframe = data_frame[~data_frame.apply(self.check_description_row, axis=1)] # Apply the filter to exclude description rows
         
         self.write_in_excel_file(filtered_dataframe)
@@ -514,5 +513,5 @@ class TestIdManager:
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":
-    test_id_manager = TestIdManager("2020 Tesla Model 3", "MCT",  "AMTL-Test-Data", "CT6843-05")
+    test_id_manager = TestIdManager("config-files/configuration.json", "2020 Tesla Model 3", "MCT",  "AMTL-Test-Data", "CT6843-05")
     test_id_manager.manage_test_data()

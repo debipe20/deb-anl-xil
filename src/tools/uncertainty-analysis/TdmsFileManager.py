@@ -35,6 +35,7 @@ Methods available in the class:
 import numpy as np
 import openpyxl
 import pandas as pd
+import gc
 from nptdms import TdmsFile
 from openpyxl.styles import Border, Side, Font, Alignment
 from PlotManager import PlotManager
@@ -119,6 +120,7 @@ class TdmsFileManager:
                 hioki_CAN_analyzer = HiokiCANAnalyzer(self.config, test_id_list, self.output_file_directory, self.plot_directory, self.hioki_can_analysis_sheet_name)
                 hioki_CAN_analyzer.manage_linear_fit_analysis()
                 del hioki_CAN_analyzer
+                gc.collect()  # Force garbage collection to ensure immediate destructor cal
         
     def manage_mct_test_analysis(self, test_id_list):
         """
@@ -134,6 +136,7 @@ class TdmsFileManager:
         for test_id in test_id_list:
             
             self.tdms_file_path = self.tdms_data_directory + f"/{test_id} Test Data.tdms"
+            print(self.tdms_file_path)
             print(f"Processing '{self.tdms_file_path}' TDMS file")
             tdms_file = TdmsFile.read(self.tdms_file_path, memmap_dir=None)
              
@@ -753,15 +756,15 @@ if __name__ == "__main__":
 
     current_os = platform.system()
 
-    tdms_directory = "AMTL-Test-Data"
+    data_directory = "AMTL-Test-Data"
     output_file_directory = "Analysis/Tesla-Model3/2020-tesla-model3-uncertainty-analysis.xlsx"
     plot_directory = os.path.join("Analysis", "Tesla-Model3")
-    tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", tdms_directory)
+    tdms_data_directory = os.path.join(os.path.expanduser("~"), "Documents", "Data", data_directory)
     
     accuracy_parameter1, accuracy_parameter2, accuracy_parameter3 = 0.35, 0.09, 0.08
     test_id_list_category_1st = [62005016, 62005017, 62005018, 62005019, 62005020]
     test_id_list_category_2nd = [62006032, 62006033, 62006034, 62006035, 62006036]
     test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th = ([] for i in range(3))
     
-    tdms_file_manager = TdmsFileManager(config, output_file_directory, plot_directory, tdms_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
-    tdms_file_manager.set_test_id_list(test_id_list_category_1st, test_id_list_category_2nd, test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th)
+    tdms_file_manager = TdmsFileManager(config, output_file_directory, plot_directory, tdms_data_directory, accuracy_parameter1, accuracy_parameter2, accuracy_parameter3)
+    tdms_file_manager.conduct_mct_test_analysis(test_id_list_category_1st, test_id_list_category_2nd, test_id_list_category_3rd, test_id_list_category_4th, test_id_list_category_5th)

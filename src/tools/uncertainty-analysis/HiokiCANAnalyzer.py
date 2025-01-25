@@ -104,7 +104,6 @@ class HiokiCANAnalyzer:
         self.test_id_list = test_id_list
         self.output_file_directory = output_file_directory
         self.plot_directory = plot_directory
-        self.hioki_can_analysis_sheet_name = sheet_name
         self.image_position_List = ['A5', 'A40', 'S5', 'S40', 'AK5', 'AK40', 'BC5','BC40', 'BV5','BV40']
         self.image_position_index = -1
         
@@ -114,7 +113,10 @@ class HiokiCANAnalyzer:
         except Exception as e:
             raise FileNotFoundError(f"Failed to load workbook from {self.output_file_directory}: {e}")
         
-        self.sheet = self.wb.create_sheet(self.hioki_can_analysis_sheet_name)
+        if sheet_name in self.wb.sheetnames:
+            self.sheet = self.wb[sheet_name]
+        else:
+            self.sheet = self.wb.create_sheet(sheet_name)
         
     def set_tdms_data_directory(self):
         """
@@ -281,9 +283,9 @@ class HiokiCANAnalyzer:
             plt.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust layout to make room for the title
             # plt.show()
             # Save the chart as an image and close the plot
-            chart_name = f'{test_id}_voltage_current_power_plot.jpg'
+            chart_name = f'{test_id}_voltage_current_power_plot.png'
             chart_path = os.path.join(self.plot_directory, chart_name)
-            plt.savefig(chart_path)
+            plt.savefig(chart_path, format="png")
             plt.close()
             
             # Insert the chart image into the workbook at the specified cell
@@ -341,12 +343,12 @@ class HiokiCANAnalyzer:
             pearson_corr = r_value  # Directly from linregress
 
             # Debugging outputs
-            print(f"Dataset: {xlabel} vs {ylabel}")
-            print(f"  Slope: {slope:.4f}")
-            print(f"  Intercept: {intercept:.4f}")
-            print(f"  R^2: {r_value**2:.4f}")
-            print(f"  RMS: {rms:.4f}")
-            print(f"  Pearson Coefficient: {pearson_corr:.4f}")
+            # print(f"Dataset: {xlabel} vs {ylabel}")
+            # print(f"  Slope: {slope:.4f}")
+            # print(f"  Intercept: {intercept:.4f}")
+            # print(f"  R^2: {r_value**2:.4f}")
+            # print(f"  RMS: {rms:.4f}")
+            # print(f"  Pearson Coefficient: {pearson_corr:.4f}")
 
             # Scatter plot and regression line
             ax.scatter(x, y, s=10, label="Data")
@@ -356,7 +358,7 @@ class HiokiCANAnalyzer:
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
             ax.grid(True)
-            ax.legend()
+            ax.legend(loc='upper left', bbox_to_anchor=(0.05, 0.95), ncol=4, fontsize=10)
 
             # Annotate slope, intercept, R^2, RMS, and Pearson correlation
             annotation_text = (
@@ -371,9 +373,9 @@ class HiokiCANAnalyzer:
 
         plt.tight_layout()
         # plt.show()
-        chart_name = f'{test_id}_linear_fit_plot.jpg'
+        chart_name = f'{test_id}_linear_fit_plot.png'
         chart_path = os.path.join(self.plot_directory, chart_name)
-        plt.savefig(chart_path)
+        plt.savefig(chart_path, format="png")
         plt.close()
         
         # Insert the chart image into the workbook at the specified cell

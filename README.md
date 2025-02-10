@@ -4,11 +4,13 @@
 This repository contains projects and resources related to analytical modeling, optimization, and Xilinx-based implementations. The work here may include simulation models, mathematical optimization frameworks, FPGA-based designs, and machine learning applications.
 
 ## Repository Structure
+```
 /src – Source code for different projects
 /docs – Documentation and references
 /notebooks – Jupyter notebooks for experiments and analyses
 /scripts – Utility scripts for preprocessing and automation
 /tests – Test cases and validation files
+```
 
 # Requirements
 To set up and run the code, ensure you have the following dependencies installed:

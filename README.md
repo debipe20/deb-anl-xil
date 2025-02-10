@@ -5,16 +5,20 @@ This repository contains projects and resources related to analytical modeling, 
 
 ## Repository Structure
 ```
-/src – Source code for different projects
-/docs – Documentation and references
-/notebooks – Jupyter notebooks for experiments and analyses
-/scripts – Utility scripts for preprocessing and automation
-/tests – Test cases and validation files
+deb-anl-xil/
+│-- src/          # Source code and scripts
+│-- docs/         # Documentation and references
+|-- /3rdparty     #External libraries to support the project
+│-- data/         # Sample datasets (if applicable)
+│-- /build        #  Utility scripts for preparing the environment and setup libraries
+│-- /config       # Configuration files for managing the IP Addresses and Ports, and test scenarios
 ```
 
 # Requirements
 To set up and run the code, ensure you have the following dependencies installed:
-
+'''
+/build/scripts/setup-build-environment.sh
+'''
 
 # Getting Started
 1. Clone the repository
@@ -30,6 +34,14 @@ Though its a open-source repository, please contact to the Author before using a
 
 # Contributions
 Contributions, issues, and feature requests are welcome! Feel free to fork this repository and open a pull request.
+'''
+1. Fork the repository.
+2. Create a new issue
+3. Create a new branch: git checkout -b <issue-number-feature-branch>.
+4. Commit your changes: git commit -m "Added a new feature".
+5. Push to the branch: git push origin feature-branch.
+6. Submit a pull request.
+'''
 
 ### Standards
 Examples of behavior that contributes to creating a positive environment include:

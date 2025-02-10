@@ -1,6 +1,6 @@
 # deb-anl-xil
 
-# Overview
+## Overview
 This repository contains projects and resources related to analytical modeling, optimization, and Xilinx-based implementations. The work here may include simulation models, mathematical optimization frameworks, FPGA-based designs, and machine learning applications.
 
 ## Repository Structure
@@ -14,13 +14,16 @@ deb-anl-xil/
 │-- /config       # Configuration files for managing the IP Addresses and Ports, and test scenarios
 ```
 
-# Requirements
+## Requirements
 To set up and run the code, ensure you have the following dependencies installed:
 '''
-/build/scripts/setup-build-environment.sh
+cd build
+pip3 install -r /build/requirements.txt
+cd scripts
+./setup-build-environment.sh
 '''
 
-# Getting Started
+## Getting Started
 1. Clone the repository
 ```
     git clone https://github.com/debipe20/deb-anl-xil.git
@@ -29,10 +32,10 @@ To set up and run the code, ensure you have the following dependencies installed
 2. Set up the environment as per the instructions in requirements.txt.
 3. Navigate to specific folders for more details on different projects.
 
-# License
+## License
 Though its a open-source repository, please contact to the Author before using any of the code or documents.
 
-# Contributions
+## Contributions
 Contributions, issues, and feature requests are welcome! Feel free to fork this repository and open a pull request.
 '''
 1. Fork the repository.
@@ -43,7 +46,7 @@ Contributions, issues, and feature requests are welcome! Feel free to fork this 
 6. Submit a pull request.
 '''
 
-### Standards
+## Standards
 Examples of behavior that contributes to creating a positive environment include:
 	
 	-	Using welcoming and inclusive language
@@ -60,8 +63,6 @@ Examples of unacceptable behavior by participants include:
 	-	Publishing others' private information, such as a physical or electronic address, without explicit permission
 	-	Other conduct which could reasonably be considered inappropriate in a professional setting
 
-# Contact Information
-
+## Contact Information
 Contact Name: Debashis Das
-
 Contact Information: debipe20@gmail.com

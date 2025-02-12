@@ -1,25 +1,22 @@
 import pandas as pd
-import numpy as np
 import os
 import platform
+import matplotlib.pyplot as plt
 from nptdms import TdmsFile
-from PlotManager import PlotManager
 
-g_value = 9.80665
 
 class AccelerationEnvelopeManager:
     def __init__(self, config):
         self.config = config
+        self.vehicle_name = self.config['VehicleName']
+        self.speed_unit_conversion = self.config['SpeedUnitConversion']
         self.acc_override_test_file_list = self.config['AccOverrideTestFileList']
         self.stock_acc_test_file_list = self.config['StockAccTestFileList']
-        self.acc_override_acceleration = []
-        self.acc_override_speed_mps = []
-        self.acc_override_speed_mph = []
-        self.stock_acc_acceleration = []
-        self.stock_acc_speed_mps = []
-        self.stock_acc_speed_mph = []
-
-        self.plot_manager = PlotManager(config)
+        self.title_status = self.config['SetTitle']
+        self.plot_save = self.config['PlotSave']
+        self.acc_override_acceleration, self.acc_override_speed_mps, self.acc_override_speed_mph = ([] for i in range(3))
+        self.stock_acc_acceleration, self.stock_acc_speed_mps, self.stock_acc_speed_mph = ([] for i in range(3))
+        self.g_value = 9.80665
 
     def get_data_directory(self):
         """
@@ -28,9 +25,9 @@ class AccelerationEnvelopeManager:
         current_os = platform.system()
 
         if current_os == "Linux":
-            data_directory = os.path.join(os.path.expanduser("~"), "Downloads", "2023-Ford-F150-Lightning")
+            data_directory = os.path.join(os.path.expanduser("~"), "Downloads", self.vehicle_name)
         elif current_os == "Windows":
-            data_directory = os.path.join("C:\\", "Users", "ddas", "Documents", "Data", "2023-Ford-F150-Lightning")
+            data_directory = os.path.join("C:\\", "Users", "ddas", "Documents", "Data", self.vehicle_name)
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
         
@@ -45,7 +42,7 @@ class AccelerationEnvelopeManager:
 
         self.time_data = self.time_channel[:]
         self.speed_data_mph = self.speed_channel_mph[:]
-        self.speed_data_mps = self.speed_channel_mph[:] * 0.44704
+        self.speed_data_mps = self.speed_channel_mph[:] * self.speed_unit_conversion
 
     def get_acc_data(self):
         """
@@ -63,7 +60,7 @@ class AccelerationEnvelopeManager:
             if (abs(calculated_accel-previous_calculated_accel) >= 0.1):
                 speed_mph.append(self.speed_channel_mph[i])
                 speed_mps.append(self.speed_data_mps[i])
-                acceleration_g.append(calculated_accel / g_value)
+                acceleration_g.append(calculated_accel / self.g_value)
 
         return speed_mph, speed_mps, acceleration_g
 
@@ -99,7 +96,43 @@ class AccelerationEnvelopeManager:
             self.stock_acc_speed_mps.extend(speed_mps)
             self.stock_acc_acceleration.extend(acceleration_g)
 
-        self.plot_manager.generate_vehicle_envelope_scatter_plot(self.acc_override_speed_mph, self.acc_override_acceleration, self.stock_acc_speed_mph, self.stock_acc_acceleration)
+        self.generate_vehicle_envelope_scatter_plot(self.acc_override_speed_mph, self.acc_override_acceleration, self.stock_acc_speed_mph, self.stock_acc_acceleration)
+
+
+    def generate_vehicle_envelope_scatter_plot(self, acc_override_speed_mph, acc_override_acceleration, stock_acc_speed_mph, stock_acc_acceleration):
+        """
+        Generates a scatter plot for acceleration vs speed in mps, with additional overlay for ACC override data.
+        """
+        if not acc_override_acceleration or not acc_override_speed_mph:
+            print("No data available for plotting. Please ensure data is processed first.")
+            return
+
+        plt.figure(figsize=(12, 8))
+        
+        # Plot the Stock ACC  data
+        if stock_acc_speed_mph and stock_acc_acceleration:
+            plt.scatter(stock_acc_speed_mph, stock_acc_acceleration, alpha=0.7, label="ACC Override OFF", color="orange", s=10)
+        
+        # Plot the main vehicle envelope data
+        plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
+                
+        # Add labels, title, and legend
+        plt.title(f"{self.vehicle_name}_Acceleration Envelope", fontsize=16, weight="bold")
+        plt.xlabel("Speed [mph]", fontsize=14)
+        plt.ylabel("Acceleration [g]", fontsize=14)
+        plt.legend(loc="upper right", fontsize=12)
+        
+        # Grid and formatting
+        plt.grid(True, linestyle="--", alpha=0.6)
+
+        # Save or show the plot
+        if self.plot_save:
+            file_directory = f"figure/{self.vehicle_name}_acceleration-envelop.jpg"
+
+            plt.savefig(file_directory, dpi=300)
+            print("saved file")
+        else:
+            plt.show()
 
 '''##############################################
                    Unit testing

@@ -14,8 +14,8 @@
     },
     "Hioki-CAN-Analysis-Field": {
         "DAQ_Time": "DAQ_Time[s]",
-        "CAN_Voltage": "BMS_packCurrent__A",
-        "CAN_Current": "BMS_packVoltage__V",
+        "CAN_Voltage": "BMS_packVoltage__V",
+        "CAN_Current": "BMS_packCurrent__A",
         "Hioki_Voltage": "U2",
         "Hioki_Current": "I2",
         "Hioki_Power": "P2",

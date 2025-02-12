@@ -9,9 +9,9 @@ def main():
     configFile.close()
 
     data_manager = DataManager(config)
-    acceleration_envelope_manager = AccelerationEnvelopeManager(config)
+    # acceleration_envelope_manager = AccelerationEnvelopeManager(config)
     data_manager.generate_plots()
-    acceleration_envelope_manager.manage_test_data()
+    # acceleration_envelope_manager.manage_test_data()
 
 if __name__ == "__main__":
     main() 

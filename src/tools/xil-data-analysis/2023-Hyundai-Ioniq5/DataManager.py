@@ -8,6 +8,7 @@ from PlotManager import PlotManager
 class DataManager:
     def __init__(self, config):
         self.config = config
+        self.vehicle_name = self.config['VehicleName']
         self.smoothing_method = self.config['SmothingMethod']
         self.window_size = self.config['WindowSize']
         self.start_data_to_discard = self.config['NoOfStartDataDiscard']
@@ -21,9 +22,9 @@ class DataManager:
         current_os = platform.system()
 
         if current_os == "Linux":
-            filePath = os.path.join(os.path.expanduser("~"), "Downloads", "2023-Ford-F150-Lightning")
+            filePath = os.path.join(os.path.expanduser("~"), "Downloads", self.vehicle_name)
         elif current_os == "Windows":
-            filePath = os.path.join("C:\\", "Users", "ddas", "Documents", "Data", "2023-Ford-F150-Lightning")
+            filePath = os.path.join("C:\\", "Users", "ddas", "Documents", "Data", self.vehicle_name)
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
 

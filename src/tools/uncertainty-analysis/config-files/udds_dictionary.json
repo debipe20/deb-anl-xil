@@ -1,0 +1,176 @@
+{
+    "1st": [
+        {
+            "Test ID [#]": [
+                62009019
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Start SOC": [
+                97.32648
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                9
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009019
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Start SOC": [
+                92.908999
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                3356
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009021
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Start SOC": [
+                16.392744
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                54955
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009021
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Start SOC": [
+                11.244357
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                58159
+            ]
+        }
+    ],
+    "2nd": [
+        {
+            "Test ID [#]": [
+                62009024
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Start SOC": [
+                97.382938
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                -1
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009024
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Start SOC": [
+                92.884585
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                3389
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009026
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Start SOC": [
+                16.778796
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                54810
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009026
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Start SOC": [
+                16.778796
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                58002
+            ]
+        }
+    ],
+    "3rd": [
+        {
+            "Test ID [#]": [
+                62009059
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Start SOC": [
+                97.212037
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                5
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009059
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Start SOC": [
+                86.567359
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                7769
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009061
+            ],
+            "Sub-Phase": [
+                1
+            ],
+            "Start SOC": [
+                37.795017
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                40631
+            ]
+        },
+        {
+            "Test ID [#]": [
+                62009061
+            ],
+            "Sub-Phase": [
+                2
+            ],
+            "Start SOC": [
+                28.041464
+            ],
+            "HV Batt (500A)\nStart \nWP1 [Wh]\n": [
+                46999
+            ]
+        }
+    ]
+}

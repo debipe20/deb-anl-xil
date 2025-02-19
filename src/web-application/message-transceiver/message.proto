@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package message_transceiver;
+
+// Define the message structure
+message Message {
+    string message_type = 1;  // Type of message (e.g., simulation, mabx, facilities)
+    bytes data = 2;           // The actual message payload
+    int64 timestamp = 3;      // Time of message reception (optional)
+}

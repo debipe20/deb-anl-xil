@@ -1,12 +1,14 @@
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
 class PlotManager:
     def __init__(self, config):
         self.config = config
+        self.debug_status = self.config['Debug']
         self.title_status = self.config['SetTitle']
-        self.plot_save = self.config['PlotSave']
-    
+        self.plot_save = False if self.debug_status else self.config['PlotSave']
+        
     def plot_primary_yaxis(self, x_data, y_data, x_label, y_label, title, fileName):
 
         plt.figure(figsize=(12, 4.0))
@@ -38,34 +40,26 @@ class PlotManager:
         if fig_size_status:
             # fig, ax1 = plt.subplots(figsize=(10,5))
             fig, ax1 = plt.subplots(figsize=(14,5))
+            # fig, ax1 = plt.subplots(figsize=(12,6))
         else: fig, ax1 = plt.subplots()
-
-        # ax1.set_xlabel(x_label, color='tab:green', fontsize=16)
-        # ax1.set_ylabel(y_label1, color='tab:blue', fontsize=16)
-        # primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
-        # ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=12)
-        # ax1.tick_params(axis='x', labelsize=12)  # Set label size for x-axis ticks
-        # ax1.set_xlabel(x_label, color='tab:green')
+        
         ax1.set_xlabel(x_label)
         ax1.set_ylabel(y_label1, color='tab:blue')
         primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
         ax1.tick_params(axis='y', labelcolor='tab:blue')
-
+        ax1.grid(True)
 
         ax2 = ax1.twinx()  # Instantiate a second axes that shares the same x-axis
-        # ax2.set_ylabel(y_label2, color='tab:red', fontsize=16)
         ax2.set_ylabel(y_label2, color='tab:red')
         secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', label='Acceleration')
-        # ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=12)
         ax2.tick_params(axis='y', labelcolor='tab:red')
+        tick_values = np.arange(min(y_data2), max(y_data2), 0.5)
+        ax2.set_yticks(tick_values)
 
         # Combine legends from both axes
         lines = [primary_axis_line, secondary_axis_line]  # Handles for both lines
         labels = [line.get_label() for line in lines]  # Labels for the lines
 
-        # ax1.legend(lines, labels, loc='upper right', fontsize=16)
-        ax1.grid(True)
-        # plt.title(title, fontsize=18, fontweight='bold')
         if self.title_status:
             plt.title(title, fontweight='bold')
         

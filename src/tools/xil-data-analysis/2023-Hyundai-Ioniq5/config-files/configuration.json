@@ -1,0 +1,29 @@
+{
+    "VehicleName": "2023-Hyundai-Ioniq5",
+    "SetTitle": true,
+    "PlotSave": true,
+    "Debug": false,
+    "SmothingMethod": "Moving-Average",
+    "WindowSize": 20,
+    "NoOfStartDataDiscard":10,
+    "NoOfEndDataDiscard": 100,
+    "StartingSpeed": 0,
+    "StartingAcceleration": 0,
+    "InputFileName": "62502019 Test Data.tdms",
+    "OutputFileName": "62502019-output-data.csv",
+    "FileName":[
+        {"0-20mph":"62502007 Test Data.tdms"},
+        {"20-40mph":"62502017 Test Data.tdms"},
+        {"30-50mph":"62502016 Test Data.tdms"},
+        {"50-70mph":"62502018 Test Data.tdms"},
+        {"Accel-Limit-Test-0mph":"62502008 Test Data.tdms"},
+        {"Accel-Limit-Test-40mph":"62502009 Test Data.tdms"},
+        {"Accel-Limit-Test-60mph":"62502010 Test Data.tdms"},
+        {"Decel-Limit-Test-20mph":"62502011 Test Data.tdms"},
+        {"Decel-Limit-Test-40mph":"62502014 Test Data.tdms"},
+        {"Decel-Limit-Test-60mph":"62502015 Test Data.tdms"},
+        {"Resume-Test-0mph":"62502019 Test Data.tdms"}
+    ],
+    "AccOverrideTestFileList":["62502007 Test Data.tdms", "62502008 Test Data.tdms", "62502009 Test Data.tdms", "62502010 Test Data.tdms", "62502011 Test Data.tdms", "62502016 Test Data.tdms", "62502017 Test Data.tdms", "62502018 Test Data.tdms"],
+    "StockAccTestFileList":["62502006 Test Data.tdms", "62502006 Test Data.tdms", "62502006 Test Data.tdms", "62502006 Test Data.tdms"]
+}

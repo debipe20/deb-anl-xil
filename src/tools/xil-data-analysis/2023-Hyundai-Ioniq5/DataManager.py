@@ -9,15 +9,20 @@ class DataManager:
     def __init__(self, config):
         self.config = config
         self.debug_status = self.config['Debug']
+        self.data_save_status = self.config['DataSave']
+        self.response_analysis_status = self.config['ResponseAnalysis']
         self.vehicle_name = self.config['VehicleName']
         self.smoothing_method = self.config['SmothingMethod']
         self.window_size = self.config['WindowSize']
         self.start_data_to_discard = self.config['NoOfStartDataDiscard']
         self.end_data_to_discard = self.config['NoOfEndDataDiscard']
         self.starting_speed = self.config['StartingSpeed']
+        self.ending_speed = self.config['EndingSpeed']
         self.starting_accel = self.config['StartingAcceleration']
         self.input_file_name = self.config['InputFileName']
         self.output_file_name = self.config['OutputFileName']
+        self.auxiliary_file_name = self.config['AuxiliaryFileName']
+        self.sheet_name = self.config['SheetName']
         self.plot_manager = PlotManager(config)
 
     def get_files(self):
@@ -364,7 +369,7 @@ class DataManager:
 
     def save_data_to_csv(self):
 
-        data = pd.DataFrame({
+        self.analyzed_data_frame = pd.DataFrame({
             "Time [s]": self.experimental_time_data,
             "Speed [mph]": self.speed_data_mph,
             "Speed [mps]": self.speed_data_mps,
@@ -373,11 +378,134 @@ class DataManager:
             "Calculated Acceleration [mps2]":self.accel_calculated
         })
 
-        # Save to CSV
-        csv_file_path = self.output_file_name
-        # result.to_csv(csv_file_path, index=False)
-        data.to_csv(csv_file_path, index=False)
-        print(f"Data saved to {csv_file_path}")           
+        if self.data_save_status:
+            self.analyzed_data_frame.to_csv(self.output_file_name, index=False)
+            print(f"Data saved to {self.output_file_name}")
+        
+
+    def get_acceleration_response_time(self):
+        accel_rqst_start_time = 0.0
+        accel_rqst_end_time = 0.0
+        accel_response_time = 0.0
+        accel_value = -1
+        starting_speed = self.starting_speed
+        response_data = []  # Store results as a list of dicts for efficiency
+        test_start_status = False
+        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
+
+        for index, value in enumerate(self.accel_data_rqst):
+            if self.accel_data_rqst[index] > 0 and not test_start_status:
+                test_start_status = True    
+            if (index == 139):
+                print("Here", index)
+            # store accel value, start time and speed when accel command changes, start time is zero, and accel value is opposite sign of previous accel value
+            if (test_start_status and accel_value != self.accel_data_rqst[index] and accel_rqst_start_time == 0 and
+                self.accel_data_rqst[index] in valid_accel_values and (self.accel_data_rqst[index] * accel_value) < 0):
+                accel_value = float(self.accel_data_rqst[index])
+                accel_rqst_start_time = self.experimental_time_data[index]
+                starting_speed = self.speed_data_mph[index]                
+
+            elif test_start_status and accel_rqst_start_time > 0 and (self.speed_data_mph[index] - starting_speed) > 0.2 and accel_value > 0:
+                accel_rqst_end_time = self.experimental_time_data[index]
+                accel_response_time = accel_rqst_end_time - accel_rqst_start_time 
+                
+                response_data.append({"Accel_Value": accel_value, "Response_Time": accel_response_time})
+                accel_rqst_start_time, accel_rqst_end_time, accel_response_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                
+            elif test_start_status and accel_rqst_start_time > 0 and (starting_speed - self.speed_data_mph[index]) > 0.2 and accel_value < 0:
+                accel_rqst_end_time = self.experimental_time_data[index]
+                accel_response_time = accel_rqst_end_time - accel_rqst_start_time 
+                
+                response_data.append({"Accel_Value": accel_value, "Response_Time": accel_response_time})
+                accel_rqst_start_time, accel_rqst_end_time, accel_response_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                
+        accel_resp_time_df = pd.DataFrame(response_data)
+        accel_decel_time_df = self.get_accel_decel_time()
+        print(accel_resp_time_df)    
+        print(accel_decel_time_df)
+
+        # try:
+        #     with pd.ExcelWriter(self.auxiliary_file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
+        #         accel_resp_time_df.to_excel(writer, sheet_name=self.sheet_name, index=False)
+        #     print(f"Data successfully written to {self.auxiliary_file_name} in sheet '{self.sheet_name}'.")
+        
+        # except FileNotFoundError:
+        #     with pd.ExcelWriter(self.auxiliary_file_name, mode='w', engine='openpyxl') as writer:
+        #         accel_resp_time_df.to_excel(writer, sheet_name=self.sheet_name, index=False)
+        #     print(f"File not found. Created new file {self.auxiliary_file_name} and saved the data in sheet '{self.sheet_name}'.")
+        
+        try:
+            # Ensure both DataFrames have the same number of rows by filling shorter DataFrame with NaN
+            max_rows = max(len(accel_resp_time_df), len(accel_decel_time_df))
+            accel_resp_time_df = accel_resp_time_df.reindex(range(max_rows))
+            accel_decel_time_df = accel_decel_time_df.reindex(range(max_rows))
+
+            # Merge DataFrames column-wise
+            merged_df = pd.concat([accel_resp_time_df, accel_decel_time_df], axis=1)
+
+            # Write to Excel (same sheet)
+            with pd.ExcelWriter(self.auxiliary_file_name, mode='a', engine='openpyxl', if_sheet_exists='overlay') as writer:
+                merged_df.to_excel(writer, sheet_name=self.sheet_name, index=False)
+            
+            print(f"Data successfully written to {self.auxiliary_file_name} in sheet '{self.sheet_name}' with column-wise merge.")
+
+        except FileNotFoundError:
+            with pd.ExcelWriter(self.auxiliary_file_name, mode='w', engine='openpyxl') as writer:
+                merged_df.to_excel(writer, sheet_name=self.sheet_name, index=False)
+            
+            print(f"File not found. Created new file {self.auxiliary_file_name} and saved data in sheet '{self.sheet_name}'.")
+
+            
+    def get_accel_decel_time(self):
+        accel_rqst_start_time = 0.0
+        accel_rqst_end_time = 0.0
+        accel_time = 0.0
+        decel_time = 0.0
+        accel_value = -1
+        starting_speed = self.starting_speed
+        max_speed = 0.0
+        response_data = []  # Store results as a list of dicts for efficiency
+        test_start_status = False
+        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
+        
+        for index, value in enumerate(self.accel_data_rqst):
+            if self.accel_data_rqst[index] > 0 and not test_start_status:
+                test_start_status = True    
+
+            if (index == 1086):
+                print("Here", index)
+            if (test_start_status and accel_value != self.accel_data_rqst[index] and accel_rqst_start_time == 0 and
+                self.accel_data_rqst[index] in valid_accel_values and (self.accel_data_rqst[index] * accel_value) < 0):
+                accel_value = float(self.accel_data_rqst[index])
+                accel_rqst_start_time = self.experimental_time_data[index]
+                starting_speed = self.speed_data_mph[index]
+                max_speed = self.analyzed_data_frame[self.analyzed_data_frame["Acceleration Requested [mps2]"] == accel_value]["Speed [mph]"].max()
+                
+                if accel_value > 0 and (max_speed > self.ending_speed):
+                    max_speed = self.ending_speed
+                    
+                elif accel_value < 0:
+                    starting_speed = self.starting_speed
+            
+            elif (test_start_status and accel_rqst_start_time > 0 and 
+                  ((max_speed-0.2) <= self.speed_data_mph[index] <= (max_speed+0.2)) and accel_value > 0):
+                accel_rqst_end_time = self.experimental_time_data[index]
+                accel_time = accel_rqst_end_time - accel_rqst_start_time 
+                
+                response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": accel_time})
+                accel_rqst_start_time, accel_rqst_end_time, accel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                
+            elif (test_start_status and accel_rqst_start_time > 0 and 
+            ((starting_speed-0.35) <= self.speed_data_mph[index] <= (starting_speed + 0.05)) and accel_value < 0):
+                accel_rqst_end_time = self.experimental_time_data[index]
+                decel_time = accel_rqst_end_time - accel_rqst_start_time 
+                
+                response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": decel_time})
+                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                
+        accel_decel_time_df = pd.DataFrame(response_data)
+        
+        return accel_decel_time_df 
 
     def generate_plots(self):
         self.get_files()
@@ -386,18 +514,24 @@ class DataManager:
         
         # self.filter_data_set()
         self.calculate_acceleration_achv()
-        
+
         if self.debug_status:
-            #self.save_data_to_csv()
+            self.save_data_to_csv()
             self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_rqst_achv")
           
-        else:
+        elif not self.debug_status and not self.response_analysis_status:
             self.save_data_to_csv()
             self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "resume-test_mph_time_vs_speed")
             self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel")      
             self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")      
             self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_rqst_achv")
 
+        if self.response_analysis_status:
+            self.save_data_to_csv()
+            self.get_acceleration_response_time()
+            # self.get_accel_decel_time()
+            # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")
+        
 '''##############################################
                    Unit testing
 ##############################################'''

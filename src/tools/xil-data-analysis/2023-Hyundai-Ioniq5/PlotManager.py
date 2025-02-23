@@ -1,4 +1,6 @@
+import pandas as pd
 import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
@@ -203,4 +205,97 @@ class PlotManager:
             plt.savefig(file_directory, dpi=300)
             print("saved file")
         else:
-            plt.show()       
+            plt.show()
+        
+        plt.close()    
+            
+    def plot_respose_time_heat_map(self):
+
+        # Load the Excel file
+        file_path = "auxiliary-analysis-data.xlsx"
+        xls = pd.ExcelFile(file_path)
+
+        # Define the sheet names corresponding to speed ranges
+        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+
+        # Load data from all sheets into a dictionary of DataFrames
+        data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
+
+        # Create a combined DataFrame for heatmap visualization
+        heatmap_data_response_time = []
+        for speed_range, df in data_dict.items():
+            df_cleaned = df[['Accel_Value', 'Response_Time']].dropna()  # Select relevant columns
+            for _, row in df_cleaned.iterrows():
+                heatmap_data_response_time.append([speed_range, row['Accel_Value'], row['Response_Time']])
+
+        # Convert to DataFrame
+        heatmap_df = pd.DataFrame(heatmap_data_response_time, columns=['Speed Range', 'Acceleration (m/s²)', 'Response Time (s)'])
+
+        # Pivot table to format for heatmap
+        heatmap_pivot_reponse_time = heatmap_df.pivot_table(values='Response Time (s)', index='Speed Range', columns='Acceleration (m/s²)')
+
+        # Plot heatmap
+        plt.figure(figsize=(12, 8))
+        ax = sns.heatmap(heatmap_pivot_reponse_time, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
+        plt.title("Heatmap of Response Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
+        plt.xlabel("Acceleration (m/s²)", fontdict={'fontsize': 16})
+        plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
+        cbar = ax.collections[0].colorbar
+        cbar.set_label('Response Time (s)', fontdict={'fontsize': 16})
+        
+        if self.plot_save:
+            file_directory = "figure/respose_time_heat_map.jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            print("saved file")
+        
+        else:plt.show()
+         
+        plt.close()
+        
+    def plot_accel_decel_time_heat_map(self):
+
+        # Load the Excel file
+        file_path = "auxiliary-analysis-data.xlsx"
+        xls = pd.ExcelFile(file_path)
+
+        # Define the sheet names corresponding to speed ranges
+        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+
+        # Load data from all sheets into a dictionary of DataFrames
+        data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
+    
+        # Create a combined DataFrame for heatmap visualization using Accel/Decel Time
+        heatmap_data_accel_decel = []
+        for speed_range, df in data_dict.items():
+            df_cleaned = df[['Accel_Value', 'Accel/Decel_Time']].dropna()  # Select relevant columns
+            for _, row in df_cleaned.iterrows():
+                heatmap_data_accel_decel.append([speed_range, row['Accel_Value'], row['Accel/Decel_Time']])
+
+        # Convert to DataFrame
+        heatmap_df_accel_decel = pd.DataFrame(heatmap_data_accel_decel, 
+                                            columns=['Speed Range', 'Acceleration (m/s²)', 'Accel/Decel Time (s)'])
+
+        # Pivot table to format for heatmap
+        heatmap_pivot_accel_decel = heatmap_df_accel_decel.pivot_table(values='Accel/Decel Time (s)', 
+                                                                    index='Speed Range', 
+                                                                    columns='Acceleration (m/s²)')
+
+        
+        # Plot heatmap
+        plt.figure(figsize=(12, 8))
+        ax = sns.heatmap(heatmap_pivot_accel_decel, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
+        plt.title("Heatmap of Accel/Decel Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
+        plt.xlabel("Acceleration (m/s²)", fontdict={'fontsize': 16})
+        plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
+        cbar = ax.collections[0].colorbar
+        cbar.set_label('Accel/Decel Time (s)', fontdict={'fontsize': 16})
+        
+        if self.plot_save:
+            file_directory = "figure/accel_decel_time_heat_map.jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            print("saved file")
+        
+        else:plt.show()
+        
+        plt.close()
+        

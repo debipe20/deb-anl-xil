@@ -135,9 +135,9 @@ class DataManager:
             accel_value = 0  # Initialize accel_value to avoid UnboundLocalError
 
             # to account initial oscillation in data
-            if (self.speed_data_mph[i] >= (self.starting_speed - 2)) and (self.accel_data_rqst[i] == self.starting_accel):
-                test_start_status = True
-
+            # if (self.speed_data_mph[i] >= (self.starting_speed - 2)) and (self.accel_data_rqst[i] == self.starting_accel):
+            #     test_start_status = True
+            test_start_status = True
             #append accel value in the window when acceleration command is changing
             if (abs(self.accel_data_rqst[i] - self.accel_data_rqst[i-1]) >= 0.1):
                 window.clear()
@@ -392,12 +392,12 @@ class DataManager:
         response_data = []  # Store results as a list of dicts for efficiency
         test_start_status = False
         valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
-
+        self.save_data_to_csv()
+        
         for index, value in enumerate(self.accel_data_rqst):
             if self.accel_data_rqst[index] > 0 and not test_start_status:
                 test_start_status = True    
-            if (index == 139):
-                print("Here", index)
+            
             # store accel value, start time and speed when accel command changes, start time is zero, and accel value is opposite sign of previous accel value
             if (test_start_status and accel_value != self.accel_data_rqst[index] and accel_rqst_start_time == 0 and
                 self.accel_data_rqst[index] in valid_accel_values and (self.accel_data_rqst[index] * accel_value) < 0):
@@ -412,7 +412,7 @@ class DataManager:
                 response_data.append({"Accel_Value": accel_value, "Response_Time": accel_response_time})
                 accel_rqst_start_time, accel_rqst_end_time, accel_response_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
                 
-            elif test_start_status and accel_rqst_start_time > 0 and (starting_speed - self.speed_data_mph[index]) > 0.2 and accel_value < 0:
+            elif test_start_status and accel_rqst_start_time > 0 and (starting_speed - self.speed_data_mph[index]) > 0.1 and accel_value < 0:
                 accel_rqst_end_time = self.experimental_time_data[index]
                 accel_response_time = accel_rqst_end_time - accel_rqst_start_time 
                 
@@ -424,16 +424,6 @@ class DataManager:
         print(accel_resp_time_df)    
         print(accel_decel_time_df)
 
-        # try:
-        #     with pd.ExcelWriter(self.auxiliary_file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-        #         accel_resp_time_df.to_excel(writer, sheet_name=self.sheet_name, index=False)
-        #     print(f"Data successfully written to {self.auxiliary_file_name} in sheet '{self.sheet_name}'.")
-        
-        # except FileNotFoundError:
-        #     with pd.ExcelWriter(self.auxiliary_file_name, mode='w', engine='openpyxl') as writer:
-        #         accel_resp_time_df.to_excel(writer, sheet_name=self.sheet_name, index=False)
-        #     print(f"File not found. Created new file {self.auxiliary_file_name} and saved the data in sheet '{self.sheet_name}'.")
-        
         try:
             # Ensure both DataFrames have the same number of rows by filling shorter DataFrame with NaN
             max_rows = max(len(accel_resp_time_df), len(accel_decel_time_df))
@@ -455,7 +445,6 @@ class DataManager:
             
             print(f"File not found. Created new file {self.auxiliary_file_name} and saved data in sheet '{self.sheet_name}'.")
 
-            
     def get_accel_decel_time(self):
         accel_rqst_start_time = 0.0
         accel_rqst_end_time = 0.0
@@ -471,9 +460,8 @@ class DataManager:
         for index, value in enumerate(self.accel_data_rqst):
             if self.accel_data_rqst[index] > 0 and not test_start_status:
                 test_start_status = True    
-
-            if (index == 1086):
-                print("Here", index)
+            if index == 4992:
+                print("Debug")
             if (test_start_status and accel_value != self.accel_data_rqst[index] and accel_rqst_start_time == 0 and
                 self.accel_data_rqst[index] in valid_accel_values and (self.accel_data_rqst[index] * accel_value) < 0):
                 accel_value = float(self.accel_data_rqst[index])
@@ -497,6 +485,22 @@ class DataManager:
                 
             elif (test_start_status and accel_rqst_start_time > 0 and 
             ((starting_speed-0.35) <= self.speed_data_mph[index] <= (starting_speed + 0.05)) and accel_value < 0):
+                accel_rqst_end_time = self.experimental_time_data[index]
+                decel_time = accel_rqst_end_time - accel_rqst_start_time 
+                
+                response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": decel_time})
+                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                
+            elif (test_start_status and accel_rqst_start_time > 0 and 
+            ((starting_speed-0.2) <= self.speed_data_mph[index] <= (starting_speed + 1.8)) and accel_value ==-1.0):
+                accel_rqst_end_time = self.experimental_time_data[index]
+                decel_time = accel_rqst_end_time - accel_rqst_start_time 
+                
+                response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": decel_time})
+                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                
+            elif (test_start_status and accel_rqst_start_time > 0 and 
+            ((starting_speed-0.2) <= self.speed_data_mph[index] <= (starting_speed + 0.2)) and accel_value ==-3):
                 accel_rqst_end_time = self.experimental_time_data[index]
                 decel_time = accel_rqst_end_time - accel_rqst_start_time 
                 
@@ -527,11 +531,10 @@ class DataManager:
             self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_rqst_achv")
 
         if self.response_analysis_status:
-            self.save_data_to_csv()
-            self.get_acceleration_response_time()
-            # self.get_accel_decel_time()
+            # self.get_acceleration_response_time()
             # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")
-        
+            self.plot_manager.plot_respose_time_heat_map()
+            self.plot_manager.plot_accel_decel_time_heat_map()
 '''##############################################
                    Unit testing
 ##############################################'''

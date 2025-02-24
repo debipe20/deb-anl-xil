@@ -3,6 +3,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
+# from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.cm as cm
+import matplotlib.colors as colors
 
 class PlotManager:
     def __init__(self, config):
@@ -31,7 +34,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
-            print("saved file")
+            print("saved plot successfully")
         
         else:plt.show()
         
@@ -68,7 +71,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
-            print("saved file")
+            print("saved plot successfully")
 
         else:plt.show()
 
@@ -117,7 +120,7 @@ class PlotManager:
             # plt.savefig(file_directory, bbox_inches='tight', dpi=300)
             plt.tight_layout()
             plt.savefig(file_directory, dpi=300)
-            print("saved file")
+            print("saved plot successfully")
         else:
             plt.show()
 
@@ -166,7 +169,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
             plt.savefig(file_directory, dpi=300)
-            print("saved file")
+            print("saved plot successfully")
         else:
             plt.show()
 
@@ -203,7 +206,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/acceleration-envelop.jpg"
             plt.savefig(file_directory, dpi=300)
-            print("saved file")
+            print("saved plot successfully")
         else:
             plt.show()
         
@@ -246,7 +249,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/respose_time_heat_map.jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
-            print("saved file")
+            print("saved plot successfully")
         
         else:plt.show()
          
@@ -293,9 +296,111 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/accel_decel_time_heat_map.jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
-            print("saved file")
+            print("saved plot successfully")
         
         else:plt.show()
         
         plt.close()
         
+        
+    def plot_respose_time_line_graph(self):
+
+        # Load the Excel file
+        file_path = "auxiliary-analysis-data.xlsx"
+        xls = pd.ExcelFile(file_path)
+
+        # Define the sheet names corresponding to speed ranges
+        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+
+        # Load data from all sheets into a dictionary of DataFrames
+        data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
+
+        # Create a line chart for Acceleration vs. Response Time for different speed ranges
+        plt.figure(figsize=(12, 8))
+
+        for speed_range, df in data_dict.items():
+            df_cleaned = df[['Accel_Value', 'Response_Time']].dropna()  # Select relevant columns
+            df_sorted = df_cleaned.sort_values(by='Accel_Value')  # Ensure acceleration values are sorted for plotting
+            
+            # Plot line for each speed range
+            plt.plot(df_sorted['Accel_Value'], df_sorted['Response_Time'], marker='o', linestyle='-', label=f"Speed {speed_range}")
+
+        # Customize the plot
+        plt.xlabel("Acceleration (m/s²)", fontsize=14)
+        plt.ylabel("Response Time (s)", fontsize=14)
+        plt.title("Acceleration vs. Response Time for Different Speed Ranges", fontsize=16)
+        plt.legend(title="Speed Range (mph)")
+        plt.grid(True)
+
+        
+        if self.plot_save:
+            file_directory = "figure/respose_time_line_chart.jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            print("saved plot successfully")
+        
+        else:plt.show()
+         
+        plt.close()
+        
+        
+    def plot_respose_time_surface_plot(self):
+
+        # Load the Excel file
+        file_path = "auxiliary-analysis-data.xlsx"
+        xls = pd.ExcelFile(file_path)
+
+        # Define the sheet names corresponding to speed ranges
+        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+
+        # Load data from all sheets into a combined DataFrame for 3D plotting
+        plot_data = []
+        for speed_range, df in {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}.items():
+            df_cleaned = df[['Accel_Value', 'Response_Time']].dropna()  # Select relevant columns
+            for _, row in df_cleaned.iterrows():
+                plot_data.append([speed_range, row['Accel_Value'], row['Response_Time']])
+
+        # Convert to DataFrame
+        plot_df = pd.DataFrame(plot_data, columns=['Speed Range', 'Acceleration (m/s²)', 'Response Time (s)'])
+
+        # Convert Speed Range to numeric values for plotting
+        plot_df['Speed Numeric'] = plot_df['Speed Range'].astype('category').cat.codes
+
+        # Create 3D surface plot
+        fig = plt.figure(figsize=(12, 8))
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Create a meshgrid for surface plotting
+        X, Y = np.meshgrid(sorted(plot_df['Acceleration (m/s²)'].unique()), sorted(plot_df['Speed Numeric'].unique()))
+        Z = np.array([plot_df[(plot_df['Acceleration (m/s²)'] == x) & (plot_df['Speed Numeric'] == y)]['Response Time (s)'].mean()
+                    for x, y in zip(np.ravel(X), np.ravel(Y))])
+        Z = Z.reshape(X.shape)
+
+        # Create colormap
+        cmap = cm.viridis
+        norm = colors.Normalize(vmin=Z.min(), vmax=Z.max())
+
+        # Plot the surface
+        surf = ax.plot_surface(X, Y, Z, cmap=cmap, edgecolor='k', alpha=0.8)
+
+        # Add color bar
+        cbar = fig.colorbar(surf, ax=ax, shrink=0.6, aspect=10, pad=0.05)
+        cbar.set_label("Response Time (s)", fontsize=12)
+
+        # Labels and title
+        ax.set_xlabel("Acceleration (m/s²)", fontsize=12)
+        ax.set_ylabel("Speed Range (mph)", fontsize=12, labelpad=15)
+        ax.set_zlabel("Response Time (s)", fontsize=12)
+        ax.set_title("3D Surface Plot: Acceleration vs. Response Time across Speed Ranges", fontsize=14)
+
+        # Set Y-axis labels to actual speed ranges
+        ax.set_yticks(sorted(plot_df['Speed Numeric'].unique()))
+        ax.set_yticklabels(sorted(plot_df['Speed Range'].unique()))
+
+        if self.plot_save:
+            file_directory = "figure/respose_time_surface_chart.jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            print("saved plot successfully")
+        
+        else:plt.show()
+         
+        plt.close()

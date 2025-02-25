@@ -308,3 +308,76 @@ Frequency Response (Bode Plot)
 # plt.figure(figsize=(10, 6))
 # ctrl.bode_plot(sys, dB=True)
 # plt.show()
+
+
+"""
+3D Plot
+"""
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Define acceleration levels
+acceleration_levels = np.array([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0])
+
+# Define speed ranges and vehicle types
+speed_ranges = ["0-20mph", "20-40mph", "40-60mph", "60-80mph"]
+vehicles = ["Vehicle A", "Vehicle B", "Vehicle C"]
+
+# Create a dictionary to hold the data
+data = {
+    "Acceleration (m/s²)": np.tile(acceleration_levels, len(speed_ranges) * len(vehicles)),
+    "Speed Range": np.repeat(speed_ranges, len(acceleration_levels) * len(vehicles)),
+    "Vehicle": np.tile(np.repeat(vehicles, len(acceleration_levels)), len(speed_ranges)),
+}
+
+# Generate synthetic response times with some variation
+np.random.seed(42)
+response_times = []
+for speed in speed_ranges:
+    for vehicle in vehicles:
+        base_time = 4.0 if vehicle == "Vehicle A" else (3.5 if vehicle == "Vehicle B" else 3.0)
+        speed_factor = 0.05 * speed_ranges.index(speed)
+        response_times.extend([base_time - (a * 0.3) + speed_factor + np.random.normal(0, 0.1) for a in acceleration_levels])
+
+data["Response Time (s)"] = response_times
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Map speed ranges to numeric values for plotting in 3D
+speed_range_mapping = {speed: idx for idx, speed in enumerate(speed_ranges)}
+df["Speed Range Numeric"] = df["Speed Range"].map(speed_range_mapping)
+
+# Create a 3D plot
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+
+# Define colors for different vehicles
+colors = {"Vehicle A": "r", "Vehicle B": "g", "Vehicle C": "b"}
+
+# Plot data points for each vehicle
+for vehicle in vehicles:
+    subset = df[df["Vehicle"] == vehicle]
+    ax.scatter(subset["Acceleration (m/s²)"], subset["Speed Range Numeric"], subset["Response Time (s)"],
+               label=vehicle, color=colors[vehicle], marker='o')
+
+# Set axis labels and title
+ax.set_xlabel("Acceleration (m/s²)")
+ax.set_ylabel("Speed Range (mph)")
+ax.set_zlabel("Response Time (s)")
+ax.set_title("3D Plot of Response Time vs Acceleration & Speed Ranges")
+
+# Convert numeric speed values back to labels for clarity
+ax.set_yticks(list(speed_range_mapping.values()))
+ax.set_yticklabels(speed_ranges)
+
+# Rotate the plot for better visibility
+ax.view_init(elev=20, azim=135)
+
+# Show legend
+ax.legend(loc="upper right")
+
+plt.show()

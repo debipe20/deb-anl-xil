@@ -8,15 +8,14 @@ import matplotlib.colors as colors
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
 import scipy.interpolate
-
 class PlotManager:
     def __init__(self, config):
         self.config = config
         self.debug_status = self.config['Debug']
         self.title_status = self.config['SetTitle']
-        self.plot_save = False if self.debug_status else self.config['PlotSave']
+        self.plot_save = self.config['PlotSave']
         self.auxiliary_file_name = self.config['AuxiliaryFileName']
-        
+    
     def plot_primary_yaxis(self, x_data, y_data, x_label, y_label, title, fileName):
 
         plt.figure(figsize=(12, 4.0))
@@ -37,7 +36,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
-            print("saved plot successfully")
+            print("saved file")
         
         else:plt.show()
         
@@ -48,37 +47,46 @@ class PlotManager:
         if fig_size_status:
             # fig, ax1 = plt.subplots(figsize=(10,5))
             fig, ax1 = plt.subplots(figsize=(14,5))
-            # fig, ax1 = plt.subplots(figsize=(12,6))
         else: fig, ax1 = plt.subplots()
-        
+
+        # ax1.set_xlabel(x_label, color='tab:green', fontsize=16)
+        # ax1.set_ylabel(y_label1, color='tab:blue', fontsize=16)
+        # primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
+        # ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=12)
+        # ax1.tick_params(axis='x', labelsize=12)  # Set label size for x-axis ticks
+        # ax1.set_xlabel(x_label, color='tab:green')
         ax1.set_xlabel(x_label)
         ax1.set_ylabel(y_label1, color='tab:blue')
         primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
         ax1.tick_params(axis='y', labelcolor='tab:blue')
-        ax1.grid(True)
+
 
         ax2 = ax1.twinx()  # Instantiate a second axes that shares the same x-axis
+        # ax2.set_ylabel(y_label2, color='tab:red', fontsize=16)
         ax2.set_ylabel(y_label2, color='tab:red')
         secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', label='Acceleration')
+        # ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=12)
         ax2.tick_params(axis='y', labelcolor='tab:red')
-        tick_values = np.arange(min(y_data2), max(y_data2), 0.5)
-        ax2.set_yticks(tick_values)
 
         # Combine legends from both axes
         lines = [primary_axis_line, secondary_axis_line]  # Handles for both lines
         labels = [line.get_label() for line in lines]  # Labels for the lines
 
+        # ax1.legend(lines, labels, loc='upper right', fontsize=16)
+        ax1.grid(True)
+        # plt.title(title, fontsize=18, fontweight='bold')
         if self.title_status:
             plt.title(title, fontweight='bold')
         
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
-            print("saved plot successfully")
+            print("saved file")
 
         else:plt.show()
 
         plt.close(fig)
+
 
     def plot_two_data_on_secondary_yaxis(self, x_data, y_data1, y_data2, y_data3, x_label, y_label1, y_label2, title, fileName):
         # Create a figure and axis object
@@ -122,7 +130,7 @@ class PlotManager:
             # plt.savefig(file_directory, bbox_inches='tight', dpi=300)
             plt.tight_layout()
             plt.savefig(file_directory, dpi=300)
-            print("saved plot successfully")
+            print("saved file")
         else:
             plt.show()
 
@@ -171,7 +179,7 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/" + fileName + ".jpg"
             plt.savefig(file_directory, dpi=300)
-            print("saved plot successfully")
+            print("saved file")
         else:
             plt.show()
 
@@ -196,7 +204,7 @@ class PlotManager:
         plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
                 
         # Add labels, title, and legend
-        if self.title_status: plt.title("2023 Hyundai Ioniq5 Acceleration Envelope", fontsize=16, weight="bold")
+        plt.title("2023 Ford F-150 Lightning Acceleration Envelope", fontsize=16, weight="bold")
         plt.xlabel("Speed [mph]", fontsize=14)
         plt.ylabel("Acceleration [g]", fontsize=14)
         plt.legend(loc="upper right", fontsize=12)
@@ -208,18 +216,18 @@ class PlotManager:
         if self.plot_save:
             file_directory = "figure/acceleration-envelop.jpg"
             plt.savefig(file_directory, dpi=300)
-            print("saved plot successfully")
+            print("saved file")
         else:
-            plt.show()
-        
-        plt.close()    
+            plt.show()       
+            
+            
             
     def plot_respose_time_heat_map(self):
 
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph','30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -260,7 +268,7 @@ class PlotManager:
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph','30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -306,7 +314,7 @@ class PlotManager:
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph','30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -344,7 +352,7 @@ class PlotManager:
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph','30-50mph', '50-70mph']
 
         # Load data from all sheets into a combined DataFrame for 3D plotting
         plot_data = []

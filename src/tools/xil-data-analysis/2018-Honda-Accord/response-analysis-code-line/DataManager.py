@@ -71,9 +71,9 @@ class DataManager:
         elif "Vspy" in self.tdms_file:
             self.group_vspy = self.tdms_file["Vspy"]
 
-        self.time_channel = self.group_data['Time[s]']
-        self.speed_channel = self.group_data['WHEEL_SPEED_1']
-        self.accel_channel = self.group_data['Comma_3X_AccelerationCmd_RX']
+        self.time_channel = self.group_vspy['Time[s]']
+        self.speed_channel = self.group_vspy['CAR_SPEED (Value [kph])']
+        self.accel_channel = self.group_vspy['ACCEL_COMMAND (Value [m/s2])']
 
     def get_data_from_channel(self):
         """
@@ -398,7 +398,7 @@ class DataManager:
         self.save_data_to_csv()
         
         for index, value in enumerate(self.accel_data_rqst):
-            if self.accel_data_rqst[index] > 0 and not test_start_status:
+            if self.accel_data_rqst[index] > 0 and not test_start_status and self.accel_data_rqst[index] == self.starting_accel:
                 test_start_status = True    
             
             # store accel value, start time and speed when accel command changes, start time is zero, and accel value is opposite sign of previous accel value
@@ -455,6 +455,7 @@ class DataManager:
         decel_time = 0.0
         accel_value = -1
         starting_speed = self.starting_speed
+        ending_speed = self.ending_speed
         max_speed = 0.0
         min_speed = 0.0
         response_data = []  # Store results as a list of dicts for efficiency
@@ -462,15 +463,18 @@ class DataManager:
         valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
         
         for index, value in enumerate(self.accel_data_rqst):
-            if self.accel_data_rqst[index] > 0 and not test_start_status:
+            if self.accel_data_rqst[index] > 0 and not test_start_status and self.accel_data_rqst[index] == self.starting_accel:
                 test_start_status = True    
-            if index == 4992:
+            if index == 3315:
                 print("Debug")
             if (test_start_status and accel_value != self.accel_data_rqst[index] and accel_rqst_start_time == 0 and
                 self.accel_data_rqst[index] in valid_accel_values and (self.accel_data_rqst[index] * accel_value) < 0):
                 accel_value = float(self.accel_data_rqst[index])
                 accel_rqst_start_time = self.experimental_time_data[index]
+                
                 starting_speed = self.speed_data_mph[index]
+                if accel_value < 0: ending_speed = self.starting_speed # when accel request is negative, ending speed is starting speed specified in config
+                    
                 max_speed = self.analyzed_data_frame[self.analyzed_data_frame["Acceleration Requested [mps2]"] == accel_value]["Speed [mph]"].max()
                 # min_speed = self.analyzed_data_frame[self.analyzed_data_frame["Acceleration Requested [mps2]"] == accel_value]["Speed [mph]"].min()
                 
@@ -501,31 +505,16 @@ class DataManager:
                 accel_time = accel_rqst_end_time - accel_rqst_start_time 
                 
                 response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": accel_time})
-                accel_rqst_start_time, accel_rqst_end_time, accel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                accel_rqst_start_time, accel_rqst_end_time, accel_time, starting_speed, ending_speed = 0.0, 0.0, 0.0, self.starting_speed, self.ending_speed
                 
             elif (test_start_status and accel_rqst_start_time > 0 and 
-            ((starting_speed-0.35) <= self.speed_data_mph[index] <= (starting_speed + 0.05)) and accel_value < 0):
+            ((min_speed-0.05) <= self.speed_data_mph[index] <= (min_speed + 0.05)) and accel_value < 0):
                 accel_rqst_end_time = self.experimental_time_data[index]
                 decel_time = accel_rqst_end_time - accel_rqst_start_time 
                 
                 response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": decel_time})
-                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
-                
-            elif (test_start_status and accel_rqst_start_time > 0 and 
-            ((starting_speed-0.2) <= self.speed_data_mph[index] <= (starting_speed + 1.8)) and accel_value ==-1.0):
-                accel_rqst_end_time = self.experimental_time_data[index]
-                decel_time = accel_rqst_end_time - accel_rqst_start_time 
-                
-                response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": decel_time})
-                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
-                
-            elif (test_start_status and accel_rqst_start_time > 0 and 
-            ((starting_speed-0.2) <= self.speed_data_mph[index] <= (starting_speed + 0.2)) and accel_value ==-3):
-                accel_rqst_end_time = self.experimental_time_data[index]
-                decel_time = accel_rqst_end_time - accel_rqst_start_time 
-                
-                response_data.append({"Accel_Value": accel_value, "Accel/Decel_Time": decel_time})
-                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
+                accel_rqst_start_time, accel_rqst_end_time, decel_time, starting_speed, ending_speed = 0.0, 0.0, 0.0, self.starting_speed, self.ending_speed
+
                 
         accel_decel_time_df = pd.DataFrame(response_data)
         
@@ -553,10 +542,10 @@ class DataManager:
         if self.response_analysis_status:
             # self.get_acceleration_response_time()
             # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")
-            # self.plot_manager.plot_respose_time_heat_map()
-            # self.plot_manager.plot_accel_decel_time_heat_map()
-            # self.plot_manager.plot_respose_time_line_graph()
-            # self.plot_manager.plot_respose_time_surface_plot()
+            self.plot_manager.plot_respose_time_heat_map()
+            self.plot_manager.plot_accel_decel_time_heat_map()
+            self.plot_manager.plot_respose_time_line_graph()
+            self.plot_manager.plot_respose_time_surface_plot()
             self.plot_manager.plot_respose_time_contour_plot()
 '''##############################################
                    Unit testing

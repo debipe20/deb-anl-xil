@@ -13,8 +13,8 @@
     "EndingSpeed": 40,
     "StartingAcceleration": 0.25,
     "InputFileName": "62502017 Test Data.tdms",
-    "OutputFileName": "output-file/62502017-output-data.csv",
-    "AuxiliaryFileName": "output-file/analysis-data.xlsx",
+    "OutputFileName": "output-files/62502017-output-data.csv",
+    "AuxiliaryFileName": "output-files/auxiliary-analysis-data.xlsx",
     "SheetName": "20-40mph",
     "FileName":[
         {"0-20mph":"62502007 Test Data.tdms"},

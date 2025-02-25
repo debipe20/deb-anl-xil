@@ -3,6 +3,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
+# from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 from scipy.interpolate import griddata
@@ -177,7 +178,6 @@ class PlotManager:
 
         plt.close(fig)
 
-
     def generate_vehicle_envelope_scatter_plot(self, acc_override_speed_mph, acc_override_acceleration, stock_acc_speed_mph, stock_acc_acceleration):
         """
         Generates a scatter plot for acceleration vs speed in mps, with additional overlay for ACC override data.
@@ -196,7 +196,7 @@ class PlotManager:
         plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
                 
         # Add labels, title, and legend
-        if self.title_status: plt.title("2023 Hyundai Ioniq5 Acceleration Envelope", fontsize=16, weight="bold")
+        if self.title_status: plt.title("2018 Honda Accord Acceleration Envelope", fontsize=16, weight="bold")
         plt.xlabel("Speed [mph]", fontsize=14)
         plt.ylabel("Acceleration [g]", fontsize=14)
         plt.legend(loc="upper right", fontsize=12)
@@ -416,7 +416,8 @@ class PlotManager:
         else:plt.show()
          
         plt.close()
-                
+        
+        
     def plot_respose_time_contour_plot(self):
   
         xls = pd.ExcelFile(self.auxiliary_file_name)

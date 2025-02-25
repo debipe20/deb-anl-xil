@@ -9,7 +9,8 @@ class PlotManager:
         self.config = config
         self.title_status = self.config['SetTitle']
         self.plot_save = self.config['PlotSave']
-    
+        self.auxiliary_file_name = self.config['AuxiliaryFileName']
+        
     def plot_primary_yaxis(self, x_data, y_data, x_label, y_label, title, fileName):
 
         plt.figure(figsize=(12, 4.0))

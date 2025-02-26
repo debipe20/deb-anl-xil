@@ -553,10 +553,10 @@ class DataManager:
         if self.response_analysis_status:
             # self.get_acceleration_response_time()
             # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")
-            # self.plot_manager.plot_respose_time_heat_map()
-            # self.plot_manager.plot_accel_decel_time_heat_map()
-            # self.plot_manager.plot_respose_time_line_graph()
-            # self.plot_manager.plot_respose_time_surface_plot()
+            self.plot_manager.plot_respose_time_heat_map()
+            self.plot_manager.plot_accel_decel_time_heat_map()
+            self.plot_manager.plot_respose_time_line_graph()
+            self.plot_manager.plot_respose_time_surface_plot()
             self.plot_manager.plot_respose_time_contour_plot()
 '''##############################################
                    Unit testing

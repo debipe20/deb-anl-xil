@@ -241,7 +241,7 @@ class PlotManager:
         plt.figure(figsize=(12, 8))
         ax = sns.heatmap(heatmap_pivot_reponse_time, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
         if self.title_status: plt.title("Response Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
-        plt.xlabel("Acceleration (m/s²)", fontdict={'fontsize': 16})
+        plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
         cbar.set_label('Response Time (s)', fontdict={'fontsize': 16})
@@ -286,7 +286,7 @@ class PlotManager:
         plt.figure(figsize=(12, 8))
         ax = sns.heatmap(heatmap_pivot_accel_decel, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
         if self.title_status: plt.title("Accel/Decel Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
-        plt.xlabel("Acceleration (m/s²)", fontdict={'fontsize': 16})
+        plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
         cbar.set_label('Accel/Decel Time (s)', fontdict={'fontsize': 16})
@@ -322,7 +322,7 @@ class PlotManager:
             plt.plot(df_sorted['Accel_Value'], df_sorted['Response_Time'], marker='o', linestyle='-', label=f"Speed {speed_range}")
 
         # Customize the plot
-        plt.xlabel("Acceleration (m/s²)", fontsize=14)
+        plt.xlabel("Acceleration Request (m/s²)", fontsize=14)
         plt.ylabel("Response Time (s)", fontsize=14)
         if self.title_status: plt.title("Acceleration vs Response Time & Speed Ranges", fontsize=16)
         plt.legend(title="Speed Range (mph)")
@@ -399,7 +399,7 @@ class PlotManager:
         cbar.set_label("Response Time (s)", fontsize=12)
 
         # Labels and title
-        ax.set_xlabel("Acceleration (m/s²)", fontsize=12)
+        ax.set_xlabel("Acceleration Request (m/s²)", fontsize=12)
         ax.set_ylabel("Speed Range (mph)", fontsize=12, labelpad=15)
         ax.set_zlabel("Response Time (s)", fontsize=12)
         if self.title_status: ax.set_title("Acceleration vs Response Time & Speed Ranges", fontsize=14)
@@ -456,7 +456,7 @@ class PlotManager:
         cbar.set_label("Response Time (s)")
 
         # Labels and customization
-        plt.xlabel("Acceleration (m/s²)", fontsize=14)
+        plt.xlabel("Acceleration Request (m/s²)", fontsize=14)
         plt.ylabel("Speed Range (Category)", fontsize=14)
         if self.title_status: plt.title("Acceleration vs Response Time & Speed Ranges", fontsize=16)
 

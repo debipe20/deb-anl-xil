@@ -8,6 +8,11 @@ def fetch_intersection_data():
     lat = 41.84581787248484
     lng = -88.3399575438551
     heading = 90
+   
+   #Kearney Rd  Reference Point 
+    # lat =  41.7103948768268
+    # lng = -87.9920446449095
+    # heading = 358
 
     urlGRP = (
         str('https://anlab.traffictechservices.com:5833/APhA/Services/GeoReferencedPredictions?username=ArgonneNL&password=jjM5sACr')

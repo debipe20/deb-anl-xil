@@ -558,6 +558,7 @@ class DataManager:
             self.plot_manager.plot_respose_time_line_graph()
             self.plot_manager.plot_respose_time_surface_plot()
             self.plot_manager.plot_respose_time_contour_plot()
+            self.plot_manager.plot_accel_decel_time_contour_plot()
 '''##############################################
                    Unit testing
 ##############################################'''

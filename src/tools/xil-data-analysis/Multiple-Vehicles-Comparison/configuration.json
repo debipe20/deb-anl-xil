@@ -1,0 +1,7 @@
+{
+
+    "SetTitle": true,
+    "PlotSave": true,
+    "PlotShow": true,
+    "InputFileName": "vehicle-data.xlsx"
+}

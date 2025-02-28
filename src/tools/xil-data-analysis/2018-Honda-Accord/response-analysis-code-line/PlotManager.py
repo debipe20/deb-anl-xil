@@ -219,7 +219,7 @@ class PlotManager:
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -238,9 +238,9 @@ class PlotManager:
         heatmap_pivot_reponse_time = heatmap_df.pivot_table(values='Response Time (s)', index='Speed Range', columns='Acceleration (m/s²)').iloc[::-1]
 
         # Plot heatmap
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         ax = sns.heatmap(heatmap_pivot_reponse_time, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
-        if self.title_status: plt.title("Response Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
+        if self.title_status: plt.title("Response Time Analysis", fontdict={'fontsize': 18})
         plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
@@ -260,7 +260,7 @@ class PlotManager:
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -283,9 +283,9 @@ class PlotManager:
 
         
         # Plot heatmap
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         ax = sns.heatmap(heatmap_pivot_accel_decel, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
-        if self.title_status: plt.title("Accel/Decel Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
+        if self.title_status: plt.title("Accel/Decel Time Analysis", fontdict={'fontsize': 18})
         plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
@@ -306,7 +306,7 @@ class PlotManager:
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -324,7 +324,7 @@ class PlotManager:
         # Customize the plot
         plt.xlabel("Acceleration Request (m/s²)", fontsize=14)
         plt.ylabel("Response Time (s)", fontsize=14)
-        if self.title_status: plt.title("Acceleration vs Response Time & Speed Ranges", fontsize=16)
+        if self.title_status: plt.title("Response Time Analysis", fontsize=16)
         plt.legend(title="Speed Range (mph)")
         plt.grid(True)
 
@@ -338,13 +338,12 @@ class PlotManager:
          
         plt.close()
         
-        
     def plot_respose_time_surface_plot(self):
 
         xls = pd.ExcelFile(self.auxiliary_file_name)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
 
         # Load data from all sheets into a combined DataFrame for 3D plotting
         plot_data = []
@@ -402,7 +401,7 @@ class PlotManager:
         ax.set_xlabel("Acceleration Request (m/s²)", fontsize=12)
         ax.set_ylabel("Speed Range (mph)", fontsize=12, labelpad=15)
         ax.set_zlabel("Response Time (s)", fontsize=12)
-        if self.title_status: ax.set_title("Acceleration vs Response Time & Speed Ranges", fontsize=14)
+        if self.title_status: ax.set_title("Response Time Analysis", fontsize=14)
 
         # Set Y-axis labels to actual speed ranges
         ax.set_yticks(sorted(plot_df['Speed Numeric'].unique()))
@@ -416,8 +415,7 @@ class PlotManager:
         else:plt.show()
          
         plt.close()
-        
-        
+
     def plot_respose_time_contour_plot(self):
   
         xls = pd.ExcelFile(self.auxiliary_file_name)
@@ -450,23 +448,81 @@ class PlotManager:
         zi = scipy.interpolate.griddata((x, y), z, (xi, yi), method='cubic')
 
         # Create the contour plot
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         contour = plt.contourf(xi, yi, zi, cmap="coolwarm", levels=20)
         cbar = plt.colorbar(contour)
-        cbar.set_label("Response Time (s)")
+        cbar.set_label("Response Time (s)", fontsize=14)
 
         # Labels and customization
         plt.xlabel("Acceleration Request (m/s²)", fontsize=14)
-        plt.ylabel("Speed Range (Category)", fontsize=14)
-        if self.title_status: plt.title("Acceleration vs Response Time & Speed Ranges", fontsize=16)
+        plt.ylabel("Speed Range (mph)", fontsize=14)
+        if self.title_status: plt.title("Response Time Analysis", fontsize=16)
 
         # Set Speed Range labels on Y-axis
-        plt.yticks(ticks=sorted(contour_df['Speed Numeric'].unique()), labels=sorted(contour_df['Speed Range'].unique()))
+        plt.yticks(ticks=sorted(contour_df['Speed Numeric'].unique()), labels=[label.replace("mph", "") for label in sorted(contour_df['Speed Range'].unique())])
+        
 
         plt.grid(True)
 
         if self.plot_save:
             file_directory = "figure/respose_time_contour_plot.jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            print("saved plot successfully")
+        
+        else:plt.show()
+         
+        plt.close()
+        
+        
+    def plot_accel_decel_time_contour_plot(self):
+  
+        xls = pd.ExcelFile(self.auxiliary_file_name)
+
+        # Get the sheet names dynamically (assuming each sheet is a different speed range)
+        speed_ranges = xls.sheet_names  
+
+        # Load data from all sheets into a combined DataFrame
+        plot_data = []
+        for speed_range, df in {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}.items():
+            df_cleaned = df[['Accel_Value', 'Accel/Decel_Time']].dropna()
+            for _, row in df_cleaned.iterrows():
+                plot_data.append([speed_range, row['Accel_Value'], row['Accel/Decel_Time']])
+
+        # Convert to DataFrame
+        contour_df = pd.DataFrame(plot_data, columns=['Speed Range', 'Acceleration (m/s²)', 'Accel/Decel_Time (s)'])
+
+        # Convert Speed Range to numeric values for plotting
+        contour_df['Speed Numeric'] = contour_df['Speed Range'].astype('category').cat.codes
+
+        # Create mesh grid for contour plot
+        x = contour_df['Acceleration (m/s²)']
+        y = contour_df['Speed Numeric']
+        z = contour_df['Accel/Decel_Time (s)']
+
+        # Interpolate for smooth contour
+        xi = np.linspace(x.min(), x.max(), 100)
+        yi = np.linspace(y.min(), y.max(), 100)
+        xi, yi = np.meshgrid(xi, yi)
+        zi = scipy.interpolate.griddata((x, y), z, (xi, yi), method='cubic')
+
+        # Create the contour plot
+        plt.figure(figsize=(12, 6))
+        contour = plt.contourf(xi, yi, zi, cmap="coolwarm", levels=20)
+        cbar = plt.colorbar(contour)
+        cbar.set_label("Response Time (s)", fontsize=14)
+
+        # Labels and customization
+        plt.xlabel("Acceleration Request (m/s²)", fontsize=14)
+        plt.ylabel("Speed Range (mph)", fontsize=14)
+        if self.title_status: plt.title("Response Time Analysis", fontsize=16)
+
+        # Set Speed Range labels on Y-axis
+        plt.yticks(ticks=sorted(contour_df['Speed Numeric'].unique()), labels=[label.replace("mph", "") for label in sorted(contour_df['Speed Range'].unique())])
+
+        plt.grid(True)
+
+        if self.plot_save:
+            file_directory = "figure/accel_decel_time_contour_plot.jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
             print("saved plot successfully")
         

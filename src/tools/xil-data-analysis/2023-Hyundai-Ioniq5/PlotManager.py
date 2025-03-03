@@ -238,9 +238,9 @@ class PlotManager:
         heatmap_pivot_reponse_time = heatmap_df.pivot_table(values='Response Time (s)', index='Speed Range', columns='Acceleration (m/s²)').iloc[::-1]
 
         # Plot heatmap
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         ax = sns.heatmap(heatmap_pivot_reponse_time, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
-        if self.title_status: plt.title("Response Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
+        if self.title_status: plt.title("Response Time Analysis", fontdict={'fontsize': 18})
         plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
@@ -283,9 +283,9 @@ class PlotManager:
 
         
         # Plot heatmap
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         ax = sns.heatmap(heatmap_pivot_accel_decel, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
-        if self.title_status: plt.title("Accel/Decel Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
+        if self.title_status: plt.title("Accel/Decel Time Analysis", fontdict={'fontsize': 18})
         plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
@@ -449,7 +449,7 @@ class PlotManager:
         zi = scipy.interpolate.griddata((x, y), z, (xi, yi), method='cubic')
 
         # Create the contour plot
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         contour = plt.contourf(xi, yi, zi, cmap="coolwarm", levels=20)
         cbar = plt.colorbar(contour)
         cbar.set_label("Response Time (s)", fontsize=14)

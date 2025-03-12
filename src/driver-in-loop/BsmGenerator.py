@@ -11,11 +11,11 @@ Transportation and Power Systems Division
 Description:
 ------------
 The methods available from this class are the following:
-- readWayPoints(): Method to read all the coordinates from waypoints
-- getNearestCoordinates(): Method to find vehicle's estimated GPS location based on the travel distance
-- getBsmJsonString(currentSpeed):Method to generate bsm json string using objective systems
-- setMsgCount(): Method to get the msgCount
-- getMsOfMinute(): Method to get current time in mili second unit
+- read_way_points(): Method to read all the coordinates from waypoints
+- get_nearest_coordinates(): Method to find vehicle's estimated GPS location based on the travel distance
+- get_bsm_json_string(currentSpeed):Method to generate bsm json string using objective systems
+- set_msg_count(): Method to get the msgCount
+- get_ms_of_minute(): Method to get current time in mili second unit
 ***************************************************************************************
 """
 
@@ -57,9 +57,9 @@ class BsmGenerator:
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
 
         self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["HostBsmLogFileName"]
-        self.readWayPoints()
+        self.read_way_points()
 
-    def readWayPoints(self):
+    def read_way_points(self):
         """
         - Method to get all the coordinates from preload waypoints/BSMs
         """
@@ -77,7 +77,7 @@ class BsmGenerator:
         self.previousLatitude = self.latitudeList[0]
         self.previousLongitude = self.longitudeList[0]
 
-    def getNearestCoordinates(self):
+    def get_nearest_coordinates(self):
         """
         - Method to find the estimated location based on the travel time
             - Haversine distance is calculated
@@ -144,18 +144,18 @@ class BsmGenerator:
                     self.extraDistance = calculatedDistanceNext - travelDistance
                     break
 
-    def getBsmJsonString(self, currentSpeed):
+    def get_bsm_json_string(self, currentSpeed):
         """ 
         - Method to generate bsm json string using objective systems
         """
         self.currentSpeed = currentSpeed
 
         if self.currentSpeed > 0:
-            self.getNearestCoordinates()
+            self.get_nearest_coordinates()
             
         else: self.previousTime = time.time()
 
-        self.setMsgCount()
+        self.set_msg_count()
         self.currentHeading = round(self.currentHeading, 2)
 
         try:
@@ -165,7 +165,7 @@ class BsmGenerator:
                     "coreData": {
                         "msgCnt": self.msgCount,
                         "id": self.vehicleId,
-                        "secMark": int(self.getMsOfMinute()),
+                        "secMark": int(self.get_ms_of_minute()),
                         "lat": int(self.currentLatitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE),
                         "long": int(self.currentLongitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE),
                         "elev": int(self.currentElevation * DECA_CONVERSION),
@@ -203,16 +203,19 @@ class BsmGenerator:
         except Exception as e:
             self.logger.consoleDisplay("Following error occurred:\n", str(e))
  
-        self.logger.logHostVehicleBsmData(self.timeStep, self.msgCount, self.currentLatitude, self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading)
-
         return (
+            self.vehicleId,
+            self.timeStep,
+            self.msgCount,
             self.currentLatitude,
             self.currentLongitude,
+            self.currentElevation,
             self.currentSpeed,
+            self.currentHeading, 
             bsmJsonString,
         )
 
-    def setMsgCount(self):
+    def set_msg_count(self):
         """
         Method to get the msgCount
         """
@@ -222,7 +225,7 @@ class BsmGenerator:
         else:
             self.msgCount = MIN_MSG_COUNT
 
-    def getMsOfMinute(self):
+    def get_ms_of_minute(self):
         """
         Method to get current time in mili second unit
         """

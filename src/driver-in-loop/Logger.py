@@ -11,7 +11,7 @@ Transportation and Power Systems Division
 Description:
 ------------
 The methods available from this class are the following:
-- createLogFile(): Method to create all the required log files
+- create_log_file(): Method to create all the required log files
 - logHostVehicleBsmData(timeStep, msgCount, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading): Method to log host vehicle's GPS data and speed.
 - logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed): Method to log lead and ego vehicle's speed data, relative distance and relative speed
 - logHostVehicleData(counter, decodedSpeed): Method to log ego vehicle's speed
@@ -26,113 +26,90 @@ import time, datetime
 import os
 
 class Logger:
-    def __init__(self, consoleStatus:bool, loggingStatus:bool, debugStatus:bool):
-        self.consoleStatus = consoleStatus
-        self.loggingStatus = loggingStatus
-        self.debugStatus = debugStatus
+    def __init__(self, console_status:bool, logging_status:bool, debug_status:bool):
+        self.console_status = console_status
+        self.logging_status = logging_status
+        self.debug_status = debug_status
         
-        if (self.loggingStatus == True):
-            self.createLogFile()     
+        if (self.logging_status == True):
+            self.create_log_file()     
         
-    def createLogFile(self):
+    def create_log_file(self):
     
-        if (self.debugStatus == True):
+        if (self.debug_status == True):
             logfileDirectory = "../../log/debug/"
                     
-        else: logfileDirectory = "../../log/group-run/"
+        else: logfileDirectory = "../../log/driver-in-loop/"
         
         if not os.path.exists(logfileDirectory):
                 os.makedirs(logfileDirectory)
         
         initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
+
+        self.driver_in_loop_test_log_file = open(logfileDirectory + "driver_in_loop_test_log_" + initializationTimestamp + ".csv", "w") 
+        self.error_log_file = open(logfileDirectory + "error_log_" + initializationTimestamp + ".log", "w")
+
+        driver_in_loop_test_log_header = ("timestamp_verbose, host_id, host_time_step, host_msg_count, host_lat, host_lon, host_elevation, host_speed, host_heading, lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading\n")
+        self.driver_in_loop_test_log_file.write(driver_in_loop_test_log_header)
+
+
+
+    def log_driver_in_loop_test_data(self, host_id, host_time_step, host_msg_count, host_lat, host_lon, host_elevation, host_speed, host_heading, 
+                     lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading):
         
-        self.hostVehicleBsmLogFile = open(logfileDirectory + "host_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")        
-        self.hostVehicleLogFile = open(logfileDirectory + "host_vehicle_log_" + initializationTimestamp + ".csv", "w")
-        self.leadVehicleLogFile = open(logfileDirectory + "lead_vehicle_log_" + initializationTimestamp + ".csv", "w")
-        self.hostBsmHexLogFile = open(logfileDirectory + "host_bsm_hex_log_" + initializationTimestamp + ".log","w")
-        self.leadBsmHexLogFile = open(logfileDirectory + "lead_bsm_hex_log_" + initializationTimestamp + ".log","w")
-        self.errorLogFile = open(logfileDirectory + "error_log_" + initializationTimestamp + ".log", "w")
-
-        bsmHeader = ("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
-        hostHeader = ("TimeStamp, Counter, HostVehicleSpeed\n")
-        leadHeader = ("TimeStamp, Counter, RelativeDistance, RelativeSpeed, LeadVehicleSpeed, HostVehicleSpeed\n")
-
-        self.hostVehicleBsmLogFile.write(bsmHeader)
-        self.hostVehicleLogFile.write(hostHeader)
-        self.leadVehicleLogFile.write(leadHeader) 
-            
-    def logHostVehicleBsmData(self, timeStep, msgCount, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading):
-        if (self.loggingStatus == True):
+        if self.logging_status:
             timestamp_verbose = str(time.time())
-            timeStep = str(timeStep)
-            msgCount = str(msgCount)
-            temporaryId = "f03ad610"
-            secMark = str(100)
-            latitude = str(currentLatitude)
-            longitude = str(currentLongitude)
-            elevation = str(currentElevation)
-            speed = str(round(currentSpeed, 2))
-            heading = str(round(currentHeading,2))
+            host_id = str(host_id)
+            host_time_step = str(host_time_step)
+            host_msg_count = str(host_msg_count)
+            host_lat = str(host_lat)
+            host_lon = str(host_lon)
+            host_elevation = str(host_elevation)
+            host_speed = str(round(host_speed, 2))
+            host_heading = str(round(host_heading,2))
+
+            lead_id = str(lead_id)
+            lead_time_step = str(lead_time_step)
+            lead_msg_count = str(lead_msg_count)
+            lead_lat = str(lead_lat)
+            lead_lon = str(lead_lon)
+            lead_elevation = str(lead_elevation)
+            lead_speed = str(round(lead_speed, 2))
+            lead_heading = str(round(lead_heading, 2))
 
             csvRow = (timestamp_verbose + ","
-                + timeStep + ","
-                + msgCount + ","
-                + temporaryId + ","
-                + secMark + ","
-                + latitude + ","
-                + longitude + ","
-                + elevation + ","
-                + speed + ","
-                + heading + "\n"
+                + host_id + ","
+                + host_time_step + ","
+                + host_msg_count + ","
+                + host_lat + ","
+                + host_lon + ","
+                + host_elevation + ","
+                + host_speed + ","
+                + host_heading + ","
+                + lead_id + ","
+                + lead_time_step + ","
+                + lead_msg_count + ","
+                + lead_lat + ","
+                + lead_lon + ","
+                + lead_elevation + ","
+                + lead_speed + ","
+                + lead_heading + "\n"
             )
 
-            self.hostVehicleBsmLogFile.write(csvRow)
-        
-    def logLeadVehicleData(self, counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed):
-        if (self.loggingStatus == True):
-            csvrow = (
-                    str(round(time.time(), 4)) + ","
-                    + str(round(counter, 0))  + ","
-                    + str(round(relativeDistance, 3)) + ","
-                    + str(round(relativeSpeed, 2)) + ","
-                    + str(round(leadVehicleSpeed, 2)) + ","
-                    + str(round(hostVehicleSpeed, 2)) + "\n")
-            
-            self.leadVehicleLogFile.write(csvrow)
-    
-    def logHostVehicleData(self, counter, decodedSpeed):
-        if (self.loggingStatus == True):
-            csvrow = (str(round(time.time(), 4)) + "," 
-                    + str(round(counter, 0)) + "," 
-                    + str(round(decodedSpeed, 2)) + "\n")
-            
-            self.hostVehicleLogFile.write(csvrow)
-        
-    def logHostBsmHexData(self, bsmHex):
-        if (self.loggingStatus == True):
-            self.hostBsmHexLogFile.write(str(bsmHex) + "\n")
-            
-    def logLeadBsmHexData(self, bsmHex):
-        if (self.loggingStatus == True):
-            self.leadBsmHexLogFile.write(str(bsmHex) + "\n")
-        
+            self.driver_in_loop_test_log_file.write(csvRow) 
+               
     def logErrorData(self, errorMsg, payload):
-        if (self.loggingStatus == True):
-            self.errorLogFile.write("Following error occurred:\n" + str(errorMsg) + "\n")
-            self.errorLogFile.write("Hexed Data in Spat Manager class is:\n" + str(payload) + "\n")
+        if (self.logging_status == True):
+            self.error_log_file.write("Following error occurred:\n" + str(errorMsg) + "\n")
         
     def consoleDisplay(self, consoleString:str):
         
         timestamp = str(round(time.time(),4))
-        if (self.consoleStatus == True):
+        if (self.console_status == True):
             print(("\n[{}]".format(timestamp) + " " + consoleString))
             
     def __del__(self):
-        if (self.loggingStatus == True):
+        if (self.logging_status == True):
             self.consoleDisplay("Closing log files!")
-            self.hostVehicleBsmLogFile.close()
-            self.hostVehicleLogFile.close()
-            self.leadVehicleLogFile.close()
-            self.hostBsmHexLogFile.close()
-            self.leadBsmHexLogFile.close()
-            self.errorLogFile.close()
+            self.driver_in_loop_test_log_file.close()
+            self.error_log_file.close()

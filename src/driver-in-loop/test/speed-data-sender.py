@@ -3,6 +3,8 @@ import json
 import struct
 import random
 import time
+import os
+import platform
 
 def getSpeed(previousSpeed):
 
@@ -15,37 +17,45 @@ def getSpeed(previousSpeed):
     return currentSpeed
 
 def main():
-    configFile = open("/nojournal/bin/anl-master-config.json", 'r')
-    config = (json.load(configFile))
-    configFile.close()
+    current_os = platform.system()
+    
+    if current_os == "Linux":
+        config_file_path = os.path.join(os.path.expanduser("~"), "Desktop", "deb-anl-xil", "config", "anl-master-config.json")
+    elif current_os == "Windows":
+        config_file_path = os.path.join(os.path.expanduser("~"), "deb-anl-xil", "config", "anl-master-config.json")
+    else:
+        raise OSError(f"Unsupported operating system: {current_os}")
 
-    hostIp = config["IPAddress"]["HostIp"]
-    # port = config["PortNumber"]["VehicleController"]
-    port = 50001
-    hostAddress = (hostIp, port)
+    # Load configuration file safely
+    with open(config_file_path, "r") as config_file:
+        config = json.load(config_file)
 
-    clientIp = config["IPAddress"]["HostIp"]
-    clinetPort = config["PortNumber"]["HostVehicleDataManager"]
-    clientAddress = (clientIp, clinetPort)
+    host_ip = config["IPAddress"]["HostIp"]
+    host_port = config["PortNumber"]["VehicleSpy"]
+    host_address = (host_ip, host_port)
+
+    client_ip = config["IPAddress"]["HostIp"]
+    client_port = config["PortNumber"]["DriverInLoopTestManager"]
+    client_address = (client_ip, client_port)
     
     speedDataSenderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    speedDataSenderSocket.bind(hostAddress)
+    speedDataSenderSocket.bind(host_address)
     
-    counter = 0.0
-    previousSpeed = 1.0
-    previousTime = time.time()
+    lead_speed = 0.0
+    previous_ego_speed = 1.0
+    previous_time = time.time()
 
     while True:
-        currentSpeed = getSpeed(previousSpeed)
-        previousSpeed = currentSpeed
-        counter = counter + 1.0
-        
-        encodedCounter = struct.pack("d", counter)
-        encodedSpeed = struct.pack("d", currentSpeed)
+        ego_speed = getSpeed(previous_ego_speed)
+        previous_ego_speed = ego_speed
+        lead_speed = ego_speed
 
-        sendingData =  encodedCounter + encodedSpeed
-        speedDataSenderSocket.sendto(sendingData, clientAddress)
-        print("Sent following speed data : ", currentSpeed)
+        encoded_lead_speed = struct.pack("d", lead_speed)
+        encoded_ego_speed = struct.pack("d", ego_speed)
+
+        sendingData =  encoded_lead_speed + encoded_ego_speed 
+        speedDataSenderSocket.sendto(sendingData, client_address)
+        print("Sent following speed data : " + str(lead_speed) + ", " + str(ego_speed))
         time.sleep(0.0997)
 
     speedDataSenderSocket.close()

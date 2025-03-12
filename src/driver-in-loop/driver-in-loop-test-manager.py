@@ -45,7 +45,6 @@ def main():
         raise OSError(f"Unsupported operating system: {current_os}")
     
     config_file = open(config_file_path, "r")
-    # config_file = open("../../config/anl-master-config.json", "r")
     config = json.load(config_file)
     config_file.close()
 
@@ -53,9 +52,9 @@ def main():
     driver_in_loop_test_manager_port = config["PortNumber"]["DriverInLoopTestManager"]
     driver_in_loop_test_manager_address = (driver_in_loop_test_manager_ip, driver_in_loop_test_manager_port)
 
-    host_message_receiver_ip = config["IPAddress"]["V2XHubIp"]
-    host_message_receiver_port = config["PortNumber"]["MessageReceiver"]
-    host_message_receiver_address = (host_message_receiver_ip, host_message_receiver_port)
+    ego_message_receiver_ip = config["IPAddress"]["V2XHubIp"]
+    ego_message_receiver_port = config["PortNumber"]["MessageReceiver"]
+    ego_message_receiver_address = (ego_message_receiver_ip, ego_message_receiver_port)
 
     lead_message_receiver_ip = config["IPAddress"]["LeadVehicleV2XHubIp"]
     lead_message_receiver_port = config["PortNumber"]["MessageReceiver"]
@@ -76,12 +75,12 @@ def main():
     
     logger = Logger(console_status, logging_status, debug_status)
     atexit.register(lambda: destruct_logger(logger))
-    host_bsm_generator = BsmGenerator(config, logger)
+    ego_bsm_generator = BsmGenerator(config, logger)
     lead_bsm_generator = BsmGenerator(config, logger)
 
-    host_lat, host_lon, host_speed = 0.0, 0.0, 0.0
+    ego_lat, ego_lon, ego_speed = 0.0, 0.0, 0.0
     lead_lat, lead_lon, lead_speed = 0.0, 0.0, 0.0
-    previous_host_bsm_json_string = ""
+    previous_ego_bsm_json_string = ""
 
     while True:
         data, address = driver_in_loop_test_manager_socket.recvfrom(2048)
@@ -89,28 +88,28 @@ def main():
 
         data_length = len(data)
 
-        # if data_length == SpeedDataLength:
-        if address[0] == vehicle_spy_ip:
-            host_speed, lead_speed = struct.unpack("dd", data)
+        if data_length == SpeedDataLength:
+        # if address[0] == vehicle_spy_ip:
+            lead_speed, ego_speed = struct.unpack("dd", data)
 
-            host_id, host_time_step, host_msg_count, host_lat, host_lon, host_elevation, host_speed, host_heading, host_bsm_json_string = (host_bsm_generator.get_bsm_json_string(host_speed))
             lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, lead_bsm_json_string = (lead_bsm_generator.get_bsm_json_string(lead_speed))
+            ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_bsm_json_string = (ego_bsm_generator.get_bsm_json_string(ego_speed))
             
-            relativeDistance = haversine.haversine((host_lat, host_lon), (lead_lon, lead_lon), unit=haversine.Unit.METERS)
+            relativeDistance = haversine.haversine((lead_lon, lead_lon), (ego_lat, ego_lon), unit=haversine.Unit.METERS)
             
-            if relativeDistance >= 2:
-                host_encoded_bsm = v2x.MessageFrame.from_json(host_bsm_json_string)
-            
-            else: host_encoded_bsm = v2x.MessageFrame.from_json(previous_host_bsm_json_string)
-               
             lead_encoded_bsm = v2x.MessageFrame.from_json(lead_bsm_json_string)
             
-            driver_in_loop_test_manager_socket.sendto(host_encoded_bsm, host_message_receiver_address)
-            driver_in_loop_test_manager_socket.sendto(lead_encoded_bsm, lead_message_receiver_address)
+            if relativeDistance >= 5:
+                ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
             
-            logger.log_driver_in_loop_test_data(host_id, host_time_step, host_msg_count, host_lat, host_lon, host_elevation, host_speed, host_heading, lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading)
-            previous_host_bsm_json_string = host_bsm_json_string
-               
+            else: ego_encoded_bsm = v2x.MessageFrame.from_json(previous_ego_bsm_json_string)
+                           
+            driver_in_loop_test_manager_socket.sendto(lead_encoded_bsm, lead_message_receiver_address)
+            driver_in_loop_test_manager_socket.sendto(ego_encoded_bsm, ego_message_receiver_address)
+            
+            
+            logger.log_driver_in_loop_test_data(lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading)
+            previous_ego_bsm_json_string = ego_bsm_json_string
         
     driver_in_loop_test_manager_socket.close()
 

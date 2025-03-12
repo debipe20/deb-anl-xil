@@ -3,20 +3,24 @@
 		"HostIp": "192.168.26.101",
 		"SourceDsrcDeviceIp": "192.168.26.121",
 		"V2XHubIp": "192.168.26.101",
-		"VehicleControllerIp": "192.168.26.113"
+		"VehicleControllerIp": "192.168.26.113",
+		"VehicleSpyIp": "192.168.26.102",
+		"LeadVehicleV2XHubIp": "192.168.26.103"
 	},
 	"PortNumber": {
 		"MessageDecoder": 1516,
 		"BsmGenerator": 5398,
+		"VehicleController": 1025,
+		"MessageReceiver": 26789,
+		"SpatReceiver": 6053,
 		"SpeedProfileGenerator": 50002,
 		"VehicleStatusManager": 50003,
 		"SpatManager": 50004,
 		"DataConverter": 50005,
 		"HostVehicleDataManager": 5398,
 		"LeadVehicleDataManager": 50006,
-		"VehicleController": 1025,
-		"MessageReceiver": 26789,
-		"SpatReceiver": 6053
+		"DriverInLoopTestManager":50007,
+		"VehicleSpy": 50008 		
 	},
 	"VehicleInformation": {
 		"HostVehicleId": "f03ad623",

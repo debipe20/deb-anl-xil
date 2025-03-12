@@ -58,8 +58,13 @@ def main():
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
 
-    dynoTestDataManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    dynoTestDataManagerSocket.bind(hostAddress)
+    vSpyIp = config["IPAddress"]["VSpyIp"]
+    # vSpyIp = config["IPAddress"]["HostIp"]
+    vSpyPort = config["PortNumber"]["vSpy"]
+    vSpyAddress = (vSpyIp, vSpyPort)
+
+    dynoVehicleManagerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    dynoVehicleManagerSocket.bind(hostAddress)
 
     # Get logging and console output variables
     consoleStatus = config["GeneralInformation"]["ConsoleOutput"]
@@ -79,7 +84,7 @@ def main():
     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
 
     while True:
-        data, address = dynoTestDataManagerSocket.recvfrom(2048)
+        data, address = dynoVehicleManagerSocket.recvfrom(2048)
         # logger.consoleDisplay("Received data is following:\n" + str(data))
 
         dataLength = len(data)
@@ -89,7 +94,7 @@ def main():
             hostVehicleLat, hostVehicleLon, hostVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            dynoTestDataManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
+            dynoVehicleManagerSocket.sendto(encodedBsm, MessageReceiverAddress)
             
             hostBsmHex = binascii.hexlify(encodedBsm)
             logger.logHostBsmHexData(hostBsmHex)
@@ -102,7 +107,7 @@ def main():
                     relativeDistance, relativeSpeed, counter, leadVehicleSpeed = getSafeDynoOperationData(counter, relativeDistance)
                     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
 
-                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                    dynoVehicleManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     
                     logger.consoleDisplay("Sending relative distance & speed, counter, and lead & host vehicle speed for safe operation: " +
                                           str(relativeDistance) + ", " + str(relativeSpeed) + ", " + str(counter) + ", " + str(leadVehicleSpeed) + ", " + str(hostVehicleSpeed))
@@ -129,12 +134,12 @@ def main():
                     
                     sendingData =  struct.pack("dddd", relativeDistance, relativeSpeed, counter, leadVehicleSpeed)
                     
-                    dynoTestDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+                    dynoVehicleManagerSocket.sendto(sendingData, vehicleControllerAddress)
                     logger.logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed)
                     logger.consoleDisplay("Sending relative distance & speed, counter, and lead & host vehicle speed: " + 
                                           str(relativeDistance) + ", " + str(relativeSpeed) + ", " + str(counter) + ", " + str(leadVehicleSpeed) + ", " + str(hostVehicleSpeed))
                     
-    dynoTestDataManagerSocket.close()
+    dynoVehicleManagerSocket.close()
 
 if __name__ == "__main__":
     main()

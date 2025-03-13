@@ -5,7 +5,8 @@
 		"V2XHubIp": "192.168.26.101",
 		"VehicleControllerIp": "192.168.26.113",
 		"VehicleSpyIp": "192.168.26.102",
-		"LeadVehicleV2XHubIp": "192.168.26.103"
+		"LeadVehicleV2XHubIp": "192.168.26.103",
+		"HmiIp": "192.168.26.101"
 	},
 	"PortNumber": {
 		"MessageDecoder": 1516,
@@ -20,13 +21,16 @@
 		"HostVehicleDataManager": 5398,
 		"LeadVehicleDataManager": 50006,
 		"DriverInLoopTestManager":50007,
-		"VehicleSpy": 50008 		
+		"VehicleSpy": 50008,
+		"HMI": 50009		
 	},
 	"VehicleInformation": {
-		"HostVehicleId": "f03ad623",
+		"EgoVehicleId": "f03ad623",
 		"LeadVehicleId": "f03ad626",
-		"HostBsmLogFileName": "/Desktop/deb-anl-xil/data/KearneyRoad-BSM-Log.csv",
-		"LeadBsmLogFileName": "/Desktop/deb-anl-xil/data/ANL_breadcrumbs.csv"
+		"EgoBsmLogFileName": "Ego-BSM-Log.csv",
+		"LeadBsmLogFileName": "Lead-BSM-Log.csv",
+		"EgoVehicleModel":"Hyundai Ioniq 5",
+		"LeadVehicleModel": "Simulated"
 	},
 	"IntersectionInformation": {
 		"IntersectionName": "tsc_mcity_state_and_liberty",
@@ -45,7 +49,7 @@
 	},
 	"GeneralInformation": {
 		"ConsoleOutput": true,
-		"Logging": true,
-		"Debug": true
+		"Logging": false,
+		"Debug": false
 	}
 }

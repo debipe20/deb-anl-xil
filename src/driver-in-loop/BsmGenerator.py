@@ -10,6 +10,12 @@ Transportation and Power Systems Division
   
 Description:
 ------------
+This script implements the `BsmGenerator` class, which is responsible for:
+- Reading vehicle waypoints and determining the current position based on distance traveled.
+- Generating a **Basic Safety Message (BSM)** JSON structure using vehicle telemetry data.
+- Managing message counts and timestamps for BSM transmission.
+- Providing methods to retrieve estimated GPS coordinates using the Haversine formula.
+
 The methods available from this class are the following:
 - read_way_points(): Method to read all the coordinates from waypoints
 - get_nearest_coordinates(): Method to find vehicle's estimated GPS location based on the travel distance
@@ -36,7 +42,29 @@ SECOND_MILISECOND_CONVERSION = 1000
 
 
 class BsmGenerator:
+    """
+    BsmGenerator class generates BSM messages using vehicle telemetry data.
+    It calculates real-time location updates based on vehicle speed and distance traveled.
+
+    Attributes:
+        config (dict): Configuration settings.
+        vehicleId (str): Unique identifier for the vehicle.
+        currentLatitude (float): Current latitude of the vehicle.
+        currentLongitude (float): Current longitude of the vehicle.
+        currentElevation (float): Current elevation of the vehicle.
+        currentSpeed (float): Current speed of the vehicle.
+        currentHeading (float): Current heading direction.
+    """
     def __init__(self, config, vehicle_id, way_points_file, logger: Logger):
+        """
+        Initializes the BSM Generator with vehicle parameters and waypoints.
+
+        Args:
+            config (dict): Configuration settings.
+            vehicle_id (str): Unique vehicle ID.
+            way_points_file (str): File containing preloaded waypoints.
+            logger (Logger): Logger instance for debugging and tracking.
+        """
         self.logger = logger
         self.config = config
         self.vehicleId = vehicle_id
@@ -88,6 +116,8 @@ class BsmGenerator:
 
     def get_nearest_coordinates(self):
         """
+        - Estimates the vehicle's real-time GPS location based on travel distance.
+        - Uses the Haversine formula to find the closest matching waypoint.
         - Method to find the estimated location based on the travel time
             - Haversine distance is calculated
         - Distance between two waypoints may greater than the actual distance travel by the vehicle
@@ -154,8 +184,14 @@ class BsmGenerator:
                     break
 
     def get_bsm_json_string(self, currentSpeed):
-        """ 
-        - Method to generate bsm json string using objective systems
+        """
+        Generates a Basic Safety Message (BSM) JSON string using vehicle telemetry data and Objective Systems Library.
+
+        Args:
+            currentSpeed (float): Current speed of the vehicle.
+
+        Returns:
+            tuple: Contains vehicle parameters and the BSM JSON string.
         """
         self.currentSpeed = currentSpeed
 
@@ -226,7 +262,7 @@ class BsmGenerator:
 
     def set_msg_count(self):
         """
-        Method to get the msgCount
+        Increments the message count, resetting it after reaching MAX_MSG_COUNT.
         """
         if self.msgCount < MAX_MSG_COUNT:
             self.msgCount += 1
@@ -236,7 +272,10 @@ class BsmGenerator:
 
     def get_ms_of_minute(self):
         """
-        Method to get current time in mili second unit
+        Retrieves the current time in milliseconds within a given minute.
+
+        Returns:
+            int: Millisecond count within the current minute.
         """
 
         timeNow = datetime.datetime.now()
@@ -245,4 +284,7 @@ class BsmGenerator:
         return msOfMinute
         
     def __del__(self):
+        """
+        Destructor method to close the BSM Generator instance.
+        """
         self.logger.consoleDisplay("Closing BSM Generator Application")

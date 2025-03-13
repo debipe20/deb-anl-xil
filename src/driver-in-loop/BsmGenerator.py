@@ -23,7 +23,7 @@ import json
 import pandas as pd
 import haversine
 import time, datetime
-import os
+import os, platform
 from Logger import Logger
 
 MAX_MSG_COUNT = 127
@@ -36,10 +36,10 @@ SECOND_MILISECOND_CONVERSION = 1000
 
 
 class BsmGenerator:
-    def __init__(self, config, logger: Logger):
+    def __init__(self, config, vehicle_id, way_points_file, logger: Logger):
         self.logger = logger
         self.config = config
-        self.vehicleId = config["VehicleInformation"]["HostVehicleId"]
+        self.vehicleId = vehicle_id
         self.currentLatitude = 0.0
         self.currentLongitude = 0.0
         self.currentElevation = 0.0
@@ -55,15 +55,24 @@ class BsmGenerator:
         self.step = 0
         self.previousTimeStampSetStatus = False
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
-
-        self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["HostBsmLogFileName"]
+        self.way_points_file = way_points_file
         self.read_way_points()
 
     def read_way_points(self):
         """
         - Method to get all the coordinates from preload waypoints/BSMs
         """
-
+        current_os = platform.system()
+        
+        if current_os == "Linux":
+            self.wayPointsLogFile = os.path.join(os.path.expanduser("~"), "Desktop", "deb-anl-xil", "data", self.way_points_file)
+        
+        elif current_os == "Windows":
+            self.wayPointsLogFile = os.path.join("C:\\", "Users", "ddas", "deb-anl-xil", "config", self.way_points_file)
+        
+        else:
+            raise OSError(f"Unsupported operating system: {current_os}")
+        
         dataFrame = pd.read_csv(self.wayPointsLogFile)
         self.latitudeList = dataFrame["latitude"].tolist()
         self.longitudeList = dataFrame["longitude"].tolist()

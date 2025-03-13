@@ -72,12 +72,16 @@ def main():
     console_status = config["GeneralInformation"]["ConsoleOutput"]
     logging_status = config["GeneralInformation"]["Logging"]
     debug_status =  config["GeneralInformation"]["Debug"]
+    ego_id = config["VehicleInformation"]["LeadVehicleId"]
+    lead_id = config["VehicleInformation"]["EgoVehicleId"]
+    ego_way_points_file = config["VehicleInformation"]["EgoBsmLogFileName"]
+    lead_way_points_file = config["VehicleInformation"]["LeadBsmLogFileName"]
     
     logger = Logger(console_status, logging_status, debug_status)
     atexit.register(lambda: destruct_logger(logger))
-    ego_bsm_generator = BsmGenerator(config, logger)
-    lead_bsm_generator = BsmGenerator(config, logger)
-
+    ego_bsm_generator = BsmGenerator(config, ego_id, ego_way_points_file, logger)
+    lead_bsm_generator = BsmGenerator(config, lead_id, lead_way_points_file, logger)
+    
     ego_lat, ego_lon, ego_speed = 0.0, 0.0, 0.0
     lead_lat, lead_lon, lead_speed = 0.0, 0.0, 0.0
     previous_ego_bsm_json_string = ""

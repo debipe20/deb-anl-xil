@@ -427,24 +427,19 @@ class WayPointsManager:
         self.heading_log_file.write(write_msg)
         
         return desired_index    
-    
-    def get_desired_coordinates(self, current_lat, current_lon, current_heading):
-        desired_index = 0
-        desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-        
-        desired_index = self.get_starting_index(self.previous_index, current_lat, current_lon, current_heading)
-        self.previous_index = desired_index
-        
-        desired_lat = self.latitude_list[desired_index]
-        desired_lon = self.longitude_list[desired_index]
-        desired_heading = self.heading_list[desired_index]
-        desired_x = self.x_list[desired_index]
-        desired_y = self.y_list[desired_index]
-        desired_yaw = self.yaw_list[desired_index]
-        
-        return desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw
                 
     def get_next_coordinates(self, current_speed_mps, current_lat, current_lon, current_heading):
+        """
+        - Estimates the vehicle's real-time GPS location based on travel distance.
+        - Uses the Haversine formula to find the closest matching waypoint.
+        - Method to find the estimated location based on the travel time
+            - Haversine distance is calculated
+        - Distance between two waypoints may greater than the actual distance travel by the vehicle
+            - extraDistance variable stores the difference between waypoints distance and vehicle travel distance
+            - if extraDistance is greater than vehicle's travel distance, no neeed to iterate
+            - if extraDistance is greater than vehicle's travel distance, deduct extraDistance from vehicle's travel distance
+        - Iterate until haversine distance for current coordinate is close to the estimated distance compare to next coordinate
+        """
         starting_index = 0
         desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
         current_time = time.time()
@@ -502,99 +497,6 @@ class WayPointsManager:
 
         return desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw
     
-    def get_nearest_coordinates(self):
-        """
-        - Estimates the vehicle's real-time GPS location based on travel distance.
-        - Uses the Haversine formula to find the closest matching waypoint.
-        - Method to find the estimated location based on the travel time
-            - Haversine distance is calculated
-        - Distance between two waypoints may greater than the actual distance travel by the vehicle
-            - extraDistance variable stores the difference between waypoints distance and vehicle travel distance
-            - if extraDistance is greater than vehicle's travel distance, no neeed to iterate
-            - if extraDistance is greater than vehicle's travel distance, deduct extraDistance from vehicle's travel distance
-        - Iterate until haversine distance for current coordinate is close to the estimated distance compare to next coordinate
-        """
-        
-        currentTime = time.time()
-
-        if self.previous_time_stamp_set_status == False:
-            self.previous_time = currentTime - 0.1
-            self.previous_time_stamp_set_status = True
-
-        self.time_step = currentTime - self.previous_time
-        travelDistance = self.current_speed * self.time_step
-        
-        if self.extra_distance >= travelDistance:
-            self.previous_time = time.time()
-            self.extra_distance = self.extra_distance - travelDistance
-
-        else:
-            travelDistance = travelDistance - self.extra_distance
-
-            for index in range(self.previous_index + 1, len(self.latitude_list) - 2):
-                calculatedDistance = haversine.haversine((self.previous_lat, self.previous_lon),
-                    (self.latitude_list[index], self.longitude_list[index]),
-                    unit=haversine.Unit.METERS)
-
-                calculatedDistanceNext = haversine.haversine((self.previous_lat, self.previous_lon),
-                    (self.latitude_list[index + 1], self.longitude_list[index + 1]),
-                    unit=haversine.Unit.METERS)
-
-                if (calculatedDistance <= travelDistance) and (calculatedDistanceNext <= travelDistance):
-                    continue
-
-                elif (calculatedDistance >= travelDistance) and (calculatedDistanceNext > travelDistance):
-                    self.previous_lat = self.latitude_list[index]
-                    self.previous_lon = self.longitude_list[index]
-                    self.previous_time = time.time()
-                    self.previous_index = index
-                    self.current_lat = self.latitude_list[index]
-                    self.current_lon = self.longitude_list[index]
-                    self.current_elev = self.elevation_list[index]
-                    self.current_heading = self.heading_list[index]
-                    self.step = index
-                    self.extra_distance = calculatedDistance - travelDistance
-                    self.desired_x = self.x_list[index]
-                    self.desired_y = self.y_list[index]
-                    self.desired_yaw = self.yaw_list[index]
-                    break
-
-                elif (calculatedDistance < travelDistance) and (calculatedDistanceNext >= travelDistance):
-                    self.previous_lat = self.latitude_list[index + 1]
-                    self.previous_lon = self.longitude_list[index + 1]
-                    self.previous_index = index + 1
-                    self.previous_time = time.time()
-                    self.current_lat = self.latitude_list[index + 1]
-                    self.current_lon = self.longitude_list[index + 1]
-                    self.current_elev = self.elevation_list[index + 1]
-                    self.current_heading = self.heading_list[index + 1]
-                    self.step = index + 1
-                    self.extra_distance = calculatedDistanceNext - travelDistance
-                    self.desired_x = self.x_list[index + 1]
-                    self.desired_y = self.y_list[index + 1]
-                    self.desired_yaw = self.yaw_list[index + 1]
-                    break
-
-    def get_desired_location(self, current_lat, current_lon, current_speed):
-
-        self.current_speed = current_speed
-
-        if self.current_speed > 0:
-            self.get_nearest_coordinates()
-            
-        else: self.previous_time = time.time()
-    
- 
-        return (
-            self.current_lat,
-            self.current_lon,
-            self.current_elev,
-            self.current_heading,
-            self.desired_x,
-            self.desired_y,
-            self.desired_yaw
-        )
-
 # ==============================================================================
 # -------------------------- PID Controller ---------------------------
 # ==============================================================================
@@ -611,6 +513,7 @@ class SpeedPIDController:
         self.deadband = deadband
         self.min_throttle = min_throttle
         self.min_brake = min_brake
+        self.last_steer = 0.0
 
         # Internal state
         self.integral = 0.0
@@ -667,7 +570,7 @@ class SpeedPIDController:
         # Deadband: skip small errors
         if abs(error) < self.deadband:
             self.last_throttle = 0.0
-            return 0.0, 0.0, current_speed
+            return 0.0, 0.0
 
         # PID calculations
         self.integral += error * dt
@@ -690,77 +593,63 @@ class SpeedPIDController:
             brake = max(self.min_brake, min(abs(control), 1.0))
             self.last_throttle = 0.0  # Reset throttle to avoid jump on next cycle
 
-        return throttle, brake, current_speed
-
+        return throttle, brake
     
-    def compute_throttle_brake_command(self, previous_desired_speed, current_speed, desired_speed):
+    def compute_steering_angle(self, current_heading, desired_heading):
         """
-        Compute throttle and brake values to follow a desired speed using a simple proportional controller.
+        Compute a normalized steering value based on current GPS position and desired GPS waypoint.
 
         Args:
-            vehicle (carla.Vehicle): The vehicle actor in CARLA.
-            desired_speed (float): Target speed in meters per second (m/s).
-            Kp_throttle (float): Proportional gain for throttle.
-            Kp_brake (float): Proportional gain for brake.
+            current_lat (float): Current latitude
+            current_lon (float): Current longitude
+            desired_lat (float): Target latitude
+            desired_lon (float): Target longitude
+            current_heading (float): Compass heading in degrees
 
         Returns:
-            tuple: (throttle, brake), both in range [0.0, 1.0]
+            float: Steering value in range [-1.0, 1.0]
         """
-        # Initialize control variables
-        throttle = 0.0
-        brake = 0.0
-        current_speed =  current_speed * MPH_To_MPS
-        desired_speed =  desired_speed * MPH_To_MPS
-        previous_desired_speed =  previous_desired_speed * MPH_To_MPS
-        # Compute speed error and changes
-        speed_error = desired_speed - current_speed
-        speed_change =  desired_speed - previous_desired_speed
+        # Compute heading error
+        heading_error = desired_heading - current_heading
+        heading_error = (heading_error + 180) % 360 - 180  # Normalize to [-180, 180]
 
-        if desired_speed == 0 and current_speed == 0:
-            throttle = 0.0
-            brake = 1.0
-        
-        elif desired_speed > 0 and speed_error == 0:
-            throttle = 0.0
-            brake = 0.0
-            
-        elif desired_speed == 0 and current_speed <= 1.0 and speed_change < 0:
-            throttle = 0.0
-            brake = 1.0
-            
-        elif desired_speed > 0 and 0 < speed_error <= 0.25:
-            throttle = 0.25
-            brake = 0.0
-            
-        elif desired_speed > 0 and 0.25 < speed_error <= 0.5:
-            throttle = 0.5
-            brake = 0.0
-            
-        elif desired_speed > 0 and 0.5 < speed_error <= 1.0:
-            throttle = 0.75
-            brake = 0.0
-            
-        elif desired_speed > 0 and speed_error > 1.0:
-            throttle = 1.0
-            brake = 0.0
-            
-        elif speed_change < 0 and -0.25 <= speed_error < 0:
-            throttle = 0.0
-            brake = 0.25
-            
-        elif speed_change < 0 and -0.5 <= speed_error < -0.25:
-            throttle = 0.0
-            brake = 0.5
-            
-        elif speed_change < 0 and -1.0 <= speed_error < -0.5:
-            throttle = 0.0
-            brake = 0.75
-            
-        elif speed_change < 0 and speed_error < -1.0:
-            throttle = 0.0
-            brake = 1.0
+        # Apply proportional control
+        Kp_steer = 0.015  # Steering gain (adjustable)
+        steer = Kp_steer * heading_error
 
-        return throttle, brake
+        # Clamp to [-1.0, 1.0]
+        steer = max(-1.0, min(1.0, steer))
+
+        # Optional smoothing (low-pass filter)
+        alpha = 1.0
+        steer = alpha * steer + (1 - alpha) * self.last_steer
+        self.last_steer = steer
+
+        return steer
+    
+    def compute_steering_from_xy(self, current_x, current_y, current_yaw, desired_x, desired_y):
+        Kp=0.015
+        # Compute vector from current to desired point
+        dx = desired_x - current_x
+        dy = desired_y - current_y
+
+        # Compute desired yaw (in degrees)
+        desired_yaw = math.degrees(math.atan2(dy, dx))
+
+        # Normalize angles
+        current_yaw = current_yaw % 360
+        desired_yaw = desired_yaw % 360
+
+        # Calculate yaw error [-180, 180]
+        yaw_error = (desired_yaw - current_yaw + 180) % 360 - 180
+
+        # Apply proportional control
+        steer = Kp * yaw_error
+
+        # Clamp to [-1.0, 1.0]
+        steer = max(-1.0, min(1.0, steer))
+
+        return steer
     
 # ==============================================================================
 # -------------------------- ExternalCommandListener ---------------------------
@@ -809,7 +698,7 @@ class ExternalCommandListener(threading.Thread):
 
         self.running = True
         self.last_time = None
-        self.last_steer = 0.0
+        
         self.pid = SpeedPIDController(Kp=0.3, Ki=0.05, Kd=0.01,
                  max_integral=5.0, deadband=0.2,
                  min_throttle=0.2, min_brake=0.1,
@@ -827,62 +716,7 @@ class ExternalCommandListener(threading.Thread):
         vehicle_speed = 3.6 * math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)  # km/h
         
         return vehicle_speed
-    
-    def compute_steering_angle(self, current_heading, desired_heading):
-        """
-        Compute a normalized steering value based on current GPS position and desired GPS waypoint.
-
-        Args:
-            current_lat (float): Current latitude
-            current_lon (float): Current longitude
-            desired_lat (float): Target latitude
-            desired_lon (float): Target longitude
-            current_heading (float): Compass heading in degrees
-
-        Returns:
-            float: Steering value in range [-1.0, 1.0]
-        """
-        # Compute heading error
-        heading_error = desired_heading - current_heading
-        heading_error = (heading_error + 180) % 360 - 180  # Normalize to [-180, 180]
-
-        # Apply proportional control
-        Kp_steer = 0.015  # Steering gain (adjustable)
-        steer = Kp_steer * heading_error
-
-        # Clamp to [-1.0, 1.0]
-        steer = max(-1.0, min(1.0, steer))
-
-        # Optional smoothing (low-pass filter)
-        alpha = 1.0
-        steer = alpha * steer + (1 - alpha) * self.last_steer
-        self.last_steer = steer
-
-        return steer
-    
-    def compute_steering_from_xy(self, current_x, current_y, current_yaw, desired_x, desired_y, Kp=0.015):
-        # Compute vector from current to desired point
-        dx = desired_x - current_x
-        dy = desired_y - current_y
-
-        # Compute desired yaw (in degrees)
-        desired_yaw = math.degrees(math.atan2(dy, dx))
-
-        # Normalize angles
-        current_yaw = current_yaw % 360
-        desired_yaw = desired_yaw % 360
-
-        # Calculate yaw error [-180, 180]
-        yaw_error = (desired_yaw - current_yaw + 180) % 360 - 180
-
-        # Apply proportional control
-        steer = Kp * yaw_error
-
-        # Clamp to [-1.0, 1.0]
-        steer = max(-1.0, min(1.0, steer))
-
-        return steer
-    
+        
     def gps_to_carla_transform(self, lat, lon, heading):
         """
         Converts GPS coordinates to CARLA Transform using map projection.
@@ -903,8 +737,8 @@ class ExternalCommandListener(threading.Thread):
         Works for UDP communication.
         """
         print(f"[INFO] Listening for external commands (UDP) on {self.host_ip}:{self.lead_controller_port}")
-        previous_desired_speed = 0.0
         desired_speed = 0.0
+        
         while self.running:
             try:
                 self.lead_controller_socket.settimeout(5.0)  # Optional: avoid blocking forever
@@ -938,24 +772,21 @@ class ExternalCommandListener(threading.Thread):
                 if hasattr(self.vehicle, "imu_sensor"):
                     current_heading = self.vehicle.imu_sensor.compass % 360
                     
-                # desired_lat, desired_lon, desired_elev, desired_heading, desired_x, desired_y, desired_yaw = self.way_points_manager.get_desired_location(current_speed_mps)
                 desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw = self.way_points_manager.get_next_coordinates(current_speed_mps, current_lat, current_lon, current_heading)
-                # desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw = self.way_points_manager.get_desired_coordinates(current_lat, current_lon, current_heading)
-                now = time.time()
-                dt = now - self.last_time if self.last_time is not None else 0.05
+                
+                current_time = time.time()
+                dt = current_time - self.last_time if self.last_time is not None else 0.05
                 dt = max(dt, 0.01)  # Clamp to a reasonable minimum
-                self.last_time = now
-                # Get throttle and brake               
-                throttle, brake, current_speed_mps = self.pid.compute_control(current_speed_mps, desired_speed, dt)
-                # throttle, brake = self.pid.compute_throttle_brake_command(previous_desired_speed, current_speed_mps, desired_speed)
-
-                # Compute steer
-                steer = self.compute_steering_angle(current_heading, desired_heading)
-                # steer =  self.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y, Kp=0.01)
+                self.last_time = current_time
+                
+                # Get throttle, brake, and steer 
+                throttle, brake = self.pid.compute_control(current_speed_mps, desired_speed, dt)
+    
+                steer = self.pid.compute_steering_angle(current_heading, desired_heading)
+                # steer =  self.pid.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y)
 
                 self.control_instance.set_external_control(throttle, brake, steer)
-                previous_desired_speed = desired_speed
-                
+
                 gps_distance = haversine.haversine((desired_lat, desired_lon), (current_lat, current_lon), unit=haversine.Unit.METERS)
                 # print("Euclidian Distance and Haversine Distance: ", euclidian_distance, ", " , gps_distance)
                 timestamp = str(time.time())

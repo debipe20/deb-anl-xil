@@ -1,10 +1,10 @@
 {
 	"IPAddress": {
-		"HostIp": "192.168.26.101",
+		"HostIp": "127.0.0.1",
 		"SourceDsrcDeviceIp": "192.168.26.121",
 		"V2XHubIp": "192.168.26.101",
 		"VehicleControllerIp": "192.168.26.113",
-		"VehicleSpyIp": "192.168.26.102",
+		"VehicleSpyIp": "192.168.26.155",
 		"LeadVehicleV2XHubIp": "192.168.26.103",
 		"HmiIp": "192.168.26.101"
 	},
@@ -22,13 +22,15 @@
 		"LeadVehicleDataManager": 50006,
 		"DriverInLoopTestManager":50007,
 		"VehicleSpy": 50008,
-		"HMI": 50009		
+		"HMI": 50009,
+		"EgoController":50010,
+		"LeadController":50011	
 	},
 	"VehicleInformation": {
 		"EgoVehicleId": "f03ad623",
 		"LeadVehicleId": "f03ad626",
-		"EgoBsmLogFileName": "Ego-BSM-Log.csv",
-		"LeadBsmLogFileName": "Lead-BSM-Log.csv",
+		"EgoBsmLogFileName": "ego-waypoints.csv",
+		"LeadBsmLogFileName": "lead-waypoints.csv",
 		"EgoVehicleModel":"Hyundai Ioniq 5",
 		"LeadVehicleModel": "Simulated"
 	},
@@ -48,8 +50,9 @@
 		"DesiredSignalGroup": 2
 	},
 	"GeneralInformation": {
+		"TimeGap": 1.0,
 		"ConsoleOutput": true,
 		"Logging": false,
-		"Debug": false
+		"Debug": true
 	}
 }

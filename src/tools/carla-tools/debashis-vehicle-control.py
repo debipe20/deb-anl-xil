@@ -1,8 +1,17 @@
 import glob
 import os
 import sys
+
+carla_egg_path = os.environ.get("CARLA_EGG_PATH")
+
+# if carla_path:
+#     sys.path.append(carla_path)
+#     print(f"Added {carla_path} to Python path")
+# else:
+#     print("CARLAPATH environment variable is not set.")
+
 try:
-    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+    sys.path.append(glob.glob(carla_egg_path + '/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
         'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
@@ -14,7 +23,8 @@ import random
 import time
 import numpy as np
 import cv2
-from agents.navigation.controller import VehiclePIDController
+from carla import ColorConverter as cc
+# from agents.navigation.controller import VehiclePIDController
 
 IM_WIDTH = 640
 IM_HEIGHT = 480
@@ -42,9 +52,10 @@ try:
     print(bp)
 
     # spawn_point = random.choice(world.get_map().get_spawn_points())
-    spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
+    # spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
+    spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0))
     vehicle = world.spawn_actor(bp, spawn_point)
-    vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.1))
+    vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.0))
     # vehicle.set_autopilot(True)  # if you just wanted some NPCs to drive.
 
     actor_list.append(vehicle)

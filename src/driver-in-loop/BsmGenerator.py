@@ -22,6 +22,7 @@ The methods available from this class are the following:
 - get_bsm_json_string(currentSpeed):Method to generate bsm json string using objective systems
 - set_msg_count(): Method to get the msgCount
 - get_ms_of_minute(): Method to get current time in mili second unit
+- compute_steering_input(): Method to compute the normalized steering input for CARLA in range [-1, 1]
 ***************************************************************************************
 """
 
@@ -31,7 +32,9 @@ import haversine
 import time, datetime
 import os, platform
 from Logger import Logger
+import math
 
+MAX_STEERING_ANGLE = 70  # Max vehicle steering angle in degrees
 MAX_MSG_COUNT = 127
 MIN_MSG_COUNT = 1
 ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE = 10000000
@@ -93,19 +96,19 @@ class BsmGenerator:
         current_os = platform.system()
         
         if current_os == "Linux":
-            self.wayPointsLogFile = os.path.join(os.path.expanduser("~"), "Desktop", "deb-anl-xil", "data", self.way_points_file)
+            self.wayPointsLogFile = os.path.join(os.path.expanduser("~"), "Desktop", "deb-anl-xil", "data", "kearney", self.way_points_file)
         
         elif current_os == "Windows":
-            self.wayPointsLogFile = os.path.join("C:\\", "Users", "ddas", "deb-anl-xil", "config", self.way_points_file)
+            self.wayPointsLogFile = os.path.join("C:\\", "Users", "ddas", "deb-anl-xil", "data", "kearney", self.way_points_file)
         
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
         
         dataFrame = pd.read_csv(self.wayPointsLogFile)
-        self.latitudeList = dataFrame["latitude"].tolist()
-        self.longitudeList = dataFrame["longitude"].tolist()
-        self.elevationList = dataFrame["elevation"].tolist()
-        self.headingList = dataFrame["heading"].tolist()
+        self.latitudeList = dataFrame["Latitude"].tolist()
+        self.longitudeList = dataFrame["Longitude"].tolist()
+        self.elevationList = dataFrame["Elevation"].tolist()
+        self.headingList = dataFrame["Heading"].tolist()
 
         self.currentLatitude = self.latitudeList[0]
         self.currentLongitude = self.longitudeList[0]
@@ -144,13 +147,11 @@ class BsmGenerator:
             travelDistance = travelDistance - self.extraDistance
 
             for index in range(self.previousIndex + 1, len(self.latitudeList) - 2):
-                calculatedDistance = haversine.haversine(
-                    (self.previousLatitude, self.previousLongitude),
+                calculatedDistance = haversine.haversine((self.previousLatitude, self.previousLongitude),
                     (self.latitudeList[index], self.longitudeList[index]),
                     unit=haversine.Unit.METERS)
 
-                calculatedDistanceNext = haversine.haversine(
-                    (self.previousLatitude, self.previousLongitude),
+                calculatedDistanceNext = haversine.haversine((self.previousLatitude, self.previousLongitude),
                     (self.latitudeList[index + 1], self.longitudeList[index + 1]),
                     unit=haversine.Unit.METERS)
 
@@ -194,11 +195,18 @@ class BsmGenerator:
             tuple: Contains vehicle parameters and the BSM JSON string.
         """
         self.currentSpeed = currentSpeed
+        lat1 = self.previousLatitude # need to specify before executing get_nearest_coordinates() function to store previous lat and lon
+        lon1 = self.previousLongitude
+        heading = self.currentHeading
+        steering_input = 0.0
 
         if self.currentSpeed > 0:
             self.get_nearest_coordinates()
             
         else: self.previousTime = time.time()
+        
+        lat2 = self.currentLatitude
+        lon2 = self.currentLongitude
 
         self.set_msg_count()
         self.currentHeading = round(self.currentHeading, 2)
@@ -244,7 +252,7 @@ class BsmGenerator:
             }
 
             bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
-            
+            steering_input = self.compute_steering_input(lat1, lon1, lat2, lon2, heading)
         except Exception as e:
             self.logger.consoleDisplay("Following error occurred:\n", str(e))
  
@@ -258,6 +266,7 @@ class BsmGenerator:
             self.currentSpeed,
             self.currentHeading, 
             bsmJsonString,
+            steering_input
         )
 
     def set_msg_count(self):
@@ -283,6 +292,127 @@ class BsmGenerator:
 
         return msOfMinute
         
+    def compute_steering_input(self, lat1, lon1, lat2, lon2, current_heading):
+        """
+        Computes the normalized steering input for CARLA in range [-1, 1].
+
+        Args:
+            lat1, lon1: Current GPS coordinates (degrees)
+            lat2, lon2: Target GPS coordinates (degrees)
+            current_heading: Current vehicle heading (degrees)
+
+        Returns:
+            Steering input in CARLA's range [-1, 1]
+        """
+        # Convert degrees to radians
+        lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+        
+        # Compute bearing
+        delta_lon = lon2 - lon1
+        x = math.sin(delta_lon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(delta_lon)
+        bearing = math.degrees(math.atan2(x, y))  # Convert back to degrees
+
+        # Compute steering angle difference
+        steering_angle = (bearing - current_heading + 360) % 360  # Normalize to [0, 360]
+        if steering_angle > 180:
+            steering_angle -= 360  # Convert to [-180, 180]
+
+        # Normalize to CARLA range [-1, 1]
+        steering_input = max(-1, min(steering_angle / MAX_STEERING_ANGLE, 1))
+        
+        return steering_input
+    
+    import math
+
+    ### Generative AI Logic
+    def compute_steering_angle(self, current_location, target_location, vehicle_heading):
+        """
+        Computes the steering angle between two points in CARLA.
+
+        Args:
+            current_location: A tuple (x, y, z) representing the vehicle's current location.
+            target_location: A tuple (x, y, z) representing the target location.
+            vehicle_heading: The vehicle's current heading angle in radians.
+
+        Returns:
+            A float representing the steering angle input (-1.0 to 1.0).
+        """
+
+        # Calculate the direction vector
+        direction_vector = (target_location[0] - current_location[0], target_location[1] - current_location[1])
+
+        # Calculate the angle between the heading and direction vector
+        angle = math.atan2(direction_vector[1], direction_vector[0]) - vehicle_heading
+
+        # Normalize the angle to the range [-pi, pi]
+        angle = (angle + math.pi) % (2 * math.pi) - math.pi
+
+        # Convert the angle to steering angle input
+        steering_angle = angle / math.pi
+
+        return steering_angle
+
+
+    # def compute_throttle_brake_control(self, vehicle, desired_speed, Kp_throttle=0.5, Kp_brake=1.0):
+    #     """
+    #     Compute throttle and brake values to follow a desired speed using a simple proportional controller.
+
+    #     Args:
+    #         vehicle (carla.Vehicle): The vehicle actor in CARLA.
+    #         desired_speed (float): Target speed in meters per second (m/s).
+    #         Kp_throttle (float): Proportional gain for throttle.
+    #         Kp_brake (float): Proportional gain for brake.
+
+    #     Returns:
+    #         tuple: (throttle, brake), both in range [0.0, 1.0]
+    #     """
+
+    #     # Compute speed error
+    #     speed_error = desired_speed - current_speed
+
+    #     # Initialize control variables
+    #     throttle = 0.0
+    #     brake = 0.0
+
+    #     # Proportional control logic
+    #     if speed_error > 0.1:  # Allow small deadband
+    #         throttle = min(Kp_throttle * speed_error, 1.0)
+    #         brake = 0.0
+    #     elif speed_error < -0.1:
+    #         throttle = 0.0
+    #         brake = min(Kp_brake * abs(speed_error), 1.0)
+    #     else:
+    #         # In deadband range: no throttle or brake
+    #         throttle = 0.0
+    #         brake = 0.0
+
+    #     return throttle, brake
+    
+    
+    # def compute_throttle_brake_control(self, vehicle, desired_speed, last_speed, dt,
+    #                                max_accel=2.0, max_decel=3.0,
+    #                                Kp_throttle=0.5, Kp_brake=1.0, deadband=0.1):
+    #     velocity = vehicle.get_velocity()
+    #     current_speed = math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
+    #     speed_error = desired_speed - current_speed
+
+    #     # Limit speed change
+    #     desired_delta_speed = max(-max_decel * dt, min(speed_error, max_accel * dt))
+    #     smooth_target_speed = last_speed + desired_delta_speed
+    #     adjusted_error = smooth_target_speed - current_speed
+
+    #     # Control logic
+    #     throttle = brake = 0.0
+    #     if adjusted_error > deadband:
+    #         throttle = min(Kp_throttle * adjusted_error, 1.0)
+    #     elif adjusted_error < -deadband:
+    #         brake = min(Kp_brake * abs(adjusted_error), 1.0)
+
+    #     return throttle, brake, current_speed
+
+
+
     def __del__(self):
         """
         Destructor method to close the BSM Generator instance.

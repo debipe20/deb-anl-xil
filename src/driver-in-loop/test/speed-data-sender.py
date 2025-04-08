@@ -6,12 +6,14 @@ import time
 import os
 import platform
 
+
+MPS_To_MPH = 2.23694
 def getSpeed(previousSpeed):
 
     currentSpeed = previousSpeed * (random.randint(80,130)/100)
     
-    if(currentSpeed > 8.0):
-        currentSpeed = 6.0
+    if(currentSpeed > 10.0):
+        currentSpeed = 8.0
 
             
     return currentSpeed

@@ -135,8 +135,8 @@ class DriverInLoopGUI:
                  fg=header_color, bg=frame_bg).pack()
         self.summary_labels = []
         summary_info = [
-             "Distance Gap: 10 meters", 
-            "Lead Speed: 14 mph", "Ego Speed: 12 mph"
+            "Distance Gap: 10 m", "Desired Distance Gap: 10 m",
+            "Lead Speed: 0 mph", "Ego Speed: 0 mph"
         ]
         for item in summary_info:
             label = tk.Label(self.summary_frame, text=item, font=("Helvetica", 24), fg=summary_color, bg=frame_bg)

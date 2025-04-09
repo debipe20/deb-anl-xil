@@ -213,7 +213,9 @@ class World(object):
         blueprint = self.world.get_blueprint_library().find('vehicle.lincoln.mkz2017')
         blueprint.set_attribute('role_name', self.actor_role_name)
         if blueprint.has_attribute('color'):
-            color = random.choice(blueprint.get_attribute('color').recommended_values)
+            # color = random.choice(blueprint.get_attribute('color').recommended_values)
+            # print(blueprint.get_attribute('color').recommended_values)
+            color = '229,28,0'
             blueprint.set_attribute('color', color)
         if blueprint.has_attribute('driver_id'):
             driver_id = random.choice(blueprint.get_attribute('driver_id').recommended_values)
@@ -502,10 +504,7 @@ class WayPointsManager:
 # ==============================================================================
 
 class SpeedPIDController:
-    def __init__(self, Kp=0.3, Ki=0.05, Kd=0.01,
-                 max_integral=5.0, deadband=0.2,
-                 min_throttle=0.2, min_brake=0.1,
-                 filter_alpha=0.2, throttle_smoothing=0.05):
+    def __init__(self, Kp, Ki, Kd, max_integral, deadband, min_throttle, min_brake, filter_alpha, throttle_smoothing):
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
@@ -557,6 +556,11 @@ class SpeedPIDController:
         self.last_throttle = smoothed
         return smoothed
 
+    def smooth_brake(self, raw_brake):
+        smoothed = max(min(raw_brake, self.last_throttle + self.throttle_smoothing),
+                    self.last_throttle - self.throttle_smoothing)
+        return smoothed
+
     def compute_control(self, current_speed, desired_speed, dt):
         # Apply appropriate filter
         if current_speed >= self.use_moving_avg_threshold:
@@ -570,32 +574,49 @@ class SpeedPIDController:
         # Deadband: skip small errors
         if abs(error) < self.deadband:
             self.last_throttle = 0.0
-            return 0.0, 0.0
+            return 0.0, 0.0, 0.0
 
-        # PID calculations
-        self.integral += error * dt
-        self.integral = max(-self.max_integral, min(self.max_integral, self.integral))  # Anti-windup
+        # 🔧 Kickstart from stop if desired speed is non-zero
+        if current_speed < 0.1 and desired_speed > 0.5:
+            control = max(self.min_throttle, 0.6)  # Force enough throttle to start
+        
+        else: 
+            # PID calculations
+            self.integral += error * dt
+            self.integral = max(-self.max_integral, min(self.max_integral, self.integral))  # Anti-windup
 
-        derivative = (error - self.last_error) / dt if dt > 0 else 0.0
-        self.last_error = error
+            derivative = (error - self.last_error) / dt if dt > 0 else 0.0
+            self.last_error = error
 
-        control = self.Kp * error + self.Ki * self.integral + self.Kd * derivative
+            control = self.Kp * error + self.Ki * self.integral + self.Kd * derivative
 
         # Output control
         throttle = 0.0
         brake = 0.0
 
         if control > 0:
-            throttle = max(self.min_throttle, min(control, 1.0))
-            throttle = self.smooth_throttle(throttle)
+            # throttle = max(self.min_throttle, min(control, 1.0))
+            # throttle = self.smooth_throttle(throttle)
+            # brake = 0.0
+            if current_speed < self.use_moving_avg_threshold:
+                throttle = max(self.min_throttle, min(control, 1.0))  # 🚀 No smoothing at low speed
+            else:
+                throttle = self.smooth_throttle(max(self.min_throttle, min(control, 1.0)))  # 🧽 Smooth at high speed
             brake = 0.0
+            
         elif control < 0:
+            # brake = max(self.min_brake, min(abs(control), 1.0))
+            # self.last_throttle = 0.0  # Reset throttle to avoid jump on next cycle
+            
             brake = max(self.min_brake, min(abs(control), 1.0))
+            if current_speed >= self.use_moving_avg_threshold:
+                brake = self.smooth_brake(brake)  # 💡 Smoother brake at high speeds
             self.last_throttle = 0.0  # Reset throttle to avoid jump on next cycle
 
-        return throttle, brake
+
+        return throttle, brake, control
     
-    def compute_steering_angle(self, current_heading, desired_heading):
+    def compute_steering_angle(self, current_heading, desired_heading, current_speed_mps):
         """
         Compute a normalized steering value based on current GPS position and desired GPS waypoint.
 
@@ -613,19 +634,41 @@ class SpeedPIDController:
         heading_error = desired_heading - current_heading
         heading_error = (heading_error + 180) % 360 - 180  # Normalize to [-180, 180]
 
-        # Apply proportional control
-        Kp_steer = 0.015  # Steering gain (adjustable)
-        steer = Kp_steer * heading_error
+        # # Apply proportional control
+        # Kp_steer = 0.015  # Steering gain (adjustable)
+        # steer = Kp_steer * heading_error
+
+        # # Clamp to [-1.0, 1.0]
+        # steer = max(-1.0, min(1.0, steer))
+
+        # # Optional smoothing (low-pass filter)
+        # alpha = 1.0
+        # steer = alpha * steer + (1 - alpha) * self.last_steer
+        # self.last_steer = steer
+        
+        # return steer
+        
+        # Speed-based steering gain (smaller gain at higher speeds)
+        if current_speed_mps < 5.0:
+            Kp_steer = 0.02  # More responsive at low speed
+        elif current_speed_mps < 15.0:
+            Kp_steer = 0.015
+        else:
+            Kp_steer = 0.01  # Less twitchy at high speed
+
+        raw_steer = Kp_steer * heading_error
 
         # Clamp to [-1.0, 1.0]
-        steer = max(-1.0, min(1.0, steer))
+        raw_steer = max(-1.0, min(1.0, raw_steer))
 
-        # Optional smoothing (low-pass filter)
-        alpha = 1.0
-        steer = alpha * steer + (1 - alpha) * self.last_steer
-        self.last_steer = steer
+        # Apply exponential smoothing
+        alpha = 0.3  # 0.1-0.4 works well, lower = smoother
+        smoothed_steer = alpha * raw_steer + (1 - alpha) * self.last_steer
+        self.last_steer = smoothed_steer
+        
+        return smoothed_steer
 
-        return steer
+        
     
     def compute_steering_from_xy(self, current_x, current_y, current_yaw, desired_x, desired_y):
         Kp=0.015
@@ -692,23 +735,23 @@ class ExternalCommandListener(threading.Thread):
         config_file.close()
         
         self.host_ip = config["IPAddress"]["HostIp"]
-        self.lead_controller_port = config["PortNumber"]["LeadController"]
+        self.lead_controller_port = config["PortNumber"]["EgoController"]
         self.lead_controller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
         self.lead_controller_socket.bind((self.host_ip, self.lead_controller_port))
 
         self.running = True
         self.last_time = None
         
-        self.pid = SpeedPIDController(Kp=0.3, Ki=0.05, Kd=0.01,
-                 max_integral=5.0, deadband=0.2,
-                 min_throttle=0.2, min_brake=0.1,
+        self.pid = SpeedPIDController(Kp=0.9, Ki=0.1, Kd=0.01,
+                 max_integral=10.0, deadband=0.3,
+                 min_throttle=0.15, min_brake=0.05,
                  filter_alpha=0.2, throttle_smoothing=0.05)
         
         way_points_file = config["VehicleInformation"]["EgoBsmLogFileName"]
         self.way_points_manager = WayPointsManager(config, way_points_file)
         
         self.log_file = open("../../log/debug/carla_lead_controller_log.csv", "w")
-        log_header = ("timestamp, desired_lat, desired_lon, desired_speed, desired_heading, current_lat, current_lon, current_speed, current_heading, gps_distance, throttle, brake, steer\n")
+        log_header = ("timestamp, desired_lat, desired_lon, desired_speed, desired_heading, current_lat, current_lon, current_speed, current_heading, gps_distance, control, throttle, brake, steer\n")
         self.log_file.write(log_header)
         
     def get_vehicle_speed(self):
@@ -765,6 +808,10 @@ class ExternalCommandListener(threading.Thread):
                 current_speed_mph = current_speed_kmh * KPH_To_MPH
                 print(f"Current speed: {current_speed_mph:.2f} mph")
                 
+                if desired_speed < 0.1 and current_speed_mps < 0.1:
+                    self.pid.reset()
+
+                
                 # Get GNSS sensor readings instead, if available
                 if hasattr(self.vehicle, "gnss_sensor"):
                     current_lat = self.vehicle.gnss_sensor.lat
@@ -780,9 +827,9 @@ class ExternalCommandListener(threading.Thread):
                 self.last_time = current_time
                 
                 # Get throttle, brake, and steer 
-                throttle, brake = self.pid.compute_control(current_speed_mps, desired_speed, dt)
+                throttle, brake, control = self.pid.compute_control(current_speed_mps, desired_speed, dt)
     
-                steer = self.pid.compute_steering_angle(current_heading, desired_heading)
+                steer = self.pid.compute_steering_angle(current_heading, desired_heading, current_speed_mps)
                 # steer =  self.pid.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y)
 
                 self.control_instance.set_external_control(throttle, brake, steer)
@@ -799,6 +846,7 @@ class ExternalCommandListener(threading.Thread):
                 current_speed_mph = str(current_speed_mph) 
                 current_heading = str(current_heading)
                 gps_distance = str(gps_distance)
+                control = str(control)
                 throttle = str(throttle) 
                 brake = str(brake)
                 steer = str(steer)
@@ -813,6 +861,7 @@ class ExternalCommandListener(threading.Thread):
                            + current_speed_mph + ","
                            + current_heading + ","
                            + gps_distance + ","
+                           + control + ","
                            + throttle + ","
                            + brake + ","
                            + steer + "\n")

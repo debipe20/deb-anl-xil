@@ -162,6 +162,10 @@ def main():
     lead_controller_ip = config["IPAddress"]["HostIp"]
     lead_controller_port = config["PortNumber"]["LeadController"]
     lead_controller_address = (lead_controller_ip, lead_controller_port)
+    
+    ego_controller_ip = config["IPAddress"]["HostIp"]
+    ego_controller_port = config["PortNumber"]["EgoController"]
+    ego_controller_address = (ego_controller_ip, ego_controller_port)
 
     driver_in_loop_test_manager_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     driver_in_loop_test_manager_socket.bind(driver_in_loop_test_manager_address)
@@ -212,10 +216,12 @@ def main():
             # else: ego_encoded_bsm = v2x.MessageFrame.from_json(previous_ego_bsm_json_string)
             
             # lead_command = json.dumps({"desired_lat": lead_lat, "desired_lon": lead_lon, "desired_speed": ego_speed, "desired_heading": ego_heading})
-            lead_command = json.dumps({"desired_speed": ego_speed})
+            lead_command = json.dumps({"desired_speed": lead_speed})
+            ego_command = json.dumps({"desired_speed": ego_speed})
+            driver_in_loop_test_manager_socket.sendto(ego_command.encode(), ego_controller_address)
             driver_in_loop_test_manager_socket.sendto(lead_command.encode(), lead_controller_address)
             logger.consoleDisplay("[DEBUG] Sent: " + str(lead_command))
-                           
+            logger.consoleDisplay("[DEBUG] Sent: " + str(ego_command))             
             # driver_in_loop_test_manager_socket.sendto(lead_encoded_bsm, lead_message_receiver_address)
             # driver_in_loop_test_manager_socket.sendto(ego_encoded_bsm, ego_message_receiver_address)
             desired_distance_gap = ego_speed * time_gap

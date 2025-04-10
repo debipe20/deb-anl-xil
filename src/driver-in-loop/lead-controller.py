@@ -211,13 +211,15 @@ class World(object):
         cam_pos_index = self.camera_manager.transform_index if self.camera_manager is not None else 0
         # Get a random blueprint.
         # blueprint = random.choice(self.world.get_blueprint_library().filter(self._actor_filter))
-        blueprint = self.world.get_blueprint_library().find('vehicle.tesla.model3') ## Vehicle will be Tesla model 3
-        # blueprint = self.world.get_blueprint_library().find('vehicle.lincoln.mkz2017')
+        # print(self.world.get_blueprint_library().filter(self._actor_filter))
+        # blueprint = self.world.get_blueprint_library().find('vehicle.tesla.model3') ## Vehicle will be Tesla model 3
+        blueprint = self.world.get_blueprint_library().find('vehicle.lincoln.mkz2017')
+        # lueprint = self.world.get_blueprint_library().find('vehicle.audi.a2')
         blueprint.set_attribute('role_name', self.actor_role_name)
         if blueprint.has_attribute('color'):
-            # color = random.choice(blueprint.get_attribute('color').recommended_values)
+            color = random.choice(blueprint.get_attribute('color').recommended_values)
             print(blueprint.get_attribute('color').recommended_values)
-            color = '255,255,255'
+            color = '245,245,245'
             blueprint.set_attribute('color', color)
         if blueprint.has_attribute('driver_id'):
             driver_id = random.choice(blueprint.get_attribute('driver_id').recommended_values)

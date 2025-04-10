@@ -246,8 +246,8 @@ class World(object):
             spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         # Set up the sensors.
-        self.collision_sensor = CollisionSensor(self.player, self.hud)
-        self.lane_invasion_sensor = LaneInvasionSensor(self.player, self.hud)
+        # self.collision_sensor = CollisionSensor(self.player, self.hud)
+        # self.lane_invasion_sensor = LaneInvasionSensor(self.player, self.hud)
         self.gnss_sensor = GnssSensor(self.player)
         self.imu_sensor = IMUSensor(self.player)
         self.camera_manager = CameraManager(self.player, self.hud, self._gamma)
@@ -267,11 +267,12 @@ class World(object):
         self.player.get_world().set_weather(preset[0])
 
     def toggle_radar(self):
-        if self.radar_sensor is None:
-            self.radar_sensor = RadarSensor(self.player)
-        elif self.radar_sensor.sensor is not None:
-            self.radar_sensor.sensor.destroy()
-            self.radar_sensor = None
+        pass
+        # if self.radar_sensor is None:
+        #     self.radar_sensor = RadarSensor(self.player)
+        # elif self.radar_sensor.sensor is not None:
+        #     self.radar_sensor.sensor.destroy()
+        #     self.radar_sensor = None
 
     def tick(self, clock):
         self.hud.tick(self, clock)
@@ -286,12 +287,12 @@ class World(object):
         self.camera_manager.index = None
 
     def destroy(self):
-        if self.radar_sensor is not None:
-            self.toggle_radar()
+        # if self.radar_sensor is not None:
+        #     self.toggle_radar()
         sensors = [
             self.camera_manager.sensor,
-            self.collision_sensor.sensor,
-            self.lane_invasion_sensor.sensor,
+            # self.collision_sensor.sensor,
+            # self.lane_invasion_sensor.sensor,
             self.gnss_sensor.sensor,
             self.imu_sensor.sensor]
         for sensor in sensors:
@@ -342,13 +343,13 @@ class WayPointsManager:
         self.way_points_file = way_points_file
         self.read_way_points()
         
-        self.debug_log_file = open("../../log/debug/debug_lead_controller_log.csv", "w")
-        log_header = ("timestamp, desired_lat, desired_lon, desired_heading, current_lat, current_lon, current_speed, current_heading, travel_distance, calculated_distance, calculated_distance_next, starting_index, selected_index\n")
-        self.debug_log_file.write(log_header)
+        # self.debug_log_file = open("../../log/debug/debug_ego_controller_log.csv", "w")
+        # log_header = ("timestamp, desired_lat, desired_lon, desired_heading, current_lat, current_lon, current_speed, current_heading, travel_distance, calculated_distance, calculated_distance_next, starting_index, selected_index\n")
+        # self.debug_log_file.write(log_header)
         
-        self.heading_log_file = open("../../log/debug/debug_heading_log.log", "w")
-        write_msg = f"[{time.time()}]: {{'TimeStamp'}}, {{'previous_index'}}, {{'desired_index'}}, {{'current_lat'}}, {{'current_lon'}}, {{'current_heading'}}, {{'desired_lat'}}, {{'desired_lon'}}, {{'heading_status'}} \n"
-        self.heading_log_file.write(write_msg)
+        # self.heading_log_file = open("../../log/debug/debug_heading_log.log", "w")
+        # write_msg = f"[{time.time()}]: {{'TimeStamp'}}, {{'previous_index'}}, {{'desired_index'}}, {{'current_lat'}}, {{'current_lon'}}, {{'current_heading'}}, {{'desired_lat'}}, {{'desired_lon'}}, {{'heading_status'}} \n"
+        # self.heading_log_file.write(write_msg)
 
     def read_way_points(self):
         """
@@ -425,8 +426,8 @@ class WayPointsManager:
                 heading_status = 'behind'
                 continue  # Continue to the next waypoint if the point is behind
         
-        write_msg = f"[{time.time()}]: {previous_index}, {desired_index}, {current_lat}, {current_lon}, {current_heading}, {self.latitude_list[desired_index]}, {self.longitude_list[desired_index]}, {heading_status}\n"
-        self.heading_log_file.write(write_msg)
+        # write_msg = f"[{time.time()}]: {previous_index}, {desired_index}, {current_lat}, {current_lon}, {current_heading}, {self.latitude_list[desired_index]}, {self.longitude_list[desired_index]}, {heading_status}\n"
+        # self.heading_log_file.write(write_msg)
         
         return desired_index    
                 
@@ -489,13 +490,13 @@ class WayPointsManager:
             
         
         # Only after all math operations:
-        csv_row = (
-            f"{time.time()},{desired_lat},{desired_lon},{desired_heading},"
-            f"{current_lat},{current_lon},{current_speed_mps},{current_heading},"
-            f"{travel_distance},{calculated_distance},{calculated_distance_next},"
-            f"{starting_index},{self.previous_index}\n"
-        )
-        self.debug_log_file.write(csv_row)
+        # csv_row = (
+        #     f"{time.time()},{desired_lat},{desired_lon},{desired_heading},"
+        #     f"{current_lat},{current_lon},{current_speed_mps},{current_heading},"
+        #     f"{travel_distance},{calculated_distance},{calculated_distance_next},"
+        #     f"{starting_index},{self.previous_index}\n"
+        # )
+        # self.debug_log_file.write(csv_row)
 
         return desired_lat, desired_lon, desired_heading, desired_x, desired_y, desired_yaw
     
@@ -734,10 +735,10 @@ class ExternalCommandListener(threading.Thread):
         config = json.load(config_file)
         config_file.close()
         
-        self.host_ip = config["IPAddress"]["HostIp"]
-        self.lead_controller_port = config["PortNumber"]["EgoController"]
-        self.lead_controller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-        self.lead_controller_socket.bind((self.host_ip, self.lead_controller_port))
+        ego_controller_ip = config["IPAddress"]["HostIp"]
+        ego_controller_port = config["PortNumber"]["EgoController"]
+        self.ego_controller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+        self.ego_controller_socket.bind((ego_controller_ip, ego_controller_port))
 
         self.running = True
         self.last_time = None
@@ -750,7 +751,7 @@ class ExternalCommandListener(threading.Thread):
         way_points_file = config["VehicleInformation"]["EgoBsmLogFileName"]
         self.way_points_manager = WayPointsManager(config, way_points_file)
         
-        self.log_file = open("../../log/debug/carla_lead_controller_log.csv", "w")
+        self.log_file = open("../../log/debug/carla_ego_controller_log.csv", "w")
         log_header = ("timestamp, desired_lat, desired_lon, desired_speed, desired_heading, current_lat, current_lon, current_speed, current_heading, gps_distance, control, throttle, brake, steer\n")
         self.log_file.write(log_header)
         
@@ -779,13 +780,12 @@ class ExternalCommandListener(threading.Thread):
         Runs the listener that continuously receives and updates control commands.
         Works for UDP communication.
         """
-        print(f"[INFO] Listening for external commands (UDP) on {self.host_ip}:{self.lead_controller_port}")
         desired_speed = 0.0
         
         while self.running:
             try:
-                self.lead_controller_socket.settimeout(5.0)  # Optional: avoid blocking forever
-                data, addr = self.lead_controller_socket.recvfrom(1024)  # ✅ UDP-style receive
+                self.ego_controller_socket.settimeout(5.0)  # Optional: avoid blocking forever
+                data, addr = self.ego_controller_socket.recvfrom(1024)  # ✅ UDP-style receive
                 if not data:
                     continue
                 
@@ -882,10 +882,10 @@ class ExternalCommandListener(threading.Thread):
         Stops the listener and closes the socket.
         """
         self.running = False
-        self.lead_controller_socket.close()
+        self.ego_controller_socket.close()
         self.log_file.close()
-        self.way_points_manager.debug_log_file.close()
-        self.way_points_manager.heading_log_file.close()
+        # self.way_points_manager.debug_log_file.close()
+        # self.way_points_manager.heading_log_file.close()
         print("[INFO] ExternalCommandListener stopped.")
 
 
@@ -1261,9 +1261,14 @@ class HUD(object):
         heading += 'S' if 90.5 < compass < 269.5 else ''
         heading += 'E' if 0.5 < compass < 179.5 else ''
         heading += 'W' if 180.5 < compass < 359.5 else ''
-        colhist = world.collision_sensor.get_collision_history()
-        collision = [colhist[x + self.frame - 200] for x in range(0, 200)]
-        max_col = max(1.0, max(collision))
+        # colhist = world.collision_sensor.get_collision_history()
+        # collision = [colhist[x + self.frame - 200] for x in range(0, 200)]
+        collision = []
+        if hasattr(world, 'collision_sensor') and world.collision_sensor is not None:
+            colhist = world.collision_sensor.get_collision_history()
+            collision = [colhist.get(x + self.frame - 200, 0) for x in range(0, 200)]
+        # max_col = max(1.0, max(collision))
+        max_col = max(1.0, max(collision) if collision else 1.0)
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
         self._info_text = [
@@ -1498,6 +1503,7 @@ class GnssSensor(object):
         self.lon = 0.0
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.gnss')
+        bp.set_attribute('sensor_tick', '0.1')
         self.sensor = world.spawn_actor(bp, carla.Transform(carla.Location(x=1.0, z=2.8)), attach_to=self._parent)
         # We need to pass the lambda a weak reference to self to avoid circular
         # reference.
@@ -1527,6 +1533,7 @@ class IMUSensor(object):
         self.compass = 0.0
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find('sensor.other.imu')
+        bp.set_attribute('sensor_tick', '0.1')
         self.sensor = world.spawn_actor(
             bp, carla.Transform(), attach_to=self._parent)
         # We need to pass the lambda a weak reference to self to avoid circular
@@ -1652,7 +1659,7 @@ class CameraManager(object):
             Rear-view mirror position (x=-1, y=-bound_y, z=0.5)
         """
         self._camera_transforms = [
-            # (carla.Transform(carla.Location(x=0.65, y=0.0, z=1.4),carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0)), Attachment.Rigid),
+            (carla.Transform(carla.Location(x=0.65, y=0.0, z=1.4),carla.Rotation(pitch=0.0, yaw=0.0, roll=0.0)), Attachment.Rigid),
             (carla.Transform(carla.Location(x=-5.5, z=2.5), carla.Rotation(pitch=8.0)), Attachment.SpringArm),
             (carla.Transform(carla.Location(x=1.6, z=1.7)), Attachment.Rigid),
             (carla.Transform(carla.Location(x=5.5, y=1.5, z=1.5)), Attachment.SpringArm),

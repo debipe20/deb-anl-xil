@@ -216,12 +216,14 @@ def main():
             # else: ego_encoded_bsm = v2x.MessageFrame.from_json(previous_ego_bsm_json_string)
             
             # lead_command = json.dumps({"desired_lat": lead_lat, "desired_lon": lead_lon, "desired_speed": ego_speed, "desired_heading": ego_heading})
-            lead_command = json.dumps({"desired_speed": lead_speed})
+            encoded_lead_speed = struct.pack("d", lead_speed)
+            encoded_ego_speed = struct.pack("d", ego_speed)
             ego_command = json.dumps({"desired_speed": ego_speed})
             driver_in_loop_test_manager_socket.sendto(ego_command.encode(), ego_controller_address)
-            driver_in_loop_test_manager_socket.sendto(lead_command.encode(), lead_controller_address)
-            logger.consoleDisplay("[DEBUG] Sent: " + str(lead_command))
-            logger.consoleDisplay("[DEBUG] Sent: " + str(ego_command))             
+            driver_in_loop_test_manager_socket.sendto(encoded_lead_speed, lead_controller_address)
+            # logger.consoleDisplay("[DEBUG] Sent: " + str(lead_command))
+            # logger.consoleDisplay("[DEBUG] Sent: " + str(ego_command)) 
+                        
             # driver_in_loop_test_manager_socket.sendto(lead_encoded_bsm, lead_message_receiver_address)
             # driver_in_loop_test_manager_socket.sendto(ego_encoded_bsm, ego_message_receiver_address)
             desired_distance_gap = ego_speed * time_gap

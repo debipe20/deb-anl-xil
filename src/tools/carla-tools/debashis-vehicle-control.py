@@ -53,7 +53,8 @@ try:
 
     # spawn_point = random.choice(world.get_map().get_spawn_points())
     # spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
-    spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0))
+    spawn_point = carla.Transform(carla.Location(x=21.970606, y=988.040283, z=232.248337), carla.Rotation(pitch=0, yaw=-105, roll=0))
+    print("Spawn Point is: ", spawn_point)
     vehicle = world.spawn_actor(bp, spawn_point)
     vehicle.apply_control(carla.VehicleControl(throttle=1.0, steer=0.0))
     # vehicle.set_autopilot(True)  # if you just wanted some NPCs to drive.

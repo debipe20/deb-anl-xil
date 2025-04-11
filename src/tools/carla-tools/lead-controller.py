@@ -68,7 +68,7 @@ def main():
         world = client.get_world()
         blueprint_library = world.get_blueprint_library()
 
-        bp = blueprint_library.filter('model3')[0]
+        # bp = blueprint_library.filter('model3')[0]
         blueprint = world.get_blueprint_library().find('vehicle.lincoln.mkz2017')
         blueprint.set_attribute('role_name', "ANL-Lead")
         if blueprint.has_attribute('color'):

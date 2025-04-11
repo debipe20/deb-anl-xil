@@ -995,10 +995,25 @@ class KeyboardControl(object):
             current_lights |= carla.VehicleLightState.Brake  # Turn on brake light
         else:
             current_lights &= ~carla.VehicleLightState.Brake  # Turn off brake light
+            
+        # Debashis 🚨 NEW: Turn on parking lights when speed is 0
+        velocity = world.player.get_velocity()
+        speed_mps = math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
+
+        if speed_mps < 0.1:  # If the car is nearly stopped
+            current_lights |= carla.VehicleLightState.Position
+        else:
+            current_lights &= ~carla.VehicleLightState.Position
+
+        if current_lights != self._lights:
+            self._lights = current_lights
+            world.player.set_light_state(carla.VehicleLightState(self._lights))
 
         if current_lights != self._lights:  # Only update if there's a change
             self._lights = current_lights
             world.player.set_light_state(carla.VehicleLightState(self._lights))
+            
+        
         
     def parse_events(self, client, world, clock):
         """

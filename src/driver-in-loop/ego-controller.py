@@ -93,6 +93,7 @@ import os
 import platform
 import haversine
 import pandas as pd
+import struct
 from carla import Location, Rotation, Transform
 
 try:
@@ -775,6 +776,46 @@ class ExternalCommandListener(threading.Thread):
 
         return Transform(Location(x=carla_location.x, y=carla_location.y, z=self.vehicle.get_location().z),Rotation(yaw=heading))
 
+    def decode_vehicle_command(self, data):
+        offset = 0
+
+        def unpack_string(data, offset):
+            str_len = struct.unpack_from('I', data, offset)[0]
+            offset += 4
+            str_val = struct.unpack_from(f'{str_len}s', data, offset)[0].decode('utf-8')
+            offset += str_len
+            return str_val, offset
+
+        # Unpack double
+        desired_speed = struct.unpack_from('d', data, offset)[0]
+        offset += 8
+
+        traffic_light, offset = unpack_string(data, offset)
+        intersection_name, offset = unpack_string(data, offset)
+        distance_to_intersection, offset = unpack_string(data, offset)
+        min_time_to_change, offset = unpack_string(data, offset)
+        max_time_to_change, offset = unpack_string(data, offset)
+
+        headway = struct.unpack_from('d', data, offset)[0]
+        offset += 8
+        desired_headway = struct.unpack_from('d', data, offset)[0]
+        offset += 8
+        lead_speed = struct.unpack_from('d', data, offset)[0]
+        offset += 8
+
+        return {
+            "desired_speed": desired_speed,
+            "traffic_light": traffic_light,
+            "intersection_name": intersection_name,
+            "distance_to_intersection": distance_to_intersection,
+            "min_time_to_change": min_time_to_change,
+            "max_time_to_change": max_time_to_change,
+            "headway": headway,
+            "desired_headway": desired_headway,
+            "lead_speed": lead_speed
+        }
+
+    
     def run(self):
         """
         Runs the listener that continuously receives and updates control commands.
@@ -798,7 +839,8 @@ class ExternalCommandListener(threading.Thread):
                 
                 print("Current Carla Coordinates: ", current_location)
                 
-                command = json.loads(data.decode())
+                # command = json.loads(data.decode())
+                command = self.decode_vehicle_command(data)
                 print(f"[DEBUG] Received command: {command}")
 
                 desired_speed = command.get("desired_speed", 0.0) # make sure to receive in mps
@@ -811,6 +853,22 @@ class ExternalCommandListener(threading.Thread):
                 if desired_speed < 0.1 and current_speed_mps < 0.1:
                     self.pid.reset()
 
+                if "traffic_light" in command:
+                    light_state = command["traffic_light"].lower()
+                    self.control_instance.hud.set_traffic_light_state(light_state)
+                    
+                if "intersection_name" in command:
+                    name = command["intersection_name"]
+                    distance = command.get("distance_to_intersection", 0.0)
+                    min_time = command.get("min_time_to_change", 0)
+                    max_time = command.get("max_time_to_change", 0)
+                    self.control_instance.hud.update_intersection_info(name, distance, min_time, max_time)
+                    
+                if "lead_speed" in command:
+                    headway = command.get("headway", "NA")
+                    desired_headway = command.get("desired_headway", "NA")
+                    lead_speed = command.get("lead_speed", "NA")
+                    self.control_instance.hud.update_lead_info(headway, desired_headway, lead_speed)
                 
                 # Get GNSS sensor readings instead, if available
                 if hasattr(self.vehicle, "gnss_sensor"):
@@ -936,7 +994,8 @@ class KeyboardControl(object):
         self.external_throttle = 0.0  # External throttle input (range: [0,1])
         self.external_brake = 0.0  # External brake input (range: [0,1])
         self.external_steer = 0.0  # External steering input (range: [-1,1])
-
+        self.hud = world.hud ## Added by Debashis to display traffic light info
+        
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             self._lights = carla.VehicleLightState.NONE
@@ -1234,6 +1293,9 @@ class HUD(object):
         mono = default_font if default_font in fonts else fonts[0]
         mono = pygame.font.match_font(mono)
         self._font_mono = pygame.font.Font(mono, 12 if os.name == 'nt' else 14)
+        self._font_mono_large = pygame.font.Font(mono, 18)   # For headers like 'Ego Vehicle Info'
+        self._font_mono_small = pygame.font.Font(mono, 16)   # For details like 'Map:', 'Vehicle:', etc.
+        self._font_mono_large.set_bold(True)
         self._notifications = FadingText(font, (width, 40), (0, height - 40))
         self.help = HelpText(pygame.font.Font(mono, 16), width, height)
         self.server_fps = 0
@@ -1242,6 +1304,59 @@ class HUD(object):
         self._show_info = True
         self._info_text = []
         self._server_clock = pygame.time.Clock()
+        self.current_light_state = "dark"  # default
+        
+        self.current_intersection = {
+            "intersection_name": "Unknown",
+            "distance_m": "NA",
+            "min_time": "NA",
+            "max_time": "NA"
+        }
+
+        self.traffic_light_images = {
+            "dark": pygame.image.load("HMI/images/Dark.png"),
+            "green": pygame.image.load("HMI/images/Green.png"),
+            "red": pygame.image.load("HMI/images/Red.png"),
+            "yellow": pygame.image.load("HMI/images/Yellow.png")
+        }
+        
+        self.lead_vehicle_info = {
+            "headway": "NA",
+            "desired_headway": "NA",
+            "lead_speed": "NA"
+        }
+
+    # def format_with_unit(self, value, unit):
+    #     if isinstance(value, (int, float)) or (isinstance(value, str) and value.replace('.', '', 1).isdigit()):
+    #         return f"{value} {unit}"
+    #     else:
+    #         return "NA"
+    
+    def format_with_unit(self, value, unit):
+        try:
+            val = float(value)
+            return f"{round(val, 2)} {unit}"
+        except (ValueError, TypeError):
+            return "NA"
+
+ 
+    def set_traffic_light_state(self, state):
+        if state in self.traffic_light_images:
+            self.current_light_state = state
+            
+        else:
+            self.current_light_state = "dark"
+
+    def update_intersection_info(self, name="Unknown", distance_m="NA", min_time="NA", max_time="NA"):
+        self.current_intersection["intersection_name"] = name
+        self.current_intersection["distance_m"] = distance_m
+        self.current_intersection["min_time"] = min_time
+        self.current_intersection["max_time"] = max_time
+            
+    def update_lead_info(self, headway="NA", desired_headway="NA", lead_speed="NA"):
+        self.lead_vehicle_info["headway"] = headway
+        self.lead_vehicle_info["desired_headway"] = desired_headway
+        self.lead_vehicle_info["lead_speed"] = lead_speed
 
     def on_world_tick(self, timestamp):
         self._server_clock.tick()
@@ -1271,50 +1386,103 @@ class HUD(object):
         max_col = max(1.0, max(collision) if collision else 1.0)
         collision = [x / max_col for x in collision]
         vehicles = world.world.get_actors().filter('vehicle.*')
+        
         self._info_text = [
-            'Server:  % 16.0f FPS' % self.server_fps,
-            'Client:  % 16.0f FPS' % clock.get_fps(),
             '',
-            'Vehicle: % 20s' % get_actor_display_name(world.player, truncate=20),
-            'Map:     % 20s' % world.map.name,
-            'Simulation time: % 12s' % datetime.timedelta(seconds=int(self.simulation_time)),
+            'Intersection Info:',
+            f'Name: {self.current_intersection["intersection_name"]}',
+            f'Intersection Distance: {self.format_with_unit(self.current_intersection["distance_m"], "m")}',
+            f'Min Time to Change: {self.format_with_unit(self.current_intersection["min_time"], "s")}',
+            f'Max Time to Change: {self.format_with_unit(self.current_intersection["max_time"], "s")}'
+        ]
+        
+        self._info_text += [
             '',
-            'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
-            u'Compass:% 17.0f\N{DEGREE SIGN} % 2s' % (compass, heading),
-            'Accelero: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.accelerometer),
-            'Gyroscop: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.gyroscope),
-            'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
-            'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
-            'Height:  % 18.0f m' % t.location.z,
-            '']
+            'Lead Vehicle Info:',
+            f'Headway:           {self.format_with_unit(self.lead_vehicle_info["headway"], "m")}',
+            f'Desired Headway:   {self.format_with_unit(self.lead_vehicle_info["desired_headway"], "m")}',
+            f'Lead Speed:        {self.format_with_unit(self.lead_vehicle_info["lead_speed"], "mph")}'
+        ]
+
+        self._info_text += [
+            '',
+            'Ego Vehicle Info:',
+            'Ego Speed: % 3.0f mph' % (math.sqrt(v.x**2 + v.y**2 + v.z**2) * 2.23694),
+            'Lattitude: % 1.6f' % world.gnss_sensor.lat,
+            'Longitude: % 1.6f' % world.gnss_sensor.lon,
+            'Elevation: % 6.0f m' % t.location.z,
+            'Heading:   % 6.0f° % 2s' % (compass, heading)           
+        ]
+
+        self._info_text +=[
+            '',
+            'Carla Info:',
+            'Map:       %s' % world.map.name,
+            'Vehicle:   %s' % get_actor_display_name(world.player, truncate=20),
+            'Server:    % 3.0f FPS' % self.server_fps,
+            'Client:    % 3.0f FPS' % clock.get_fps()
+        ]
+
         if isinstance(c, carla.VehicleControl):
             self._info_text += [
+                '',
+                'Vehicle Control Info:',
                 ('Throttle:', c.throttle, 0.0, 1.0),
                 ('Steer:', c.steer, -1.0, 1.0),
                 ('Brake:', c.brake, 0.0, 1.0),
-                ('Reverse:', c.reverse),
-                ('Hand brake:', c.hand_brake),
-                ('Manual:', c.manual_gear_shift),
-                'Gear:        %s' % {-1: 'R', 0: 'N'}.get(c.gear, c.gear)]
-        elif isinstance(c, carla.WalkerControl):
-            self._info_text += [
-                ('Speed:', c.speed, 0.0, 5.556),
-                ('Jump:', c.jump)]
-        self._info_text += [
-            '',
-            'Collision:',
-            collision,
-            '',
-            'Number of vehicles: % 8d' % len(vehicles)]
-        if len(vehicles) > 1:
-            self._info_text += ['Nearby vehicles:']
-            distance = lambda l: math.sqrt((l.x - t.location.x)**2 + (l.y - t.location.y)**2 + (l.z - t.location.z)**2)
-            vehicles = [(distance(x.get_location()), x) for x in vehicles if x.id != world.player.id]
-            for d, vehicle in sorted(vehicles, key=lambda vehicles: vehicles[0]):
-                if d > 200.0:
-                    break
-                vehicle_type = get_actor_display_name(vehicle, truncate=22)
-                self._info_text.append('% 4dm %s' % (d, vehicle_type))
+                # ('Reverse:', c.reverse),
+                # ('Hand brake:', c.hand_brake),
+                # ('Manual:', c.manual_gear_shift),
+                # 'Gear:        %s' % {-1: 'R', 0: 'N'}.get(c.gear, c.gear)
+            ]
+        
+        # self._info_text += [
+        #     'Server:  % 16.0f FPS' % self.server_fps,
+        #     'Client:  % 16.0f FPS' % clock.get_fps(),
+        #     '',
+        #     'Vehicle: % 20s' % get_actor_display_name(world.player, truncate=20),
+        #     'Map:     % 20s' % world.map.name,
+        #     'Simulation time: % 12s' % datetime.timedelta(seconds=int(self.simulation_time)),
+        #     '',
+        #     'Speed:   % 15.0f km/h' % (3.6 * math.sqrt(v.x**2 + v.y**2 + v.z**2)),
+        #     u'Compass:% 17.0f\N{DEGREE SIGN} % 2s' % (compass, heading),
+        #     'Accelero: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.accelerometer),
+        #     'Gyroscop: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.gyroscope),
+        #     'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
+        #     'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
+        #     'Height:  % 18.0f m' % t.location.z,
+        #     '']
+        # if isinstance(c, carla.VehicleControl):
+        #     self._info_text += [
+        #         ('Throttle:', c.throttle, 0.0, 1.0),
+        #         ('Steer:', c.steer, -1.0, 1.0),
+        #         ('Brake:', c.brake, 0.0, 1.0),
+        #         ('Reverse:', c.reverse),
+        #         ('Hand brake:', c.hand_brake),
+        #         ('Manual:', c.manual_gear_shift),
+        #         'Gear:        %s' % {-1: 'R', 0: 'N'}.get(c.gear, c.gear)]
+        # elif isinstance(c, carla.WalkerControl):
+        #     self._info_text += [
+        #         ('Speed:', c.speed, 0.0, 5.556),
+        #         ('Jump:', c.jump)]
+        # self._info_text += [
+        #     '',
+        #     'Collision:',
+        #     collision,
+        #     '',
+        #     'Number of vehicles: % 8d' % len(vehicles)]
+        # if len(vehicles) > 1:
+        #     self._info_text += ['Nearby vehicles:']
+        #     distance = lambda l: math.sqrt((l.x - t.location.x)**2 + (l.y - t.location.y)**2 + (l.z - t.location.z)**2)
+        #     vehicles = [(distance(x.get_location()), x) for x in vehicles if x.id != world.player.id]
+        #     for d, vehicle in sorted(vehicles, key=lambda vehicles: vehicles[0]):
+        #         if d > 200.0:
+        #             break
+        #         vehicle_type = get_actor_display_name(vehicle, truncate=22)
+        #         self._info_text.append('% 4dm %s' % (d, vehicle_type))
+                
+        
+
 
     def toggle_info(self):
         self._show_info = not self._show_info
@@ -1327,39 +1495,79 @@ class HUD(object):
 
     def render(self, display):
         if self._show_info:
-            info_surface = pygame.Surface((220, self.dim[1]))
+            info_surface = pygame.Surface((250, self.dim[1]))
             info_surface.set_alpha(100)
             display.blit(info_surface, (0, 0))
-            v_offset = 4
+            top_offset = 4
             bar_h_offset = 100
             bar_width = 106
+            
+            # Draw traffic light image at top-left corner
+            traffic_image = self.traffic_light_images[self.current_light_state]
+            left_offset = 100
+            top_offset = top_offset + 2  
+            traffic_image = pygame.transform.scale(self.traffic_light_images[self.current_light_state], (40, 120))
+            display.blit(traffic_image, (left_offset, top_offset))
+            top_offset += 130  # image height + margin
+            
             for item in self._info_text:
-                if v_offset + 18 > self.dim[1]:
+                if top_offset + 18 > self.dim[1]:
                     break
                 if isinstance(item, list):
                     if len(item) > 1:
-                        points = [(x + 8, v_offset + 8 + (1.0 - y) * 30) for x, y in enumerate(item)]
+                        points = [(x + 8, top_offset + 8 + (1.0 - y) * 30) for x, y in enumerate(item)]
                         pygame.draw.lines(display, (255, 136, 0), False, points, 2)
                     item = None
-                    v_offset += 18
+                    top_offset += 18
                 elif isinstance(item, tuple):
                     if isinstance(item[1], bool):
-                        rect = pygame.Rect((bar_h_offset, v_offset + 8), (6, 6))
+                        rect = pygame.Rect((bar_h_offset, top_offset + 8), (6, 6))
                         pygame.draw.rect(display, (255, 255, 255), rect, 0 if item[1] else 1)
                     else:
-                        rect_border = pygame.Rect((bar_h_offset, v_offset + 8), (bar_width, 6))
+                        rect_border = pygame.Rect((bar_h_offset, top_offset + 8), (bar_width, 6))
                         pygame.draw.rect(display, (255, 255, 255), rect_border, 1)
                         f = (item[1] - item[2]) / (item[3] - item[2])
                         if item[2] < 0.0:
-                            rect = pygame.Rect((bar_h_offset + f * (bar_width - 6), v_offset + 8), (6, 6))
+                            rect = pygame.Rect((bar_h_offset + f * (bar_width - 6), top_offset + 8), (6, 6))
                         else:
-                            rect = pygame.Rect((bar_h_offset, v_offset + 8), (f * bar_width, 6))
+                            rect = pygame.Rect((bar_h_offset, top_offset + 8), (f * bar_width, 6))
                         pygame.draw.rect(display, (255, 255, 255), rect)
                     item = item[0]
                 if item:  # At this point has to be a str.
-                    surface = self._font_mono.render(item, True, (255, 255, 255))
-                    display.blit(surface, (8, v_offset))
-                v_offset += 18
+                    # surface = self._font_mono.render(item, True, (255, 255, 255))
+                    # Choose larger font for section titles
+                    # if any(item.startswith(prefix) for prefix in ["Ego Vehicle Info:", "Intersection Info:", "Lead Vehicle Info:", "Carla Info:", "Vehicle Control Info:"]):
+                    #     surface = self._font_mono_large.render(item, True, (255, 255, 255))
+                    # else:
+                    #     surface = self._font_mono_small.render(item, True, (255, 255, 255))
+
+
+                    if item.startswith("Ego Vehicle Info:"):
+                        font = self._font_mono_large
+                        color = (0, 255, 0)  # Green
+                    elif item.startswith("Intersection Info:"):
+                        font = self._font_mono_large
+                        color = (0, 128, 255)  # Blue
+                    elif item.startswith("Lead Vehicle Info:"):
+                        font = self._font_mono_large
+                        color = (255, 215, 0)  # Gold
+                    elif item.startswith("Carla Info:"):
+                        font = self._font_mono_small
+                        color = (200, 200, 200)  # Light gray
+                    elif item.startswith("Vehicle Control Info:"):
+                        font = self._font_mono_small
+                        color = (255, 255, 255)  # White
+                    else:
+                        font = self._font_mono_small
+                        color = (255, 255, 255)  # Default
+                        
+                    surface = font.render(item, True, color)
+                    display.blit(surface, (8, top_offset))
+                top_offset += 18
+                
+            
+
+
         self._notifications.render(display)
         self.help.render(display)
 

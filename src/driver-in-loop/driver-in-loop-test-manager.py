@@ -114,6 +114,31 @@ def destruct_logger(logger:Logger):
     """
     logger.consoleDisplay("Shutting down now!")
     del logger
+    
+    
+import struct
+
+def encode_vehicle_command(desired_speed, traffic_light, intersection_name,
+    distance_to_intersection, min_time_to_change, max_time_to_change,
+    headway, desired_headway, lead_speed):
+    # Helper to pack string with length prefix
+    def pack_string(s):
+        b = s.encode('utf-8')
+        return struct.pack(f'I{len(b)}s', len(b), b)
+    
+    data = b''
+    data += struct.pack('d', desired_speed)
+    data += pack_string(traffic_light)
+    data += pack_string(intersection_name)
+    data += pack_string(distance_to_intersection)
+    data += pack_string(min_time_to_change)
+    data += pack_string(max_time_to_change)
+    data += struct.pack('d', headway)
+    data += struct.pack('d', desired_headway)
+    data += struct.pack('d', lead_speed)
+
+    return data
+
 
 def main():
     """
@@ -207,6 +232,7 @@ def main():
             ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_bsm_json_string, ego_steering_input = (ego_bsm_generator.get_bsm_json_string(ego_speed))
             
             relative_distance = haversine.haversine((lead_lat, lead_lon), (ego_lat, ego_lon), unit=haversine.Unit.METERS)
+            desired_distance_gap = ego_speed * time_gap
             ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
             lead_encoded_bsm = v2x.MessageFrame.from_json(lead_bsm_json_string)
             
@@ -217,16 +243,27 @@ def main():
             
             # lead_command = json.dumps({"desired_lat": lead_lat, "desired_lon": lead_lon, "desired_speed": ego_speed, "desired_heading": ego_heading})
             encoded_lead_speed = struct.pack("d", lead_speed)
-            encoded_ego_speed = struct.pack("d", ego_speed)
-            ego_command = json.dumps({"desired_speed": ego_speed})
-            driver_in_loop_test_manager_socket.sendto(ego_command.encode(), ego_controller_address)
+            encoded_ego_data= encode_vehicle_command(ego_speed, "green", "Kearney & Watertower", "120", "10", "15", relative_distance, desired_distance_gap, lead_speed)
+            # ego_command = json.dumps({
+            #     "desired_speed": ego_speed,
+            #     "traffic_light": "NA",
+            #     "intersection_name": "Unknown",
+            #     "distance_to_intersection": "NA",
+            #     "min_time_to_change": "NA",
+            #     "max_time_to_change": "NA",
+            #     "headway": relative_distance,
+            #     "desired_headway": desired_distance_gap,
+            #     "lead_speed": lead_speed
+            #     })
+            # driver_in_loop_test_manager_socket.sendto(ego_command.encode(), ego_controller_address)
+            driver_in_loop_test_manager_socket.sendto(encoded_ego_data, ego_controller_address)
             driver_in_loop_test_manager_socket.sendto(encoded_lead_speed, lead_controller_address)
             # logger.consoleDisplay("[DEBUG] Sent: " + str(lead_command))
             # logger.consoleDisplay("[DEBUG] Sent: " + str(ego_command)) 
                         
             # driver_in_loop_test_manager_socket.sendto(lead_encoded_bsm, lead_message_receiver_address)
             # driver_in_loop_test_manager_socket.sendto(ego_encoded_bsm, ego_message_receiver_address)
-            desired_distance_gap = ego_speed * time_gap
+            
             
             hmi_json_string = generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, 
                              ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_distance_gap)

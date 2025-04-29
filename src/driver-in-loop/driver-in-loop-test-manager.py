@@ -33,6 +33,7 @@ from LeadVehicleDataManager import LeadVehicleDataManager
 from Logger import Logger
 
 SpeedDataLength = 16
+BsmDataLength = 40
 MPS_To_MPH = 2.23694
 MPH_To_MPS = 0.44704
 Min_Distance_gap = 10
@@ -114,31 +115,56 @@ def destruct_logger(logger:Logger):
     """
     logger.consoleDisplay("Shutting down now!")
     del logger
-    
-    
-import struct
+        
+def encode_vehicle_command(desired_speed, intersection_name, distance_to_intersection,
+    signal_group, traffic_light, min_time_to_change, max_time_to_change,
+    headway, desired_headway, lead_speed, approach_id, lane_id):
 
-def encode_vehicle_command(desired_speed, traffic_light, intersection_name,
-    distance_to_intersection, min_time_to_change, max_time_to_change,
-    headway, desired_headway, lead_speed):
-    # Helper to pack string with length prefix
     def pack_string(s):
+        if not isinstance(s, str):
+            s = str(s)
         b = s.encode('utf-8')
         return struct.pack(f'I{len(b)}s', len(b), b)
-    
+
     data = b''
     data += struct.pack('d', desired_speed)
-    data += pack_string(traffic_light)
     data += pack_string(intersection_name)
-    data += pack_string(distance_to_intersection)
-    data += pack_string(min_time_to_change)
-    data += pack_string(max_time_to_change)
+
+    # distance_to_intersection
+    if isinstance(distance_to_intersection, (float, int)):
+        data += struct.pack('B', 1)  # flag: 1 = double
+        data += struct.pack('d', distance_to_intersection)
+    else:
+        data += struct.pack('B', 0)  # flag: 0 = string
+        data += pack_string(distance_to_intersection)
+
+    data += pack_string(signal_group)
+    data += pack_string(traffic_light)
+
+    # min_time_to_change
+    if isinstance(min_time_to_change, (float, int)):
+        data += struct.pack('B', 1)
+        data += struct.pack('d', min_time_to_change)
+    else:
+        data += struct.pack('B', 0)
+        data += pack_string(min_time_to_change)
+
+    # max_time_to_change
+    if isinstance(max_time_to_change, (float, int)):
+        data += struct.pack('B', 1)
+        data += struct.pack('d', max_time_to_change)
+    else:
+        data += struct.pack('B', 0)
+        data += pack_string(max_time_to_change)
+
     data += struct.pack('d', headway)
     data += struct.pack('d', desired_headway)
     data += struct.pack('d', lead_speed)
 
-    return data
+    data += pack_string(approach_id)
+    data += pack_string(lane_id)
 
+    return data
 
 def main():
     """
@@ -191,6 +217,10 @@ def main():
     ego_controller_ip = config["IPAddress"]["HostIp"]
     ego_controller_port = config["PortNumber"]["EgoController"]
     ego_controller_address = (ego_controller_ip, ego_controller_port)
+    
+    vehicle_status_manager_ip = config["IPAddress"]["HostIp"]
+    vehicle_status_manager_port = config["PortNumber"]["VehicleStatusManager"]
+    vehicle_status_manager_address = (vehicle_status_manager_ip, vehicle_status_manager_port)
 
     driver_in_loop_test_manager_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     driver_in_loop_test_manager_socket.bind(driver_in_loop_test_manager_address)
@@ -215,13 +245,14 @@ def main():
     ego_lat, ego_lon, ego_speed = 0.0, 0.0, 0.0
     lead_lat, lead_lon, lead_speed = 0.0, 0.0, 0.0
     previous_ego_bsm_json_string = ""
+    intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, approach_id, lane_id = "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"    
 
     while True:
         data, address = driver_in_loop_test_manager_socket.recvfrom(2048)
         # logger.consoleDisplay("Received data is following:\n" + str(data))
 
         data_length = len(data)
-
+            
         if data_length == SpeedDataLength:
         # if address[0] == vehicle_spy_ip:
             lead_speed, ego_speed = struct.unpack("dd", data)
@@ -243,19 +274,10 @@ def main():
             
             # lead_command = json.dumps({"desired_lat": lead_lat, "desired_lon": lead_lon, "desired_speed": ego_speed, "desired_heading": ego_heading})
             encoded_lead_speed = struct.pack("d", lead_speed)
-            encoded_ego_data= encode_vehicle_command(ego_speed, "green", "Kearney & Watertower", "120", "10", "15", relative_distance, desired_distance_gap, lead_speed)
-            # ego_command = json.dumps({
-            #     "desired_speed": ego_speed,
-            #     "traffic_light": "NA",
-            #     "intersection_name": "Unknown",
-            #     "distance_to_intersection": "NA",
-            #     "min_time_to_change": "NA",
-            #     "max_time_to_change": "NA",
-            #     "headway": relative_distance,
-            #     "desired_headway": desired_distance_gap,
-            #     "lead_speed": lead_speed
-            #     })
-            # driver_in_loop_test_manager_socket.sendto(ego_command.encode(), ego_controller_address)
+            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_distance_gap, lead_speed, approach_id, lane_id)
+            
+            # encoded_ego_data= encode_vehicle_command(ego_speed, "Kearney & Watertower", "120", "2", "green", "10", "15", relative_distance, desired_distance_gap, lead_speed,  approach_id, lane_id)
+
             driver_in_loop_test_manager_socket.sendto(encoded_ego_data, ego_controller_address)
             driver_in_loop_test_manager_socket.sendto(encoded_lead_speed, lead_controller_address)
             # logger.consoleDisplay("[DEBUG] Sent: " + str(lead_command))
@@ -271,7 +293,31 @@ def main():
             # driver_in_loop_test_manager_socket.sendto(hmi_json_string.encode(), hmi_address)
             logger.log_driver_in_loop_test_data(lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_steering_input)
             previous_ego_bsm_json_string = ego_bsm_json_string
+            
+        # elif address[0] == ego_controller_ip:
+        elif data_length == BsmDataLength:
+            lat, lon, elev, heading, speed_mps = struct.unpack("ddddd", data)
+            print("Received BSM related data")
+            bsm_json_string = ego_bsm_generator.generate_bsm_json_string(lat, lon, elev, heading, speed_mps)
+            driver_in_loop_test_manager_socket.sendto(bsm_json_string.encode(),vehicle_status_manager_address)
         
+        elif address == vehicle_status_manager_address:
+            decoded_data = data.decode('utf-8')
+            parsed_json = json.loads(decoded_data)
+            print("Decoded vehicle status manager data\n")
+            map_spat_data = parsed_json.get("Map-SPat-Data", {})
+            intersection_name = map_spat_data.get("IntersectionName")
+            intersection_distance = map_spat_data.get("IntersectionDistance")
+            signal_group = map_spat_data.get("SignalGroup")
+            signal_state = map_spat_data.get("SignalState")
+            min_time_to_change = map_spat_data.get("MinTimeToChange")
+            max_time_to_change = map_spat_data.get("MaxTimeToChange")
+            approach_id = map_spat_data.get("ApproachID")
+            lane_id = map_spat_data.get("LaneID")
+            
+            if signal_group == 0:
+                intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, approach_id, lane_id = "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"    
+  
     driver_in_loop_test_manager_socket.close()
 
 if __name__ == "__main__":

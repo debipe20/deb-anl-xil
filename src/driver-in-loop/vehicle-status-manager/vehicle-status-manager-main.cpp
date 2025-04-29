@@ -42,11 +42,14 @@ int main()
     BasicVehicle basicVehicle;
     
     UdpSocket vehicleStatusManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["VehicleStatusManager"].asInt()));
+    const string driverInLoopTestManagerIP = jsonObject["IPAddress"]["HostIp"].asString();
+    const int driverInLoopTestManagerPortNo = static_cast<short unsigned int>(jsonObject["PortNumber"]["DriverInLoopTestManager"].asInt());
     
     cout << "Successfully open Socket" << endl;
     
     char receiveBuffer[40960];
     int msgType{};
+    string sendingJsonString{};
 
     while (true)
     {
@@ -57,13 +60,12 @@ int main()
         if (msgType == MsgEnum::DSRCmsgID_bsm)
         {
             basicVehicle.json2BasicVehicle(receivedJsonString);
-            vehicleStatusManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
-            
-            
+            cout << "Received Basic Vehicle Data\n" << receivedJsonString << endl;
+            vehicleStatusManager.getVehicleInformationFromMAP(mapManager, basicVehicle);            
+            sendingJsonString = vehicleStatusManager.createJsonStringForDriverInLoopTestManager();
+            vehicleStatusManagerSocket.sendData(driverInLoopTestManagerIP, static_cast<short unsigned int>(driverInLoopTestManagerPortNo), sendingJsonString);
             // Update the Map status (MapAge, or delete old Map)
-            vehicleStatusManager.manageMapStatusInAvailableMapList(mapManager);
-            
-
+            vehicleStatusManager.manageMapStatusInAvailableMapList(mapManager);      
         }
 
         else if (msgType == MsgEnum::DSRCmsgID_map)

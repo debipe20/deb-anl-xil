@@ -738,8 +738,14 @@ class ExternalCommandListener(threading.Thread):
         
         ego_controller_ip = config["IPAddress"]["HostIp"]
         ego_controller_port = config["PortNumber"]["EgoController"]
+        ego_controller_address = (ego_controller_ip, ego_controller_port)
+        
+        driver_in_loop_test_manager_ip = config["IPAddress"]["HostIp"]
+        driver_in_loop_test_manager_port = config["PortNumber"]["DriverInLoopTestManager"]
+        self.driver_in_loop_test_manager_address = (driver_in_loop_test_manager_ip, driver_in_loop_test_manager_port)
+            
         self.ego_controller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-        self.ego_controller_socket.bind((ego_controller_ip, ego_controller_port))
+        self.ego_controller_socket.bind(ego_controller_address)
 
         self.running = True
         self.last_time = None
@@ -786,15 +792,40 @@ class ExternalCommandListener(threading.Thread):
             offset += str_len
             return str_val, offset
 
-        # Unpack double
         desired_speed = struct.unpack_from('d', data, offset)[0]
         offset += 8
 
-        traffic_light, offset = unpack_string(data, offset)
         intersection_name, offset = unpack_string(data, offset)
-        distance_to_intersection, offset = unpack_string(data, offset)
-        min_time_to_change, offset = unpack_string(data, offset)
-        max_time_to_change, offset = unpack_string(data, offset)
+
+        # distance_to_intersection
+        flag = struct.unpack_from('B', data, offset)[0]
+        offset += 1
+        if flag == 1:
+            distance_to_intersection = struct.unpack_from('d', data, offset)[0]
+            offset += 8
+        else:
+            distance_to_intersection, offset = unpack_string(data, offset)
+
+        signal_group, offset = unpack_string(data, offset)
+        traffic_light, offset = unpack_string(data, offset)
+
+        # min_time_to_change
+        flag = struct.unpack_from('B', data, offset)[0]
+        offset += 1
+        if flag == 1:
+            min_time_to_change = struct.unpack_from('d', data, offset)[0]
+            offset += 8
+        else:
+            min_time_to_change, offset = unpack_string(data, offset)
+
+        # max_time_to_change
+        flag = struct.unpack_from('B', data, offset)[0]
+        offset += 1
+        if flag == 1:
+            max_time_to_change = struct.unpack_from('d', data, offset)[0]
+            offset += 8
+        else:
+            max_time_to_change, offset = unpack_string(data, offset)
 
         headway = struct.unpack_from('d', data, offset)[0]
         offset += 8
@@ -803,25 +834,31 @@ class ExternalCommandListener(threading.Thread):
         lead_speed = struct.unpack_from('d', data, offset)[0]
         offset += 8
 
+        approach_id, offset = unpack_string(data, offset)
+        lane_id, offset = unpack_string(data, offset)
+
         return {
             "desired_speed": desired_speed,
-            "traffic_light": traffic_light,
             "intersection_name": intersection_name,
             "distance_to_intersection": distance_to_intersection,
+            "signal_group": signal_group,
+            "traffic_light": traffic_light,
             "min_time_to_change": min_time_to_change,
             "max_time_to_change": max_time_to_change,
             "headway": headway,
             "desired_headway": desired_headway,
-            "lead_speed": lead_speed
+            "lead_speed": lead_speed,
+            "approach_id": approach_id,
+            "lane_id": lane_id
         }
 
-    
     def run(self):
         """
         Runs the listener that continuously receives and updates control commands.
         Works for UDP communication.
         """
         desired_speed = 0.0
+        bsm_sending_time = time.time()
         
         while self.running:
             try:
@@ -853,27 +890,30 @@ class ExternalCommandListener(threading.Thread):
                 if desired_speed < 0.1 and current_speed_mps < 0.1:
                     self.pid.reset()
 
-                if "traffic_light" in command:
-                    light_state = command["traffic_light"].lower()
-                    self.control_instance.hud.set_traffic_light_state(light_state)
-                    
-                if "intersection_name" in command:
-                    name = command["intersection_name"]
-                    distance = command.get("distance_to_intersection", 0.0)
-                    min_time = command.get("min_time_to_change", 0)
-                    max_time = command.get("max_time_to_change", 0)
-                    self.control_instance.hud.update_intersection_info(name, distance, min_time, max_time)
-                    
-                if "lead_speed" in command:
-                    headway = command.get("headway", "NA")
-                    desired_headway = command.get("desired_headway", "NA")
-                    lead_speed = command.get("lead_speed", "NA")
-                    self.control_instance.hud.update_lead_info(headway, desired_headway, lead_speed)
+                
+                light_state = command["traffic_light"].lower()                
+                intersection_name = command["intersection_name"]
+                distance = command.get("distance_to_intersection", 0.0)
+                min_time = command.get("min_time_to_change", 0)
+                max_time = command.get("max_time_to_change", 0)               
+                headway = command.get("headway", "NA")
+                desired_headway = command.get("desired_headway", "NA")
+                lead_speed = command.get("lead_speed", "NA")
+                signal_group =  command.get("signal_group", 0) 
+                approach_id = command.get("approach_id", "NA")
+                lane_id = command.get("lane_id", "NA")
+                
+                self.control_instance.hud.set_traffic_light_state(light_state)
+                self.control_instance.hud.update_intersection_info(intersection_name, distance, signal_group, min_time, max_time)
+                self.control_instance.hud.update_lead_info(headway, desired_headway, lead_speed)
+                self.control_instance.hud.update_ego_info(approach_id, lane_id)
                 
                 # Get GNSS sensor readings instead, if available
                 if hasattr(self.vehicle, "gnss_sensor"):
                     current_lat = self.vehicle.gnss_sensor.lat
                     current_lon = self.vehicle.gnss_sensor.lon
+                    current_elev = self.vehicle.get_transform().location.z
+                    
                 if hasattr(self.vehicle, "imu_sensor"):
                     current_heading = self.vehicle.imu_sensor.compass % 360
                     
@@ -891,6 +931,11 @@ class ExternalCommandListener(threading.Thread):
                 # steer =  self.pid.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y)
 
                 self.control_instance.set_external_control(throttle, brake, steer)
+                
+                if (current_time - bsm_sending_time) >=0.099:
+
+                    encoded_bsm_data = struct.pack("ddddd", current_lat, current_lon, current_elev, current_heading, current_speed_mps)
+                    self.ego_controller_socket.sendto(encoded_bsm_data, self.driver_in_loop_test_manager_address)
 
                 gps_distance = haversine.haversine((desired_lat, desired_lon), (current_lat, current_lon), unit=haversine.Unit.METERS)
                 # print("Euclidian Distance and Haversine Distance: ", euclidian_distance, ", " , gps_distance)
@@ -1309,6 +1354,7 @@ class HUD(object):
         self.current_intersection = {
             "intersection_name": "Unknown",
             "distance_m": "NA",
+            "signal_group": "NA",
             "min_time": "NA",
             "max_time": "NA"
         }
@@ -1324,6 +1370,12 @@ class HUD(object):
             "headway": "NA",
             "desired_headway": "NA",
             "lead_speed": "NA"
+        }
+        
+        self.ego_vehicle_info = {
+            "map_status": "NA",
+            "lane_id": "NA",
+            "approach_id": "NA"
         }
 
     # def format_with_unit(self, value, unit):
@@ -1347,16 +1399,21 @@ class HUD(object):
         else:
             self.current_light_state = "dark"
 
-    def update_intersection_info(self, name="Unknown", distance_m="NA", min_time="NA", max_time="NA"):
+    def update_intersection_info(self, name="Unknown", distance_m="NA", signal_group="NA", min_time="NA", max_time="NA"):
         self.current_intersection["intersection_name"] = name
         self.current_intersection["distance_m"] = distance_m
+        self.current_intersection["signal_group"] = signal_group 
         self.current_intersection["min_time"] = min_time
         self.current_intersection["max_time"] = max_time
             
     def update_lead_info(self, headway="NA", desired_headway="NA", lead_speed="NA"):
         self.lead_vehicle_info["headway"] = headway
         self.lead_vehicle_info["desired_headway"] = desired_headway
-        self.lead_vehicle_info["lead_speed"] = lead_speed
+        self.lead_vehicle_info["lead_speed"] = lead_speed * MPS_To_MPH
+        
+    def update_ego_info(self, approach_id="NA", lane_id="NA"):
+        self.ego_vehicle_info["approach_id"] = approach_id
+        self.ego_vehicle_info["lane_id"] = lane_id        
 
     def on_world_tick(self, timestamp):
         self._server_clock.tick()
@@ -1392,6 +1449,7 @@ class HUD(object):
             'Intersection Info:',
             f'Name: {self.current_intersection["intersection_name"]}',
             f'Intersection Distance: {self.format_with_unit(self.current_intersection["distance_m"], "m")}',
+            f'Signal Group: {self.format_with_unit(self.current_intersection["signal_group"], "")}',
             f'Min Time to Change: {self.format_with_unit(self.current_intersection["min_time"], "s")}',
             f'Max Time to Change: {self.format_with_unit(self.current_intersection["max_time"], "s")}'
         ]
@@ -1411,7 +1469,9 @@ class HUD(object):
             'Lattitude: % 1.6f' % world.gnss_sensor.lat,
             'Longitude: % 1.6f' % world.gnss_sensor.lon,
             'Elevation: % 6.0f m' % t.location.z,
-            'Heading:   % 6.0f° % 2s' % (compass, heading)           
+            'Heading:   % 6.0f° % 2s' % (compass, heading),            
+            f'Approach ID: {self.format_with_unit(self.ego_vehicle_info["approach_id"], "")}',
+            f'Lane ID:   {self.format_with_unit(self.ego_vehicle_info["lane_id"], "")}'        
         ]
 
         self._info_text +=[

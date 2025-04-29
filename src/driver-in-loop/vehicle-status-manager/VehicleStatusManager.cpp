@@ -179,6 +179,8 @@ void VehicleStatusManager::getVehicleInformationFromMAP(MapManager mapManager, B
 			activeMapList.clear();
 			setIntersectionID(0);
 			setSignalGroup(0);
+			setLaneID(0);
+			setApproachID(0);
 			activeMapStatus = false;
 		}
 
@@ -232,7 +234,7 @@ int VehicleStatusManager::getSignalGroup()
 
 double VehicleStatusManager::getVehicleDistanceFromStopBar()
 {
-	return vehicleDistanceFromStopBar;
+	return vehicleDistanceFromStopBar/100; //converting cm to m
 }
 
 /*
@@ -265,6 +267,50 @@ vector<Map::AvailableMap> VehicleStatusManager::manageMapStatusInAvailableMapLis
 	}
 
 	return availableMapList;
+}
+
+string VehicleStatusManager::getActiveIntersectionName()
+{
+	return activeIntersectionName;
+}
+
+string VehicleStatusManager::getSignalState()
+{
+	return signalState;
+}
+
+double VehicleStatusManager::getMinTimeToChange()
+{
+	return minTimeToChange;
+}
+
+double VehicleStatusManager::getMaxTimeToChange()
+{
+	return maxTimeToChange;
+}
+
+string VehicleStatusManager::createJsonStringForDriverInLoopTestManager()
+{
+	string jsonString{};
+	
+	Json::Value jsonObject;
+	Json::StreamWriterBuilder builder;
+	builder["commentStyle"] = "None";
+	builder["indentation"] = "";
+
+	jsonObject["MsgType"] = "MapSPaTData";
+	jsonObject["Map-SPat-Data"]["IntersectionName"] = getActiveIntersectionName();
+	jsonObject["Map-SPat-Data"]["IntersectionDistance"] = getVehicleDistanceFromStopBar();
+	jsonObject["Map-SPat-Data"]["SignalGroup"] = getSignalGroup();
+	jsonObject["Map-SPat-Data"]["SignalState"] = getSignalState();
+	jsonObject["Map-SPat-Data"]["MinTimeToChange"] = getMinTimeToChange();
+	jsonObject["Map-SPat-Data"]["MaxTimeToChange"] = getMaxTimeToChange();
+	jsonObject["Map-SPat-Data"]["ApproachID"] = getApproachID();
+	jsonObject["Map-SPat-Data"]["LaneID"] = getLaneID();		
+
+	jsonString = Json::writeString(builder, jsonObject);
+	cout << "Map-SPaT Data is following: \n" << jsonString << endl;
+	return jsonString;
 }
 
 VehicleStatusManager::~VehicleStatusManager()

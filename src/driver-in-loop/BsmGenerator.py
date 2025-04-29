@@ -268,7 +268,41 @@ class BsmGenerator:
             bsmJsonString,
             steering_input
         )
+        
+    def generate_bsm_json_string(self, lat, lon, elev, heading, speed_mps):
+        
+        current_time = time.time()
+    
+        # Calculate the current minute (seconds modulo 60)
+        seconds_in_minute = int(current_time % 60)
+            
+        # Convert seconds to milliseconds
+        dsecond_value = seconds_in_minute * 1000 + int((current_time % 1) * 1000)
+        
+        bsm_dictionary = {
+            "MsgType": "BSM",
+            "BasicVehicle": {
+                "heading_Degree": heading,
+                "position": {
+                    "elevation_Meter": elev,
+                    "latitude_DecimalDegree":  lat,
+                    "longitude_DecimalDegree": lon,
+                },
+                "secMark_Second": dsecond_value,
+                "size": {
+                    "length_cm": 1239.994,
+                    "width_cm": 304.013
+                },
+                "speed_MeterPerSecond": speed_mps,
+                "temporaryID": -1898502772,
+                "type": "Car"
+            }            
+        }
 
+        bsm_json_string = json.dumps(bsm_dictionary, sort_keys=True, indent=4)
+        
+        return bsm_json_string
+        
     def set_msg_count(self):
         """
         Increments the message count, resetting it after reaching MAX_MSG_COUNT.

@@ -53,6 +53,10 @@ private:
     int vehicleIntersectionStatus{};
     double vehicleSpeed{};
     double vehicleDistanceFromStopBar{};
+    double minTimeToChange{};
+    double maxTimeToChange{};
+    string activeIntersectionName{};
+    string signalState{};
     
 public:
     VehicleStatusManager();
@@ -79,7 +83,13 @@ public:
     int getSignalGroup();
     int getVehicleIntersectionStatus();
     double getVehicleDistanceFromStopBar();
-    vector<Map::AvailableMap> manageMapStatusInAvailableMapList(MapManager mapManager);
+    string getActiveIntersectionName();
+    string getSignalState();
+    double getMinTimeToChange();
+    double getMaxTimeToChange();
+    vector<Map::AvailableMap> manageMapStatusInAvailableMapList(MapManager mapManager);    
+    string createJsonStringForDriverInLoopTestManager();
+    
 };
 
 

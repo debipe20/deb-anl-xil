@@ -1,3 +1,4 @@
+## python3 ego-controller.py --res 1920x1080
 #!/usr/bin/env python
 
 # Copyright (c) 2019 Computer Vision Center (CVC) at the Universitat Autonoma de
@@ -398,9 +399,6 @@ class WayPointsManager:
             lat2 = self.latitude_list[index]
             lon2 = self.longitude_list[index]
             
-            # Print lat2, lon2 for debugging purposes
-            print(f"lat2, lon2: {lat2}, {lon2}")
-            
             # Convert latitudes and longitudes to radians
             lat1_rad = math.radians(lat1)
             lat2_rad = math.radians(lat2)
@@ -421,7 +419,7 @@ class WayPointsManager:
             if angle_diff < 90 or angle_diff > 270:
                 desired_index = index
                 heading_status = 'ahead'
-                print(f"Now GPS point is Ahead for index: {desired_index}")
+                # print(f"Now GPS point is Ahead for index: {desired_index}")
                 break  # Exit the loop once the desired index is found
             else:
                 heading_status = 'behind'
@@ -858,7 +856,7 @@ class ExternalCommandListener(threading.Thread):
         Works for UDP communication.
         """
         desired_speed = 0.0
-        bsm_sending_time = time.time()
+        ego_data_sending_time = time.time()
         
         while self.running:
             try:
@@ -873,19 +871,17 @@ class ExternalCommandListener(threading.Thread):
                 current_y = current_location.y
                 # current_z = current_location.z
                 current_yaw = transform.rotation.yaw
-                
-                print("Current Carla Coordinates: ", current_location)
-                
+                                
                 # command = json.loads(data.decode())
                 command = self.decode_vehicle_command(data)
-                print(f"[DEBUG] Received command: {command}")
+                # print(f"[DEBUG] Received command: {command}")
 
                 desired_speed = command.get("desired_speed", 0.0) # make sure to receive in mps
                 desired_speed_mph = desired_speed * MPS_To_MPH
                 current_speed_kmh = self.get_vehicle_speed()
                 current_speed_mps = current_speed_kmh * KPH_To_MPS #kph to mph = speed_kph * 0.621371 
                 current_speed_mph = current_speed_kmh * KPH_To_MPH
-                print(f"Current speed: {current_speed_mph:.2f} mph")
+                # print(f"Current speed: {current_speed_mph:.2f} mph")
                 
                 if desired_speed < 0.1 and current_speed_mps < 0.1:
                     self.pid.reset()
@@ -932,10 +928,11 @@ class ExternalCommandListener(threading.Thread):
 
                 self.control_instance.set_external_control(throttle, brake, steer)
                 
-                if (current_time - bsm_sending_time) >=0.099:
+                if (current_time - ego_data_sending_time) >=0.099:
 
-                    encoded_bsm_data = struct.pack("ddddd", current_lat, current_lon, current_elev, current_heading, current_speed_mps)
-                    self.ego_controller_socket.sendto(encoded_bsm_data, self.driver_in_loop_test_manager_address)
+                    encoded_ego_vehicle_data = struct.pack("ddddd", current_lat, current_lon, current_elev, current_heading, current_speed_mps)
+                    self.ego_controller_socket.sendto(encoded_ego_vehicle_data, self.driver_in_loop_test_manager_address)
+                    ego_data_sending_time = current_time
 
                 gps_distance = haversine.haversine((desired_lat, desired_lon), (current_lat, current_lon), unit=haversine.Unit.METERS)
                 # print("Euclidian Distance and Haversine Distance: ", euclidian_distance, ", " , gps_distance)
@@ -1474,27 +1471,27 @@ class HUD(object):
             f'Lane ID:   {self.format_with_unit(self.ego_vehicle_info["lane_id"], "")}'        
         ]
 
-        self._info_text +=[
-            '',
-            'Carla Info:',
-            'Map:       %s' % world.map.name,
-            'Vehicle:   %s' % get_actor_display_name(world.player, truncate=20),
-            'Server:    % 3.0f FPS' % self.server_fps,
-            'Client:    % 3.0f FPS' % clock.get_fps()
-        ]
+        # self._info_text +=[
+        #     '',
+        #     'Carla Info:',
+        #     'Map:       %s' % world.map.name,
+        #     'Vehicle:   %s' % get_actor_display_name(world.player, truncate=20),
+        #     'Server:    % 3.0f FPS' % self.server_fps,
+        #     'Client:    % 3.0f FPS' % clock.get_fps()
+        # ]
 
-        if isinstance(c, carla.VehicleControl):
-            self._info_text += [
-                '',
-                'Vehicle Control Info:',
-                ('Throttle:', c.throttle, 0.0, 1.0),
-                ('Steer:', c.steer, -1.0, 1.0),
-                ('Brake:', c.brake, 0.0, 1.0),
-                # ('Reverse:', c.reverse),
-                # ('Hand brake:', c.hand_brake),
-                # ('Manual:', c.manual_gear_shift),
-                # 'Gear:        %s' % {-1: 'R', 0: 'N'}.get(c.gear, c.gear)
-            ]
+        # if isinstance(c, carla.VehicleControl):
+        #     self._info_text += [
+        #         '',
+        #         'Vehicle Control Info:',
+        #         ('Throttle:', c.throttle, 0.0, 1.0),
+        #         ('Steer:', c.steer, -1.0, 1.0),
+        #         ('Brake:', c.brake, 0.0, 1.0),
+        #         # ('Reverse:', c.reverse),
+        #         # ('Hand brake:', c.hand_brake),
+        #         # ('Manual:', c.manual_gear_shift),
+        #         # 'Gear:        %s' % {-1: 'R', 0: 'N'}.get(c.gear, c.gear)
+        #     ]
         
         # self._info_text += [
         #     'Server:  % 16.0f FPS' % self.server_fps,
@@ -1555,7 +1552,7 @@ class HUD(object):
 
     def render(self, display):
         if self._show_info:
-            info_surface = pygame.Surface((250, self.dim[1]))
+            info_surface = pygame.Surface((260, self.dim[1]))
             info_surface.set_alpha(100)
             display.blit(info_surface, (0, 0))
             top_offset = 4

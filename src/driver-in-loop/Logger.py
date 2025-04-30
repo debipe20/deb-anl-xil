@@ -70,10 +70,10 @@ class Logger:
         self.driver_in_loop_test_log_file = open(logfileDirectory + "driver_in_loop_test_log_" + initializationTimestamp + ".csv", "w") 
         self.error_log_file = open(logfileDirectory + "error_log_" + initializationTimestamp + ".log", "w")
 
-        driver_in_loop_test_log_header = ("timestamp_verbose, lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_steering\n")
+        driver_in_loop_test_log_header = ("timestamp_verbose, lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading\n")
         self.driver_in_loop_test_log_file.write(driver_in_loop_test_log_header)
 
-    def log_driver_in_loop_test_data(self, lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_steering):
+    def log_driver_in_loop_test_data(self, lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading):
         """
         Logs **ego and lead vehicle data** into the test log file.
 

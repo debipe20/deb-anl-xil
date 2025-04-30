@@ -82,7 +82,7 @@ public:
     int getApproachID();
     int getSignalGroup();
     int getVehicleIntersectionStatus();
-    double getVehicleDistanceFromStopBar();
+    int getVehicleDistanceFromStopBar();
     string getActiveIntersectionName();
     string getSignalState();
     double getMinTimeToChange();

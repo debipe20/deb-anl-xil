@@ -744,8 +744,14 @@ class ExternalCommandListener(threading.Thread):
         
         lead_controller_ip = config["IPAddress"]["HostIp"]
         lead_controller_port = config["PortNumber"]["LeadController"]
+        lead_controller_address = (lead_controller_ip, lead_controller_port)
+        
+        driver_in_loop_test_manager_ip = config["IPAddress"]["HostIp"]
+        driver_in_loop_test_manager_port = config["PortNumber"]["DriverInLoopTestManager"]
+        self.driver_in_loop_test_manager_address = (driver_in_loop_test_manager_ip, driver_in_loop_test_manager_port)
+        
         self.lead_controller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-        self.lead_controller_socket.bind((lead_controller_ip, lead_controller_port))
+        self.lead_controller_socket.bind(lead_controller_address)
 
         self.running = True
         self.last_time = None
@@ -788,6 +794,7 @@ class ExternalCommandListener(threading.Thread):
         Works for UDP communication.
         """
         desired_speed = 0.0
+        lead_data_sending_time = time.time()
         
         while self.running:
             try:
@@ -803,19 +810,16 @@ class ExternalCommandListener(threading.Thread):
                 # current_z = current_location.z
                 current_yaw = transform.rotation.yaw
                 
-                print("Current Carla Coordinates: ", current_location)
+                # print("Current Carla Coordinates: ", current_location)
                 
-                # command = json.loads(data.decode())
-                # print(f"[DEBUG] Received command: {command}")
-
-                # desired_speed = command.get("desired_speed", 0.0) # make sure to receive in mps
-                desired_speed = struct.unpack("d", data)[0]
-                print(f"[DEBUG] Received desired lead speed: {desired_speed}")
+      
+                desired_speed = struct.unpack("d", data)[0]  # make sure to receive in mps
+                # print(f"[DEBUG] Received desired lead speed: {desired_speed}")
                 desired_speed_mph = desired_speed * MPS_To_MPH
                 current_speed_kmh = self.get_vehicle_speed()
                 current_speed_mps = current_speed_kmh * KPH_To_MPS #kph to mph = speed_kph * 0.621371 
                 current_speed_mph = current_speed_kmh * KPH_To_MPH
-                print(f"Current speed: {current_speed_mph:.2f} mph")
+                # print(f"Current speed: {current_speed_mph:.2f} mph")
                 
                 if desired_speed < 0.1 and current_speed_mps < 0.1:
                     self.pid.reset()
@@ -825,6 +829,8 @@ class ExternalCommandListener(threading.Thread):
                 if hasattr(self.vehicle, "gnss_sensor"):
                     current_lat = self.vehicle.gnss_sensor.lat
                     current_lon = self.vehicle.gnss_sensor.lon
+                    current_elev = self.vehicle.get_transform().location.z
+                    
                 if hasattr(self.vehicle, "imu_sensor"):
                     current_heading = self.vehicle.imu_sensor.compass % 360
                     
@@ -842,6 +848,12 @@ class ExternalCommandListener(threading.Thread):
                 # steer =  self.pid.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y)
 
                 self.control_instance.set_external_control(throttle, brake, steer)
+                
+                if (current_time - lead_data_sending_time) >=0.099:
+
+                    encoded_ego_vehicle_data = struct.pack("ddddd", current_lat, current_lon, current_elev, current_heading, current_speed_mps)
+                    self.lead_controller_socket.sendto(encoded_ego_vehicle_data, self.driver_in_loop_test_manager_address)
+                    lead_data_sending_time = current_time
 
                 gps_distance = haversine.haversine((desired_lat, desired_lon), (current_lat, current_lon), unit=haversine.Unit.METERS)
                 # print("Euclidian Distance and Haversine Distance: ", euclidian_distance, ", " , gps_distance)

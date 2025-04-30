@@ -32,8 +32,9 @@ from BsmGenerator import BsmGenerator
 from LeadVehicleDataManager import LeadVehicleDataManager
 from Logger import Logger
 
-SpeedDataLength = 16
-BsmDataLength = 40
+Speed_Data_Length = 16
+Lead_Controller_Data_Length = 40
+Ego_Controller_Data_Length = 40
 MPS_To_MPH = 2.23694
 MPH_To_MPS = 0.44704
 Min_Distance_gap = 10
@@ -201,14 +202,14 @@ def main():
     lead_message_receiver_port = config["PortNumber"]["MessageReceiver"]
     lead_message_receiver_address = (lead_message_receiver_ip, lead_message_receiver_port)
 
-    vehicle_spy_ip = config["IPAddress"]["VehicleSpyIp"]
-    # vehicle_spy_ip = config["IPAddress"]["HostIp"]
+    # vehicle_spy_ip = config["IPAddress"]["VehicleSpyIp"]
+    vehicle_spy_ip = config["IPAddress"]["HostIp"]
     vehicle_spy_port = config["PortNumber"]["VehicleSpy"]
     vehicle_spy_address = (vehicle_spy_ip, vehicle_spy_port)
     
-    hmi_ip = config["IPAddress"]["HmiIp"]
-    hmi_port = config["PortNumber"]["HMI"]
-    hmi_address = (hmi_ip, hmi_port)
+    # hmi_ip = config["IPAddress"]["HmiIp"]
+    # hmi_port = config["PortNumber"]["HMI"]
+    # hmi_address = (hmi_ip, hmi_port)
     
     lead_controller_ip = config["IPAddress"]["HostIp"]
     lead_controller_port = config["PortNumber"]["LeadController"]
@@ -242,8 +243,8 @@ def main():
     ego_bsm_generator = BsmGenerator(config, ego_id, ego_way_points_file, logger)
     lead_bsm_generator = BsmGenerator(config, lead_id, lead_way_points_file, logger)
     
-    ego_lat, ego_lon, ego_speed = 0.0, 0.0, 0.0
-    lead_lat, lead_lon, lead_speed = 0.0, 0.0, 0.0
+    ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_heading, ego_speed = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_heading, lead_speed  = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     previous_ego_bsm_json_string = ""
     intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, approach_id, lane_id = "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"    
 
@@ -251,60 +252,57 @@ def main():
         data, address = driver_in_loop_test_manager_socket.recvfrom(2048)
         # logger.consoleDisplay("Received data is following:\n" + str(data))
 
-        data_length = len(data)
+        received_data_length = len(data)
             
-        if data_length == SpeedDataLength:
-        # if address[0] == vehicle_spy_ip:
+        if address == vehicle_spy_address and received_data_length == Speed_Data_Length:
             lead_speed, ego_speed = struct.unpack("dd", data)
             lead_speed = lead_speed * MPH_To_MPS
             ego_speed = ego_speed * MPH_To_MPS
+            
             # pass speed data in mps
-            lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, lead_bsm_json_string, lead_steering_input = (lead_bsm_generator.get_bsm_json_string(lead_speed))
-            ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_bsm_json_string, ego_steering_input = (ego_bsm_generator.get_bsm_json_string(ego_speed))
+            # lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, lead_bsm_json_string, lead_steering_input = (lead_bsm_generator.get_bsm_json_string(lead_speed))
+            # ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_bsm_json_string, ego_steering_input = (ego_bsm_generator.get_bsm_json_string(ego_speed))
             
             relative_distance = haversine.haversine((lead_lat, lead_lon), (ego_lat, ego_lon), unit=haversine.Unit.METERS)
             desired_distance_gap = ego_speed * time_gap
-            ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
-            lead_encoded_bsm = v2x.MessageFrame.from_json(lead_bsm_json_string)
+            # ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
+            # lead_encoded_bsm = v2x.MessageFrame.from_json(lead_bsm_json_string)
             
             # if relative_distance >= 5:
             #     ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
             
             # else: ego_encoded_bsm = v2x.MessageFrame.from_json(previous_ego_bsm_json_string)
+            # if debug_status: relative_distance = 5.0
             
-            # lead_command = json.dumps({"desired_lat": lead_lat, "desired_lon": lead_lon, "desired_speed": ego_speed, "desired_heading": ego_heading})
             encoded_lead_speed = struct.pack("d", lead_speed)
-            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_distance_gap, lead_speed, approach_id, lane_id)
+            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, 1200, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_distance_gap, lead_speed, approach_id, lane_id)
             
             # encoded_ego_data= encode_vehicle_command(ego_speed, "Kearney & Watertower", "120", "2", "green", "10", "15", relative_distance, desired_distance_gap, lead_speed,  approach_id, lane_id)
 
             driver_in_loop_test_manager_socket.sendto(encoded_ego_data, ego_controller_address)
             driver_in_loop_test_manager_socket.sendto(encoded_lead_speed, lead_controller_address)
-            # logger.consoleDisplay("[DEBUG] Sent: " + str(lead_command))
-            # logger.consoleDisplay("[DEBUG] Sent: " + str(ego_command)) 
-                        
-            # driver_in_loop_test_manager_socket.sendto(lead_encoded_bsm, lead_message_receiver_address)
-            # driver_in_loop_test_manager_socket.sendto(ego_encoded_bsm, ego_message_receiver_address)
             
             
-            hmi_json_string = generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, 
-                             ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_distance_gap)
+            # hmi_json_string = generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, 
+            #                  ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_distance_gap)
             
             # driver_in_loop_test_manager_socket.sendto(hmi_json_string.encode(), hmi_address)
-            logger.log_driver_in_loop_test_data(lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_steering_input)
-            previous_ego_bsm_json_string = ego_bsm_json_string
+            logger.log_driver_in_loop_test_data(lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading)
+            # previous_ego_bsm_json_string = ego_bsm_json_string
             
-        # elif address[0] == ego_controller_ip:
-        elif data_length == BsmDataLength:
-            lat, lon, elev, heading, speed_mps = struct.unpack("ddddd", data)
-            print("Received BSM related data")
-            bsm_json_string = ego_bsm_generator.generate_bsm_json_string(lat, lon, elev, heading, speed_mps)
+        elif address == ego_controller_address and received_data_length == Ego_Controller_Data_Length:
+            
+            ego_lat, ego_lon, ego_elevation, ego_heading, ego_speed = struct.unpack("ddddd", data) #speed in mps
+            bsm_json_string = ego_bsm_generator.generate_bsm_json_string(ego_lat, ego_lon, ego_elevation, ego_heading, ego_speed)
             driver_in_loop_test_manager_socket.sendto(bsm_json_string.encode(),vehicle_status_manager_address)
-        
+            
+        elif address == lead_controller_address and received_data_length == Lead_Controller_Data_Length:
+            lead_lat, lead_lon, lead_elevation, lead_heading, lead_speed = struct.unpack("ddddd", data) #speed in mps
+
         elif address == vehicle_status_manager_address:
             decoded_data = data.decode('utf-8')
             parsed_json = json.loads(decoded_data)
-            print("Decoded vehicle status manager data\n")
+            
             map_spat_data = parsed_json.get("Map-SPat-Data", {})
             intersection_name = map_spat_data.get("IntersectionName")
             intersection_distance = map_spat_data.get("IntersectionDistance")

@@ -166,7 +166,9 @@ void VehicleStatusManager::getVehicleInformationFromMAP(MapManager mapManager, B
 			plocAwareLib->getPtDist2D(vehicleTracking_t_1, point2D_t_2);
 			vehicleDistanceFromStopBar = unsigned(point2D_t_1.distance2pt(point2D_t_2)); //unit of centimeters
 			setVehicleID(basicVehicle); //Vehicle change its ID on a regular basis. Need to check the vehicle id.
-
+			activeIntersectionName = plocAwareLib->getIntersectionNameById(regionalId, intersectionId);
+			
+			cout << "Intersection Name is: " << activeIntersectionName << endl;
 			cout << "Vehicle is on map: " << vehicleIntersectionStatus << endl;
 			cout << "Lane id is: " << vehicleLaneID << endl;
 			cout << "Approach id is: " << vehicleAprroachID << endl;
@@ -232,9 +234,9 @@ int VehicleStatusManager::getSignalGroup()
 	return signalGroup;
 }
 
-double VehicleStatusManager::getVehicleDistanceFromStopBar()
+int VehicleStatusManager::getVehicleDistanceFromStopBar()
 {
-	return vehicleDistanceFromStopBar/100; //converting cm to m
+    return static_cast<int>(std::round(vehicleDistanceFromStopBar / 100));
 }
 
 /*

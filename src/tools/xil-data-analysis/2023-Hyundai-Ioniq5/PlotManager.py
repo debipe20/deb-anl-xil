@@ -194,7 +194,7 @@ class PlotManager:
         plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
                 
         # Add labels, title, and legend
-        plt.title("2023 Ford F-150 Lightning Acceleration Envelope", fontsize=16, weight="bold")
+        plt.title("2023 Hyundai Ioniq5 Acceleration Envelope", fontsize=16, weight="bold")
         plt.xlabel("Speed [mph]", fontsize=14)
         plt.ylabel("Acceleration [g]", fontsize=14)
         plt.legend(loc="upper right", fontsize=12)

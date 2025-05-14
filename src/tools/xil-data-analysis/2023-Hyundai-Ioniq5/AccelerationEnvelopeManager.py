@@ -224,3 +224,4 @@ if __name__ == "__main__":
     configFile.close()
     acceleration_envelope_manager = AccelerationEnvelopeManager(config)
     acceleration_envelope_manager.manage_test_data()
+    

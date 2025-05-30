@@ -1,28 +1,38 @@
 {
 	"IPAddress": {
-		"HostIp": "192.168.26.101",
+		"HostIp": "127.0.0.1",
 		"SourceDsrcDeviceIp": "192.168.26.121",
 		"V2XHubIp": "192.168.26.101",
-		"VehicleControllerIp": "192.168.26.113"
+		"VehicleControllerIp": "192.168.26.113",
+		"VehicleSpyIp": "192.168.26.155",
+		"LeadVehicleV2XHubIp": "192.168.26.103",
+		"HmiIp": "192.168.26.101"
 	},
 	"PortNumber": {
 		"MessageDecoder": 1516,
 		"BsmGenerator": 5398,
+		"VehicleController": 1025,
+		"MessageReceiver": 26789,
+		"SpatReceiver": 6053,
 		"SpeedProfileGenerator": 50002,
 		"VehicleStatusManager": 50003,
 		"SpatManager": 50004,
 		"DataConverter": 50005,
 		"HostVehicleDataManager": 5398,
 		"LeadVehicleDataManager": 50006,
-		"VehicleController": 1025,
-		"MessageReceiver": 26789,
-		"SpatReceiver": 6053
+		"DriverInLoopTestManager":50007,
+		"VehicleSpy": 50008,
+		"HMI": 50009,
+		"EgoController":50010,
+		"LeadController":50011	
 	},
 	"VehicleInformation": {
-		"HostVehicleId": "f03ad623",
+		"EgoVehicleId": "f03ad623",
 		"LeadVehicleId": "f03ad626",
-		"HostBsmLogFileName": "/Desktop/deb-anl-xil/data/KearneyRoad-BSM-Log.csv",
-		"LeadBsmLogFileName": "/Desktop/deb-anl-xil/data/ANL_breadcrumbs.csv"
+		"EgoBsmLogFileName": "ego-waypoints.csv",
+		"LeadBsmLogFileName": "lead-waypoints.csv",
+		"EgoVehicleModel":"Hyundai Ioniq 5",
+		"LeadVehicleModel": "Simulated"
 	},
 	"IntersectionInformation": {
 		"IntersectionName": "tsc_mcity_state_and_liberty",
@@ -40,8 +50,9 @@
 		"DesiredSignalGroup": 2
 	},
 	"GeneralInformation": {
+		"TimeGap": 1.0,
 		"ConsoleOutput": true,
-		"Logging": true,
+		"Logging": false,
 		"Debug": true
 	}
 }

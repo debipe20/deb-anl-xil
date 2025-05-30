@@ -61,8 +61,10 @@ import os
 import sys
 import time
 
+carla_egg_path = os.getenv("CARLA_EGG_PATH")
+
 try:
-    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+    sys.path.append(glob.glob(carla_egg_path + '/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
         'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
@@ -133,10 +135,10 @@ try:
 except ImportError:
     raise RuntimeError('cannot import numpy, make sure numpy package is installed')
 
-bsmLogFile = open("BSM-Log.csv", 'w')
+bsmLogFile = open("Kearney-BSM-Log.csv", 'w')
 bsmLogFile.write("Latitude,Longitude,Elevation\n")
 
-headingLogFile = open("heading-Log.csv", 'w')
+headingLogFile = open("Kearney-Heading-Log.csv", 'w')
 headingLogFile.write("Heading\n")
 
 # lat = 0.0
@@ -242,7 +244,8 @@ class World(object):
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         while self.player is None:
             # spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
-            spawn_point = carla.Transform(carla.Location(x=21.9, y=988.04, z=232.24), carla.Rotation(pitch=1.23, yaw=-92.48, roll=0.0))
+            # spawn_point = carla.Transform(carla.Location(x=21.9, y=988.04, z=232.24), carla.Rotation(pitch=1.23, yaw=-92.48, roll=0.0))
+            spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road
             if not self.map.get_spawn_points():
                 print('There are no spawn points available in your map/town.')
                 print('Please add some Vehicle Spawn Point to your UE4 scene.')

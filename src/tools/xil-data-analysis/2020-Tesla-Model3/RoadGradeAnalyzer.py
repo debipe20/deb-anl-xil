@@ -51,7 +51,9 @@ class RoadGradeAnalyzer:
         self.current_channel = self.group_data['BMS_packCurrent']
         self.drive_trace_speed_channel = self.group_data['Dyno_Data_Drivetrace_Spd_Vspy']
         self.tractive_force_channel = self.group_data['Dyno_TractiveForce[N]']
-        self.tractive_force_front_channel = self.group_data['Dyno_TractiveForce_Front[N]']
+        
+        # self.tractive_force_front_channel = self.group_data['Dyno_TractiveForce_Front[N]']
+        self.tractive_force_front_channel = self.group_data['Dyno_LoadCell_Front[N]']
         self.tractive_force_rear_channel = self.group_data['Dyno_TractiveForce_Rear[N]']
         
         self.time_data = self.time_channel[:]
@@ -131,7 +133,7 @@ class RoadGradeAnalyzer:
         self.average_energy_rate_list.append(self.avg_energy_rate_kwh_per_mile * (-1))
         
     def manage_test_data(self):
-        data = pd.DataFrame()
+
         data_directory = self.get_data_directory()
         
         for index, test_file_name in enumerate(self.road_grade_test_file_list):
@@ -150,26 +152,26 @@ class RoadGradeAnalyzer:
             
             self.compute_energy_metrics()
             
-            # self.plot_speed(self.time_data, self.speed_data_mph, self.drive_trace_speed_data_mph,
-            #                 x_label = "Time [s]", 
-            #                 y_label = "Speed [mph]", 
-            #                 title = f"{road_grade}% Road Grade: Dive Trace and Vehicle Speed Plot", 
-            #                 fileName = f"{road_grade}%_road_grade_drive_trace_and_vehicle_speed_plot")
+            self.plot_speed(self.time_data, self.speed_data_mph, self.drive_trace_speed_data_mph,
+                            x_label = "Time [s]", 
+                            y_label = "Speed [mph]", 
+                            title = f"{road_grade}% Road Grade: Dive Trace and Vehicle Speed Plot", 
+                            fileName = f"{road_grade}%_road_grade_drive_trace_and_vehicle_speed_plot")
             
-            # self.plot_speed_instantenous_power(self.time_data, self.speed_data_mph, self.power_kw, 
-            #                                     x_label = "Time [s]",
-            #                                     y_label1 = "Speed [mph]", 
-            #                                     y_label2 = "Power [kW]", 
-            #                                     title = f"{road_grade}% Road Grade: Speed and Instantaneous Power Plot",
-            #                                     fileName = f"{road_grade}%_road_grade_speed_and_instantaneous_power_plot")
+            self.plot_speed_instantenous_power(self.time_data, self.speed_data_mph, self.power_kw, 
+                                                x_label = "Time [s]",
+                                                y_label1 = "Speed [mph]", 
+                                                y_label2 = "Power [kW]", 
+                                                title = f"{road_grade}% Road Grade: Speed and Instantaneous Power Plot",
+                                                fileName = f"{road_grade}%_road_grade_speed_and_instantaneous_power_plot")
             
-            # self.plot_speed_power_energy(self.time_data, self.speed_data_mph, self.power_kw, self.cumulative_energy_kwh,
-            #                     x_label = "Time [s]",
-            #                     y_label1 = "Speed [mph]",
-            #                     y_label2 = "Instantaneous Power [kW]",
-            #                     y_label3 = "Cumulative Energy [kWh]",
-            #                     title = f"{road_grade}% Road Grade: Speed, Instantaneous Power and Cumulative Energy Plot",
-            #                     fileName = f"{road_grade}%_road_grade_speed_power_and_energy_plot")
+            self.plot_speed_power_energy(self.time_data, self.speed_data_mph, self.power_kw, self.cumulative_energy_kwh,
+                                x_label = "Time [s]",
+                                y_label1 = "Speed [mph]",
+                                y_label2 = "Instantaneous Power [kW]",
+                                y_label3 = "Cumulative Energy [kWh]",
+                                title = f"{road_grade}% Road Grade: Speed, Instantaneous Power and Cumulative Energy Plot",
+                                fileName = f"{road_grade}%_road_grade_speed_power_and_energy_plot")
             
             
             self.plot_speed_vs_tractive_force(title = f"{road_grade}% Road Grade: Speed and Tractive Force Plot",
@@ -462,7 +464,7 @@ class RoadGradeAnalyzer:
     
 
 
-    '''##############################################
+'''##############################################
                    Unit testing
 ##############################################'''
 if __name__ == "__main__":

@@ -248,7 +248,8 @@ class World(object):
             # spawn_points = self.map.get_spawn_points()
             # spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
             # spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road: Ego
-            spawn_point = carla.Transform(carla.Location(x=21, y=1056, z=228), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road: Lead
+            # spawn_point = carla.Transform(carla.Location(x=21, y=1056, z=228), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road: Lead
+            spawn_point = carla.Transform(carla.Location(x=21, y=974, z=231), carla.Rotation(pitch=0.4, yaw=-90, roll=0)) #Kearney Road: Lead
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         # Set up the sensors.
         # self.collision_sensor = CollisionSensor(self.player, self.hud)

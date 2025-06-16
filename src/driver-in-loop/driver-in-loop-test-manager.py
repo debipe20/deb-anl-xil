@@ -265,17 +265,10 @@ def main():
             
             relative_distance = haversine.haversine((lead_lat, lead_lon), (ego_lat, ego_lon), unit=haversine.Unit.METERS)
             desired_distance_gap = ego_speed * time_gap
-            # ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
-            # lead_encoded_bsm = v2x.MessageFrame.from_json(lead_bsm_json_string)
-            
-            # if relative_distance >= 5:
-            #     ego_encoded_bsm = v2x.MessageFrame.from_json(ego_bsm_json_string)
-            
-            # else: ego_encoded_bsm = v2x.MessageFrame.from_json(previous_ego_bsm_json_string)
-            # if debug_status: relative_distance = 5.0
+
             
             encoded_lead_speed = struct.pack("d", lead_speed)
-            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, 1200, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_distance_gap, lead_speed, approach_id, lane_id)
+            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_distance_gap, lead_speed, approach_id, lane_id)
             
             # encoded_ego_data= encode_vehicle_command(ego_speed, "Kearney & Watertower", "120", "2", "green", "10", "15", relative_distance, desired_distance_gap, lead_speed,  approach_id, lane_id)
 
@@ -287,8 +280,8 @@ def main():
             #                  ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_distance_gap)
             
             # driver_in_loop_test_manager_socket.sendto(hmi_json_string.encode(), hmi_address)
+            
             logger.log_driver_in_loop_test_data(lead_id, lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading)
-            # previous_ego_bsm_json_string = ego_bsm_json_string
             
         elif address == ego_controller_address and received_data_length == Ego_Controller_Data_Length:
             

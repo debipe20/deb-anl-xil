@@ -245,7 +245,8 @@ class World(object):
                 sys.exit(1)
             # spawn_points = self.map.get_spawn_points()
             # spawn_point = random.choice(spawn_points) if spawn_points else carla.Transform()
-            spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road
+            # spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road
+            spawn_point = carla.Transform(carla.Location(x=21.6, y=984, z=231), carla.Rotation(pitch=0.4, yaw=-90, roll=0)) #Kearney Road
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         # Set up the sensors.
         # self.collision_sensor = CollisionSensor(self.player, self.hud)
@@ -887,7 +888,7 @@ class ExternalCommandListener(threading.Thread):
                     self.pid.reset()
 
                 
-                light_state = command["traffic_light"].lower()                
+                traffic_light_state = command["traffic_light"].lower()                
                 intersection_name = command["intersection_name"]
                 distance = command.get("distance_to_intersection", 0.0)
                 min_time = command.get("min_time_to_change", 0)
@@ -899,7 +900,7 @@ class ExternalCommandListener(threading.Thread):
                 approach_id = command.get("approach_id", "NA")
                 lane_id = command.get("lane_id", "NA")
                 
-                self.control_instance.hud.set_traffic_light_state(light_state)
+                self.control_instance.hud.set_traffic_light_state(traffic_light_state)
                 self.control_instance.hud.update_intersection_info(intersection_name, distance, signal_group, min_time, max_time)
                 self.control_instance.hud.update_lead_info(headway, desired_headway, lead_speed)
                 self.control_instance.hud.update_ego_info(approach_id, lane_id)
@@ -1469,6 +1470,17 @@ class HUD(object):
             'Heading:   % 6.0f° % 2s' % (compass, heading),            
             f'Approach ID: {self.format_with_unit(self.ego_vehicle_info["approach_id"], "")}',
             f'Lane ID:   {self.format_with_unit(self.ego_vehicle_info["lane_id"], "")}'        
+        ]
+        
+        
+        self._info_text += [
+            u'Compass:% 17.0f\N{DEGREE SIGN} % 2s' % (compass, heading),
+            'Accelero: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.accelerometer),
+            'Gyroscop: (%5.1f,%5.1f,%5.1f)' % (world.imu_sensor.gyroscope),
+            'Location:% 20s' % ('(% 5.1f, % 5.1f)' % (t.location.x, t.location.y)),
+            'GNSS:% 24s' % ('(% 2.6f, % 3.6f)' % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
+            'Height:  % 18.0f m' % t.location.z,
+            ''
         ]
 
         # self._info_text +=[

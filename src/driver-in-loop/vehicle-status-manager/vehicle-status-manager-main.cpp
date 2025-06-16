@@ -74,6 +74,12 @@ int main()
             mapManager.maintainAvailableMapList();
             mapManager.printAvailableMapList();
         }
+
+
+        else if (msgType == static_cast<int>(msgType::carlaTrafficLightStatus))
+        {
+            vehicleStatusManager.setTrafficSignalState(receivedJsonString);
+        }
     }
     
     vehicleStatusManagerSocket.closeSocket();

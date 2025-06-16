@@ -72,6 +72,24 @@ void VehicleStatusManager::setVehicleIntersectionStatus(int vehIntersectionStatu
 	vehicleIntersectionStatus = vehIntersectionStatus;
 }
 
+void VehicleStatusManager::setTrafficSignalState(string jsonString)
+{
+	Json::Value jsonObject;
+	Json::CharReaderBuilder builder;
+	Json::CharReader *reader = builder.newCharReader();
+	string errors{};
+
+	bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
+	delete reader;
+
+	if (parsingSuccessful)
+	{
+		trafficSignalState = (jsonObject["LightState"]).asString();
+
+		cout << " Set traffic light state is " << trafficSignalState << " for signal group " << signalGroup << endl;
+	}
+}
+
 /*
 	-Get the message type based on the received json string from Transceiver
 */
@@ -93,6 +111,9 @@ int VehicleStatusManager::getMessageType(string jsonString)
 
 		else if ((jsonObject["MsgType"]).asString() == "BSM")
 			messageType = MsgEnum::DSRCmsgID_bsm;
+
+		else if ((jsonObject["MsgType"]).asString() == "CarlaTrafficLightStatus")
+			messageType = static_cast<int>(msgType::carlaTrafficLightStatus);
 	}
 
 	return messageType;
@@ -278,7 +299,7 @@ string VehicleStatusManager::getActiveIntersectionName()
 
 string VehicleStatusManager::getSignalState()
 {
-	return signalState;
+	return trafficSignalState;
 }
 
 double VehicleStatusManager::getMinTimeToChange()

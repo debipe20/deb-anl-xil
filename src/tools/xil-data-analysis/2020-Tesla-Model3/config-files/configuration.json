@@ -1,21 +1,21 @@
 {
     "VehicleName": "2020-Tesla-Model3",
-    "SetTitle": true,
+    "SetTitle": false,
     "PlotSave": true,
     "Debug": false,
-    "DataSave": false,
-    "ResponseAnalysis": true,
+    "DataSave": true,
+    "ResponseAnalysis": false,
     "SmothingMethod": "Moving-Average",
     "WindowSize": 20,
-    "NoOfStartDataDiscard":100,
-    "NoOfEndDataDiscard": 100,
-    "StartingSpeed": 20,
-    "EndingSpeed": 40,
+    "NoOfStartDataDiscard": 600,
+    "NoOfEndDataDiscard": 280,
+    "StartingSpeed": 60,
+    "EndingSpeed": 0,
     "StartingAcceleration": 0.25,
-    "InputFileName": "62505005 Test Data.tdms",
-    "OutputFileName": "output-file/62505005-output-data.csv",
+    "InputFileName": "62505014 Test Data.tdms",
+    "OutputFileName": "output-file/62505014-output-data.csv",
     "AuxiliaryFileName": "output-file/analysis-data.xlsx",
-    "SheetName": "20-40mph",
+    "SheetName": "50-70mph",
     "FileName":[
         {"0-20mph":"62505005 Test Data.tdms"},
         {"10-30mph":"62505006 Test Data.tdms"},
@@ -35,6 +35,13 @@
     ],
     "AccOverrideTestFileList":["62502007 Test Data.tdms", "62502008 Test Data.tdms", "62502009 Test Data.tdms", "62502010 Test Data.tdms", "62502011 Test Data.tdms", "62502014 Test Data.tdms", "62502015 Test Data.tdms", "62502017 Test Data.tdms", "62502016 Test Data.tdms", "62502018 Test Data.tdms"],
     "StockAccTestFileList":["On-Road 2025-04-03 07-06-01-920000.csv", "On-Road 2025-04-03 08-12-21-651000.csv", "On-Road 2025-04-03 09-36-27-040000.csv", "On-Road 2025-04-03 10-35-30-090000.csv", "On-Road 2025-04-03 11-39-16-145000.csv"],
-    "RoadGradeFileList": ["62505021 Test Data.tdms", "62505022 Test Data.tdms", "62505023 Test Data.tdms", "62505025 Test Data.tdms", "62505024 Test Data.tdms"],
-    "RoadGrade": [0, 3.0, -3.0, 6.0, -6.0]
+    "HighwayRoadGradeFileList": ["62505021 Test Data.tdms", "62505022 Test Data.tdms", "62505023 Test Data.tdms", "62505025 Test Data.tdms", "62505024 Test Data.tdms"],
+    "HighwayRoadGrade": [0, 3.0, -3.0, 6.0, -6.0],
+    "UDDSRoadGradeFileList": 
+    {
+        "LowRegen_RollStopping":["62506021 Test Data.tdms", "62506022 Test Data.tdms", "62506023 Test Data.tdms", "62506024 Test Data.tdms", "62506025 Test Data.tdms", "62506026 Test Data.tdms", "62506027 Test Data.tdms", "62506028 Test Data.tdms"]
+    },
+    "UDDSRoadGrade": [0, 1.5, -1.5, 3.0, -3.0, 6.0, -6.0, "Dynamic"],
+    "UDDSRepeatabilityCheckTestFileList": ["62506051 Test Data.tdms", "62506052 Test Data.tdms", "62506053 Test Data.tdms", "62506057 Test Data.tdms", "62506058 Test Data.tdms", "62506059 Test Data.tdms"],
+    "UDDSRepeatabilityCheckRoadGrade": [0, 0, 0, "Dynamic","Dynamic","Dynamic"]
 }

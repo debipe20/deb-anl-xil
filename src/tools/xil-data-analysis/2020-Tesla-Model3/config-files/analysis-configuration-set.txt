@@ -1,0 +1,28 @@
+Tesla Model3 Dynamic Response Test
+
+Speed Ramp Test
+
+0-20 mph:62505005-> "NoOfStartDataDiscard":500, "NoOfEndDataDiscard": 3480
+
+
+50-70 mph:62505005-> "NoOfStartDataDiscard":300, "NoOfEndDataDiscard": 300
+
+
+Acceleration Limit Test:
+
+0 mph:62505008-> "NoOfStartDataDiscard":410, "NoOfEndDataDiscard": 3490
+
+20 mph:62505011-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 300
+
+40 mph:62505019-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 300
+
+60 mph:62505010-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 250
+
+
+Deceleration Limit Test:
+
+20 mph:62505012-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 250
+
+40 mph:62505013-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 300
+
+60 mph:62505014-> "NoOfStartDataDiscard" 600, "NoOfEndDataDiscard": 280

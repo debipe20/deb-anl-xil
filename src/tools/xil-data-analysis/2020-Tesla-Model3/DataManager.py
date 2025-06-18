@@ -30,8 +30,11 @@ class DataManager:
 
         if current_os == "Linux":
             filePath = os.path.join(os.path.expanduser("~"), "Downloads", self.vehicle_name)
+
         elif current_os == "Windows":
-            filePath = os.path.join("C:\\", "Users", "ddas", "Documents", "Data", self.vehicle_name)
+            user_directory = os.environ['USERPROFILE']  # This retrieves the user's home directory in Windows
+            filePath = os.path.join(user_directory, "Documents", "Data", self.vehicle_name)
+            
         else:
             raise OSError(f"Unsupported operating system: {current_os}")
 
@@ -197,8 +200,10 @@ class DataManager:
 
             else:
                 self.accel_achv[i] = self.accel_data_rqst[i]
+                
+                
 
-            # To take care of the damping acceleration
+            ### To take care of the damping acceleration
             # if self.accel_data_rqst[i] == 3.5 and (1.90 < self.accel_achv[i] < 2.5) and (2.22 < accel_value < 2.8):
             #     self.accel_achv[i] = accel_value 
 
@@ -226,6 +231,13 @@ class DataManager:
                 
             elif self.accel_data_rqst[i] == 2.0 and (1.75 < self.accel_achv[i] < 1.9) and (1.9 < accel_value < 2.0):
                 self.accel_achv[i] = accel_value
+                
+            elif self.accel_data_rqst[i] == 2.5 and (2.0 < self.accel_achv[i] < 2.4) and (2.3 < accel_value < 2.6):
+                self.accel_achv[i] = accel_value
+                
+            elif self.accel_data_rqst[i] == 3.0 and (2.0 < self.accel_achv[i] < 2.8) and (2.3 < accel_value < 2.9):
+                self.accel_achv[i] = accel_value
+                
                 
             # elif self.accel_data_rqst[i] == 2.0 and (1.75 < self.accel_achv[i] < 1.9) and (1.9 < accel_value < 2.15):
             #     self.accel_achv[i] = self.accel_data_rqst[i] + 0.1
@@ -258,13 +270,40 @@ class DataManager:
             elif self.accel_data_rqst[i] == 2.0 and self.accel_achv[i] > 2.05 and accel_value > 2.05:
                 self.accel_achv[i] = self.accel_data_rqst[i]
                 
-            # elif self.accel_data_rqst[i] == 2.25 and self.accel_achv[i] > 2.25 and accel_value > 2.25:
+            #### elif self.accel_data_rqst[i] == 2.25 and self.accel_achv[i] > 2.25 and accel_value > 2.25:
                 # self.accel_achv[i] = self.accel_data_rqst[i]
                 
             # elif self.accel_data_rqst[i] == 2.5 and self.accel_achv[i] > 2.05 and accel_value > 2.05:
             #     self.accel_achv[i] = self.accel_data_rqst[i]
-
-            # To take care of the damping Deceleration
+            
+            #### To take care of the amplification of  deceleration
+            
+            if self.accel_data_rqst[i] == -0.25 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -0.2:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                                
+            elif self.accel_data_rqst[i] == -0.5 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -0.45:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                
+            elif self.accel_data_rqst[i] == -1.0 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -0.95:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                                
+            elif self.accel_data_rqst[i] == -1.5 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -1.45:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+            
+            elif self.accel_data_rqst[i] == -1.6 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -1.55:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+            
+            elif self.accel_data_rqst[i] == -1.65 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -1.6:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                
+            elif self.accel_data_rqst[i] == -1.7 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -1.65:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                
+            elif self.accel_data_rqst[i] == -1.75 and self.speed_data_mps[i] < 0.25 and self.accel_achv[i] > -1.70:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                
+          
+            #### To take care of the damping Deceleration
             if self.accel_data_rqst[i] == -0.25 and (-0.2 < self.accel_achv[i] < -0.30) :
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
@@ -296,6 +335,9 @@ class DataManager:
                 self.accel_achv[i] = self.accel_data_rqst[i]
                 
             elif self.accel_data_rqst[i] == -2.75 and self.accel_achv[i] > -2.55:
+                self.accel_achv[i] = self.accel_data_rqst[i]
+                
+            elif self.accel_data_rqst[i] == -3.0 and self.accel_achv[i] > -2.85:
                 self.accel_achv[i] = self.accel_data_rqst[i]
 
                 
@@ -392,7 +434,7 @@ class DataManager:
         starting_speed = self.starting_speed
         response_data = []  # Store results as a list of dicts for efficiency
         test_start_status = False
-        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
+        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.6, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.6, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
         self.save_data_to_csv()
         
         for index, value in enumerate(self.accel_data_rqst):
@@ -406,13 +448,15 @@ class DataManager:
                 accel_rqst_start_time = self.experimental_time_data[index]
                 starting_speed = self.speed_data_mph[index]                
 
+            ### Acceleration Response Time Calculation
             elif test_start_status and accel_rqst_start_time > 0 and (self.speed_data_mph[index] - starting_speed) > 0.2 and accel_value > 0:
                 accel_rqst_end_time = self.experimental_time_data[index]
                 accel_response_time = accel_rqst_end_time - accel_rqst_start_time 
                 
                 response_data.append({"Accel_Value": accel_value, "Response_Time": accel_response_time})
                 accel_rqst_start_time, accel_rqst_end_time, accel_response_time, starting_speed = 0.0, 0.0, 0.0, self.starting_speed
-                
+            
+            ### Deceleration Response Time Calculation
             elif test_start_status and accel_rqst_start_time > 0 and (starting_speed - self.speed_data_mph[index]) > 0.1 and accel_value < 0:
                 accel_rqst_end_time = self.experimental_time_data[index]
                 accel_response_time = accel_rqst_end_time - accel_rqst_start_time 
@@ -456,13 +500,12 @@ class DataManager:
         max_speed = 0.0
         response_data = []  # Store results as a list of dicts for efficiency
         test_start_status = False
-        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
+        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.6, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.6, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
         
         for index, value in enumerate(self.accel_data_rqst):
             if self.accel_data_rqst[index] > 0 and not test_start_status:
                 test_start_status = True    
-            if index == 4992:
-                print("Debug")
+
             if (test_start_status and accel_value != self.accel_data_rqst[index] and accel_rqst_start_time == 0 and
                 self.accel_data_rqst[index] in valid_accel_values and (self.accel_data_rqst[index] * accel_value) < 0):
                 accel_value = float(self.accel_data_rqst[index])
@@ -522,22 +565,22 @@ class DataManager:
 
         if self.debug_status:
             self.save_data_to_csv()
-            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_rqst_achv")
+            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "deceleration_limit_60_mph_time_vs_speed_Accel_rqst_achv")
           
         elif not self.debug_status and not self.response_analysis_status:
             self.save_data_to_csv()
-            self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "resume-test_mph_time_vs_speed")
-            self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel")      
-            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")      
-            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_rqst_achv")
+            self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "deceleration_limit_60_mph_time_vs_speed")
+            self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "deceleration_limit_60_mph_time_vs_speed_Accel")      
+            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "deceleration_limit_60_mph_time_vs_speed_Accel_resize")      
+            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "deceleration_limit_60_mph_time_vs_speed_Accel_rqst_achv")
 
-        # if self.response_analysis_status:
-        #     # self.get_acceleration_response_time()
-        #     # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "resume-test_mph_time_vs_speed_Accel_resize")
-        #     # self.plot_manager.plot_respose_time_heat_map()
-        #     # self.plot_manager.plot_accel_decel_time_heat_map()
-        #     self.plot_manager.plot_respose_time_line_graph()
-        #     self.plot_manager.plot_respose_time_surface_plot()
+        if self.response_analysis_status:
+            self.get_acceleration_response_time()
+            # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "deceleration_limit_60_mph_time_vs_speed_Accel_resize")
+            # self.plot_manager.plot_respose_time_heat_map()
+            # self.plot_manager.plot_accel_decel_time_heat_map()
+            # self.plot_manager.plot_respose_time_line_graph()
+            # self.plot_manager.plot_respose_time_surface_plot()
 '''##############################################
                    Unit testing
 ##############################################'''

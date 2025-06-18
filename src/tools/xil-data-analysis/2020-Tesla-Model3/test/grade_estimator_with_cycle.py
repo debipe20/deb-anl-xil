@@ -11,7 +11,11 @@ def compute_road_grade(udds_df, gps_df):
         - Align UDDS and GPS lengths.
         - Compute Haversine distance and elevation change.
         - Calculate road grade = (delta elevation / horizontal distance) * 100.
-        - Smooth the grade with a centered rolling average.
+        - Smooth the grade with a centered rolling average (window=15).
+        - Rescale positive and negative values separately to fit within ±6.0%
+          using piecewise linear scaling:
+              - Positive grades scaled by (6 / max_positive)
+              - Negative grades scaled by (−6 / min_negative)
 
     Parameters:
         udds_df (DataFrame): UDDS cycle with 'Time (s)', 'Speed (mph)', etc.
@@ -48,18 +52,18 @@ def compute_road_grade(udds_df, gps_df):
 
     udds_trimmed['raw_grade'] = grades
     
-    ## Without Controlling Min/Max Grade
+    ### Without Controlling Min/Max Grade
     # udds_trimmed['Grade'] = udds_trimmed['raw_grade'].rolling(window=15, center=True).mean().round(1)
     # # Fill missing grades with forward fill, fallback to 0
     # udds_trimmed['Grade'] = udds_trimmed['Grade'].fillna(method='ffill').fillna(0)
     
     
-    # Smooth and round the grade by controlling min and max grade values
+    ## Smooth and round the grade by controlling min and max grade values
     smoothed = (udds_trimmed['raw_grade'].rolling(window=15, center=True).mean().round(1).fillna(method='ffill').fillna(0))
 
     # Clip to range [-6.0, 6.0]
     udds_trimmed['Grade'] = smoothed.clip(lower=-5.9, upper=6.0)
-
+    
     # Drop raw if not needed
     udds_trimmed.drop(columns='raw_grade', inplace=True)
 
@@ -67,6 +71,34 @@ def compute_road_grade(udds_df, gps_df):
     min_grade = udds_trimmed['Grade'].min(skipna=True)
 
     return udds_trimmed, max_grade, min_grade
+    
+    ### Smooth and rescalling the grade by controlling min and max grade values
+    # smoothed = (
+    #     udds_trimmed['raw_grade']
+    #     .rolling(window=10, center=True)
+    #     .mean()
+    #     .fillna(method='ffill')
+    #     .fillna(0)
+    # )
+
+    # # Apply piecewise linear scaling
+    # max_pos = smoothed[smoothed > 0].max()
+    # min_neg = smoothed[smoothed < 0].min()
+    
+
+    # scaled_grade = smoothed.copy()
+    # if max_pos and max_pos > 0:
+    #     scaled_grade[scaled_grade > 0] = scaled_grade[scaled_grade > 0] * (6.0 / max_pos)
+    # if min_neg and min_neg < 0:
+    #     scaled_grade[scaled_grade < 0] = scaled_grade[scaled_grade < 0] * (-6.0 / min_neg)
+
+    # # Round for readability
+    # udds_trimmed['Grade'] = scaled_grade.round(1)
+    # udds_trimmed.drop(columns='raw_grade', inplace=True)
+    
+    
+    
+    # return udds_trimmed, udds_trimmed['Grade'].max(), udds_trimmed['Grade'].min()
 
 def export_grade_to_csv(df, filename="UDDS-cycle_dynamic_grade.csv"):
     """
@@ -102,7 +134,10 @@ def plot_speed_and_grade(df):
     plt.title("UDDS Cycle: Speed and Smoothed Road Grade Profile")
     fig.tight_layout()
     plt.grid(True)
-    plt.show()
+    # plt.show()
+    # plt.savefig("UDDS_cycle_speed_and_scalled_grade.png")
+    plt.savefig("UDDS_cycle_speed_and_grade.png")
+    plt.close()
 
 def main():
     """

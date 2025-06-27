@@ -1229,8 +1229,8 @@ if __name__ == "__main__":
 
     # "UDDSRoadGradeFileList": 
     # {
-    #     "StandardRegen_RollStopping":["62506012 Test Data.tdms", "62506013 Test Data.tdms", "62506014 Test Data.tdms", "62506015 Test Data.tdms", "62506016 Test Data.tdms", "62506061 Test Data.tdms", "62506020 Test Data.tdms", "62506011 Test Data.tdms"],
-    #     "StandardRegen_CreepStopping":["62506040 Test Data.tdms", "62506041 Test Data.tdms", "62506042 Test Data.tdms", "62506044 Test Data.tdms", "62506045 Test Data.tdms", "62506046 Test Data.tdms", "62506048 Test Data.tdms", "62506049 Test Data.tdms"],
+    #     "StandardRegen_RollStopping":["62506063 Test Data.tdms", "62506064 Test Data.tdms", "62506065 Test Data.tdms", "62506066 Test Data.tdms", "62506067 Test Data.tdms", "62506061 Test Data.tdms", "62506020 Test Data.tdms", "62506068 Test Data.tdms"],
+        # "StandardRegen_CreepStopping":["62506040 Test Data.tdms", "62506041 Test Data.tdms", "62506042 Test Data.tdms", "62506044 Test Data.tdms", "62506045 Test Data.tdms", "62506046 Test Data.tdms", "62506048 Test Data.tdms", "62506049 Test Data.tdms"],
     #     "LowRegen_RollStopping":["62506021 Test Data.tdms", "62506022 Test Data.tdms", "62506023 Test Data.tdms", "62506024 Test Data.tdms", "62506025 Test Data.tdms", "62506026 Test Data.tdms", "62506027 Test Data.tdms", "62506028 Test Data.tdms"],
     #     "LowRegen_CreepStopping":["62506030 Test Data.tdms", "62506031 Test Data.tdms", "62506032 Test Data.tdms", "62506035 Test Data.tdms", "62506036 Test Data.tdms", "62506037 Test Data.tdms", "62506039 Test Data.tdms", "62506029 Test Data.tdms"]
     # },

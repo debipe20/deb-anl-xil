@@ -61,6 +61,9 @@ class PlotManager:
         ax2.tick_params(axis='y', labelcolor='tab:red')
         tick_values = np.arange(min(y_data2), max(y_data2), 0.5)
         ax2.set_yticks(tick_values)
+        # Set secondary y-axis ticks at intervals of 0.5
+        ax2.set_ylim(-0.6, 0.6)  # Make sure 0.5 is in range
+        ax2.yaxis.set_major_locator(MultipleLocator(0.5))
 
         # Combine legends from both axes
         lines = [primary_axis_line, secondary_axis_line]  # Handles for both lines
@@ -216,12 +219,13 @@ class PlotManager:
     def plot_respose_time_heat_map(self):
 
         # Load the Excel file
-        file_path = "auxiliary-analysis-data.xlsx"
+        file_path = "output-file/auxiliary-analysis-data.xlsx"
         xls = pd.ExcelFile(file_path)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
-
+        # speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
+        
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
 
@@ -239,10 +243,10 @@ class PlotManager:
         heatmap_pivot_reponse_time = heatmap_df.pivot_table(values='Response Time (s)', index='Speed Range', columns='Acceleration (m/s²)')
 
         # Plot heatmap
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         ax = sns.heatmap(heatmap_pivot_reponse_time, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
-        plt.title("Heatmap of Response Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
-        plt.xlabel("Acceleration (m/s²)", fontdict={'fontsize': 16})
+        plt.title("Response Time Analysis", fontdict={'fontsize': 18})
+        plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
         cbar.set_label('Response Time (s)', fontdict={'fontsize': 16})
@@ -259,11 +263,12 @@ class PlotManager:
     def plot_accel_decel_time_heat_map(self):
 
         # Load the Excel file
-        file_path = "auxiliary-analysis-data.xlsx"
+        file_path = "output-file/auxiliary-analysis-data.xlsx"
         xls = pd.ExcelFile(file_path)
 
         # Define the sheet names corresponding to speed ranges
-        speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        # speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -286,10 +291,10 @@ class PlotManager:
 
         
         # Plot heatmap
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 6))
         ax = sns.heatmap(heatmap_pivot_accel_decel, annot=True, cmap="coolwarm", linewidths=0.5, fmt=".2f")
-        plt.title("Heatmap of Accel/Decel Time vs Acceleration & Speed Ranges", fontdict={'fontsize': 18})
-        plt.xlabel("Acceleration (m/s²)", fontdict={'fontsize': 16})
+        plt.title("Accel/Decel Time Analysis", fontdict={'fontsize': 18})
+        plt.xlabel("Acceleration Request (m/s²)", fontdict={'fontsize': 16})
         plt.ylabel("Speed Range (mph)", fontdict={'fontsize': 16})
         cbar = ax.collections[0].colorbar
         cbar.set_label('Accel/Decel Time (s)', fontdict={'fontsize': 16})

@@ -12,9 +12,9 @@ Acceleration Limit Test:
 
 0 mph:62505008-> "NoOfStartDataDiscard":410, "NoOfEndDataDiscard": 3490
 
-20 mph:62505011-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 300
+20 mph:62505011-> "NoOfStartDataDiscard" 1220, "NoOfEndDataDiscard": 300
 
-40 mph:62505019-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 300
+40 mph:62505019-> "NoOfStartDataDiscard" 800, "NoOfEndDataDiscard": 300
 
 60 mph:62505010-> "NoOfStartDataDiscard" 1600, "NoOfEndDataDiscard": 250
 

@@ -440,12 +440,12 @@ class RoadGradeAnalyzer:
                                 title = f"{road_grade}% Road Grade: Speed, Instantaneous Power and Cumulative Energy Plot",
                                 fileName = f"udds_{road_grade}%_road_grade_speed_power_and_energy_plot")
                 
-                self.plot_torque_distribution_over_time()
-                
+                self.plot_torque_distribution_over_time(title= f"{road_grade}% Road Grade: Torque Distribution and Battery Current Over Time",
+                                                        fileName = f"udds_{road_grade}%_road_grade_torque_distribution_over_time")
         print("Iterated through all UDDS test files and stored energy metrics by category and road grade.")
         
-        # self.plot_energy_metric_histograms_by_category()
-        # self.plot_energy_heatmap_by_category()
+        self.plot_energy_metric_histograms_by_category()
+        self.plot_energy_heatmap_by_category()
     
     
 
@@ -460,11 +460,11 @@ class RoadGradeAnalyzer:
         # Grouped data containers
         time_data_list_0 = []
         speed_data_list_0 = []
-
+        drive_trace_speed_data_list_0 = []
 
         time_data_list_dynamic = []
         speed_data_list_dynamic = []
-
+        drive_trace_speed_data_list_dynamic = []
 
         for index, test_file_name in enumerate(self.repeatability_check_test_file_list):
             tdms_file_path = os.path.join(data_directory, test_file_name)
@@ -485,11 +485,12 @@ class RoadGradeAnalyzer:
             if road_grade == 0:
                 time_data_list_0.append(self.time_data)
                 speed_data_list_0.append(self.speed_data_mph)
+                drive_trace_speed_data_list_0.append(self.drive_trace_speed_data_mph)
 
             elif road_grade == "Dynamic":
                 time_data_list_dynamic.append(self.time_data)
                 speed_data_list_dynamic.append(self.speed_data_mph)
-
+                drive_trace_speed_data_list_dynamic.append(self.drive_trace_speed_data_mph)
 
         # Speed vs Time plots
         # self.plot_multiple_speed_traces(time_data_list_0, speed_data_list_0,
@@ -502,18 +503,18 @@ class RoadGradeAnalyzer:
         
         
         # Speed vs Time plots (each run as a separate subplot)
-        self.plot_speed_subplots(time_data_list_0, speed_data_list_0,
+        self.plot_speed_subplots(time_data_list_0, speed_data_list_0, drive_trace_speed_data_list_0,
                                 title="Road Grade 0% - Speed vs Time (per run)",
-                                fileName="udd_repeatability_grade0_subplots")
+                                fileName="udds_repeatability_grade0_subplots")
 
-        self.plot_speed_subplots(time_data_list_dynamic, speed_data_list_dynamic,
+        self.plot_speed_subplots(time_data_list_dynamic, speed_data_list_dynamic, drive_trace_speed_data_list_dynamic,
                                 title="Dynamic Grade - Speed vs Time (per run)",
-                                fileName="udd_repeatability_dynamic_subplots")
+                                fileName="udds_repeatability_dynamic_subplots")
 
 
     
 
-    def plot_speed_subplots(self, time_list, speed_list, title, fileName):
+    def plot_speed_subplots(self, time_list, ego_speed_list, drive_trace_speed_list, title, fileName):
         """
         Plots each speed vs. time run as a separate subplot.
         """
@@ -522,18 +523,25 @@ class RoadGradeAnalyzer:
             print(f"No data to plot for {title}")
             return
 
-        fig, axes = plt.subplots(num_runs, 1, figsize=(14, 4 * num_runs), sharex=False)
-
+        fig, axes = plt.subplots(num_runs, 1, figsize=(20, 4 * num_runs), sharex=False)
+        
         # Ensure axes is iterable (even if only one run)
         if num_runs == 1:
             axes = [axes]
+                       
+        for i, (t, s_ego, s_trace) in enumerate(zip(time_list, ego_speed_list, drive_trace_speed_list)):
+            axes[i].plot(t, s_ego, color='tab:blue', label='Ego Speed')
+            axes[i].plot(t, s_trace, color='tab:orange', linestyle='--', label='Drive Trace Speed')
 
-        for i, (t, s) in enumerate(zip(time_list, speed_list)):
-            axes[i].plot(t, s, color='tab:blue')
-            axes[i].set_title(f"Run {i+1}: Speed vs Time", fontsize=12)
-            axes[i].set_ylabel("Speed [mph]")
-            axes[i].set_xlabel("Time [s]")
+            # Compute RMS error
+            error = np.array(s_ego) - np.array(s_trace)
+            rms_error = np.sqrt(np.mean(error ** 2))
+
+            axes[i].set_title(f"Run {i+1}: Speed vs Time (RMS Error = {rms_error:.2f} mph)", fontsize=18, fontweight='bold')
+            axes[i].set_ylabel("Speed [mph]", fontsize=16, fontweight='bold')
+            axes[i].set_xlabel("Time [s]", fontsize=16, fontweight='bold')
             axes[i].grid(True)
+            axes[i].legend()
 
         if self.title_status:
             fig.suptitle(title, fontsize=16, fontweight='bold')
@@ -550,17 +558,17 @@ class RoadGradeAnalyzer:
         plt.close(fig)
 
 
-    def plot_multiple_speed_traces(self, time_list, speed_list, title, fileName):
+    def plot_multiple_speed_traces(self, time_list, ego_speed_list, title, fileName):
         """
         Plots multiple speed vs. time traces on the same figure.
         """
-        if not time_list or not speed_list:
+        if not time_list or not ego_speed_list:
             print(f"No data to plot for {title}")
             return
 
         plt.figure(figsize=(14, 6))
 
-        for t, s in zip(time_list, speed_list):
+        for t, s in zip(time_list, ego_speed_list):
             plt.plot(t, s, linewidth=1)
 
         plt.xlabel("Time [s]")
@@ -1042,7 +1050,8 @@ class RoadGradeAnalyzer:
 
         plt.close()
       
-    def plot_torque_distribution_over_time(self):
+    def plot_torque_distribution_over_time(self, title = "Torque Distribution and Battery Current Over Time",
+                                        fileName = "torque_distribution_over_time"):
         """
         Plot front and rear motor torque over time along with battery current.
         Shaded regions indicate regenerative braking.
@@ -1057,7 +1066,7 @@ class RoadGradeAnalyzer:
         fig, ax1 = plt.subplots(figsize=(12, 6))
 
         # Plot front and rear torque
-        ax1.plot(time, front_torque, label='Front Torque (Nm)', color='blue', alpha=0.7)
+        # ax1.plot(time, front_torque, label='Front Torque (Nm)', color='blue', alpha=0.7)
         ax1.plot(time, rear_torque, label='Rear Torque (Nm)', color='green', alpha=0.7)
         ax1.set_xlabel('Time (s)')
         ax1.set_ylabel('Torque (Nm)', color='black')
@@ -1066,7 +1075,7 @@ class RoadGradeAnalyzer:
         # Add regen regions
         for i in range(1, len(time)):
             if battery_current[i] > 0:  # Regen region
-                ax1.axvspan(time[i-1], time[i], color='lightgray', alpha=0.3)
+                ax1.axvspan(time[i-1], time[i], color='lightblue', alpha=0.3)
 
         # Create second y-axis for battery current
         ax2 = ax1.twinx()
@@ -1076,16 +1085,16 @@ class RoadGradeAnalyzer:
 
         # Legend and layout
         fig.legend(loc="upper right", bbox_to_anchor=(1, 1), bbox_transform=ax1.transAxes)
-        plt.title("Torque Distribution and Battery Current Over Time")
+        plt.title(title, fontweight='bold')
         plt.grid(True)
         plt.tight_layout()
 
         if self.plot_save:
-            plt.savefig("figures/torque_distribution_over_time.jpg", dpi=300)
+            file_directory = "figures/" + fileName + ".jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
         else:
             plt.show()
-            
-            
+                        
     def plot_speed_power_energy_torque(self, time_data, speed_data_mph, instantaneous_power_data, cumulative_energy_kwh, front_torque, rear_torque,
                                 x_label="Time [s]",
                                 y_label1="Speed [mph]",
@@ -1221,8 +1230,8 @@ if __name__ == "__main__":
     configFile.close()
     roadGradeAnalyzer = RoadGradeAnalyzer(config)
     # roadGradeAnalyzer.manage_highway_test_data()
-    roadGradeAnalyzer.manage_udds_test_data()
-    # roadGradeAnalyzer.manage_udds_repeatability_check_test_data()
+    # roadGradeAnalyzer.manage_udds_test_data()
+    roadGradeAnalyzer.manage_udds_repeatability_check_test_data()
     # roadGradeAnalyzer.plot_check()
     
     # "RoadGradeFileList": ["62505020 Test Data.tdms", "62505021 Test Data.tdms", "62505022 Test Data.tdms", "62505023 Test Data.tdms", "62505024 Test Data.tdms", "62505025 Test Data.tdms"]

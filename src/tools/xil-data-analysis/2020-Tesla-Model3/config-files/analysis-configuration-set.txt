@@ -2,7 +2,7 @@ Tesla Model3 Dynamic Response Test
 
 Speed Ramp Test
 
-0-20 mph:62505005-> "NoOfStartDataDiscard":500, "NoOfEndDataDiscard": 3480
+0-20 mph:62505005-> "NoOfStartDataDiscard":500, "NoOfEndDataDiscard": 3200
 
 
 50-70 mph:62505005-> "NoOfStartDataDiscard":300, "NoOfEndDataDiscard": 300

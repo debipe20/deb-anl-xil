@@ -62,8 +62,8 @@ class PlotManager:
         tick_values = np.arange(min(y_data2), max(y_data2), 0.5)
         ax2.set_yticks(tick_values)
         # Set secondary y-axis ticks at intervals of 0.5
-        ax2.set_ylim(-0.6, 0.6)  # Make sure 0.5 is in range
-        ax2.yaxis.set_major_locator(MultipleLocator(0.5))
+        # ax2.set_ylim(-0.6, 0.6)  # Make sure 0.5 is in range
+        # ax2.yaxis.set_major_locator(MultipleLocator(0.5))
 
         # Combine legends from both axes
         lines = [primary_axis_line, secondary_axis_line]  # Handles for both lines

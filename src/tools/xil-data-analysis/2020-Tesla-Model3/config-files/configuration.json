@@ -4,16 +4,16 @@
     "PlotSave": true,
     "Debug": false,
     "DataSave": false,
-    "ResponseAnalysis": true,
+    "ResponseAnalysis": false,
     "SmothingMethod": "Moving-Average",
     "WindowSize": 20,
-    "NoOfStartDataDiscard": 50,
-    "NoOfEndDataDiscard": 250,
-    "StartingSpeed": 40,
-    "EndingSpeed": 60,
+    "NoOfStartDataDiscard": 500,
+    "NoOfEndDataDiscard": 3200,
+    "StartingSpeed": 0,
+    "EndingSpeed": 20,
     "StartingAcceleration": 0.25,
-    "InputFileName": "62505017 Test Data.tdms",
-    "OutputFileName": "output-file/62505016-output-data.csv",
+    "InputFileName": "62505005 Test Data.tdms",
+    "OutputFileName": "output-file/62505005-output-data.csv",
     "AuxiliaryFileName": "output-file/analysis-data.xlsx",
     "SheetName": "40-60mph",
     "FileName":[
@@ -43,5 +43,7 @@
     },
     "UDDSRoadGrade": [0, 1.5, -1.5, 3.0, -3.0, 6.0, -6.0, "Dynamic"],
     "UDDSRepeatabilityCheckTestFileList": ["62506051 Test Data.tdms", "62506052 Test Data.tdms", "62506053 Test Data.tdms", "62506057 Test Data.tdms", "62506058 Test Data.tdms", "62506059 Test Data.tdms"],
-    "UDDSRepeatabilityCheckRoadGrade": [0, 0, 0, "Dynamic","Dynamic","Dynamic"]
+    "UDDSRepeatabilityCheckRoadGrade": [0, 0, 0, "Dynamic","Dynamic","Dynamic"],
+    "EnergyModelRoadGradeFileList": ["62506063 Test Data.tdms", "62506064 Test Data.tdms", "62506065 Test Data.tdms", "62506066 Test Data.tdms", "62506067 Test Data.tdms", "62506061 Test Data.tdms", "62506020 Test Data.tdms", "62506068 Test Data.tdms"],
+    "EnergyModelRoadGrade": [0, 1.5, -1.5, 3.0, -3.0, 6.0, -6.0, "Dynamic"]
 }

@@ -886,6 +886,7 @@ class ExternalCommandListener(threading.Thread):
                 
                 if desired_speed < 0.1 and current_speed_mps < 0.1:
                     self.pid.reset()
+                    print("***Resetting control command since desired speed and current speed is less than 0.1 mps***")
 
                 
                 traffic_light_state = command["traffic_light"].lower()                
@@ -921,13 +922,21 @@ class ExternalCommandListener(threading.Thread):
                 dt = max(dt, 0.01)  # Clamp to a reasonable minimum
                 self.last_time = current_time
                 
-                # Get throttle, brake, and steer 
-                throttle, brake, control = self.pid.compute_control(current_speed_mps, desired_speed, dt)
-    
-                steer = self.pid.compute_steering_angle(current_heading, desired_heading, current_speed_mps)
-                # steer =  self.pid.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y)
+                
+                if headway < desired_headway and desired_speed < 0.5 and current_speed_mps > 0.5: ##o avoid the collision
+                    throttle, brake, steer = 0.0, 0.0, 0.0
+                    print("***Resetting control command since headway is less than desired headway***")
+                    
+                else:
+                    # Get throttle, brake, and steer 
+                    throttle, brake, control = self.pid.compute_control(current_speed_mps, desired_speed, dt)
+        
+                    steer = self.pid.compute_steering_angle(current_heading, desired_heading, current_speed_mps)
+                    # steer =  self.pid.compute_steering_from_xy(current_x, current_y, current_yaw, desired_x, desired_y)
 
                 self.control_instance.set_external_control(throttle, brake, steer)
+                
+                
                 
                 if (current_time - ego_data_sending_time) >=0.099:
 

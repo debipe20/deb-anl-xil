@@ -4,7 +4,7 @@
 		"SourceDsrcDeviceIp": "192.168.26.121",
 		"V2XHubIp": "192.168.26.101",
 		"VehicleControllerIp": "192.168.26.113",
-		"VehicleSpyIp": "192.168.26.155",
+		"VehicleSpyIp": "127.0.0.1",
 		"LeadVehicleV2XHubIp": "192.168.26.103",
 		"HmiIp": "192.168.26.101"
 	},
@@ -20,8 +20,8 @@
 		"DataConverter": 50005,
 		"HostVehicleDataManager": 5398,
 		"LeadVehicleDataManager": 50006,
-		"DriverInLoopTestManager":50007,
-		"VehicleSpy": 50008,
+		"DriverInLoopTestManager":10018,
+		"VehicleSpy": 10017,
 		"HMI": 50009,
 		"EgoController":50010,
 		"LeadController":50011	
@@ -50,7 +50,7 @@
 		"DesiredSignalGroup": 2
 	},
 	"GeneralInformation": {
-		"TimeGap": 1.0,
+		"TimeGap": 2.5,
 		"ConsoleOutput": true,
 		"Logging": false,
 		"Debug": true

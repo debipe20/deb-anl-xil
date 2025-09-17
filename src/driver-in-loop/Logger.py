@@ -115,7 +115,7 @@ class Logger:
             ego_elevation = str(ego_elevation)
             ego_speed = str(round(ego_speed, 2))
             ego_heading = str(round(ego_heading,2))
-            ego_steering = str(ego_steering)
+            # ego_steering = str(ego_steering)
 
             csvRow = (timestamp_verbose + ","
                 + lead_id + ","
@@ -133,8 +133,7 @@ class Logger:
                 + ego_lon + ","
                 + ego_elevation + ","
                 + ego_speed + ","
-                + ego_heading + ","
-                + ego_steering + "\n"
+                + ego_heading + "\n"
             )
 
             self.driver_in_loop_test_log_file.write(csvRow) 

@@ -56,6 +56,7 @@ class LeadVehicleDataManager:
         self.intersectionLongitude = self.config["IntersectionInformation"]["IntersectionReferencePoint"]["Longitude_DecimalDegree"]
         
         self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["LeadBsmLogFileName"] 
+        print(self.wayPointsLogFile)
         self.readWayPoints()
 
     def readWayPoints(self):
@@ -64,10 +65,10 @@ class LeadVehicleDataManager:
         """
 
         dataFrame = pd.read_csv(self.wayPointsLogFile)
-        self.latitudeList = dataFrame["latitude"].tolist()
-        self.longitudeList = dataFrame["longitude"].tolist()
-        self.elevationList = dataFrame["elevation"].tolist()
-        self.headingList = dataFrame["heading"].tolist()
+        self.latitudeList = dataFrame["Latitude"].tolist()
+        self.longitudeList = dataFrame["Longitude"].tolist()
+        self.elevationList = dataFrame["Elevation"].tolist()
+        self.headingList = dataFrame["Heading"].tolist()
 
         self.currentLatitude = self.latitudeList[self.previousIndex]
         self.currentLongitude = self.longitudeList[self.previousIndex]

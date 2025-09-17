@@ -18,7 +18,7 @@
 		"VehicleStatusManager": 50003,
 		"SpatManager": 50004,
 		"DataConverter": 50005,
-		"HostVehicleDataManager": 5398,
+		"EgoVehicleDataManager": 5398,
 		"LeadVehicleDataManager": 50006,
 		"DriverInLoopTestManager":10018,
 		"VehicleSpy": 10017,
@@ -27,10 +27,10 @@
 		"LeadController":50011	
 	},
 	"VehicleInformation": {
-		"EgoVehicleId": "f03ad623",
+		"EgoVehicleId": "265012",
 		"LeadVehicleId": "f03ad626",
-		"EgoBsmLogFileName": "ego-waypoints.csv",
-		"LeadBsmLogFileName": "lead-waypoints.csv",
+		"EgoBsmLogFileName": "/Desktop/deb-anl-xil/data/kearney/ego-waypoints.csv",
+		"LeadBsmLogFileName": "/Desktop/deb-anl-xil/data/kearney/lead-waypoints.csv",
 		"EgoVehicleModel":"Hyundai Ioniq 5",
 		"LeadVehicleModel": "Simulated"
 	},
@@ -52,7 +52,7 @@
 	"GeneralInformation": {
 		"TimeGap": 2.5,
 		"ConsoleOutput": true,
-		"Logging": false,
+		"Logging": true,
 		"Debug": true
 	}
 }

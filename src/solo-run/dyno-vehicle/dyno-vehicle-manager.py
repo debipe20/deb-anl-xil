@@ -107,13 +107,12 @@ def main():
             egoVehicleLat, egoVehicleLon, egoVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
             encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-
-            # egoVehicleDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
+            egoVehicleDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
             
             # egoBsmHex = binascii.hexlify(encodedBsm)
             egoBsmHex = encodedBsm.hex()            
             logger.logEgoBsmHexData(egoBsmHex)
-            logger.consoleDisplay("Encoded Hexlify BSM is: \n" + str(egoBsmHex))
+            # logger.consoleDisplay("Encoded Hexlify BSM is: \n" + str(egoBsmHex))
 
             logger.logEgoVehicleData(decodedCounter, decodedSpeed)
             logger.consoleDisplay("Decoded data is: " + str(decodedSpeed) + " and counter is: " + str(decodedCounter))

@@ -39,6 +39,7 @@ int main()
 
     VehicleStatusManager vehicleStatusManager;
     MapManager mapManager;
+    SpatManager spatManager;
     BasicVehicle basicVehicle;
     
     UdpSocket vehicleStatusManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["VehicleStatusManager"].asInt()));
@@ -77,7 +78,7 @@ int main()
 
         else if (msgType == MsgEnum::DSRCmsgID_spat)
         {
-            
+            spatManager.delete_timed_out_spat_data_from_available_spat_list();
         }
         
 

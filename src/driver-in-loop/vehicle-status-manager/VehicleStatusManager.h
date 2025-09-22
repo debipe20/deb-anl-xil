@@ -28,6 +28,7 @@ This script:
 #include "msgEnum.h"
 #include "BasicVehicle.h"
 #include "MapManager.h"
+#include "SpatManager.h"
 
 using std::cout;
 using std::endl;

@@ -75,6 +75,12 @@ int main()
             mapManager.printAvailableMapList();
         }
 
+        else if (msgType == MsgEnum::DSRCmsgID_spat)
+        {
+            mapManager.json2MapPayload(receivedJsonString);
+            mapManager.maintainAvailableMapList();
+            mapManager.printAvailableMapList();
+        
 
         else if (msgType == static_cast<int>(msgType::carlaTrafficLightStatus))
         {

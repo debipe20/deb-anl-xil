@@ -40,7 +40,7 @@ MPH_To_MPS = 0.44704
 Min_Distance_gap = 10
 
 def generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, 
-                             ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_distance_gap):
+                             ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_headway):
     """
     Generates a JSON string for the HMI containing ego and lead vehicle information.
     Args:
@@ -67,8 +67,8 @@ def generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_eleva
     lead_speed = lead_speed * MPS_To_MPH
     ego_speed = ego_speed * MPS_To_MPH
     
-    if desired_distance_gap < Min_Distance_gap:
-        desired_distance_gap = Min_Distance_gap        
+    if desired_headway < Min_Distance_gap:
+        desired_headway = Min_Distance_gap        
      
     hmi_dictionary  = {        
         "lead_vehicles": [
@@ -96,7 +96,7 @@ def generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_eleva
         },
         "summary": [
             f"Distance Gap: {round(relative_distance, 0)} m",
-            f"Desired Distance Gap: {round(desired_distance_gap, 0)} m",
+            f"Desired Distance Gap: {round(desired_headway, 0)} m",
             f"Lead Speed: {round(lead_speed, 0)} mph",
             f"Ego Speed: {round(ego_speed, 0)} mph",        
             # f"Relative Speed: {float(lead_speed) - float(ego_speed)} mph"
@@ -202,8 +202,8 @@ def main():
     lead_message_receiver_port = config["PortNumber"]["MessageReceiver"]
     lead_message_receiver_address = (lead_message_receiver_ip, lead_message_receiver_port)
 
-    # vehicle_spy_ip = config["IPAddress"]["VehicleSpyIp"]
-    vehicle_spy_ip = config["IPAddress"]["HostIp"]
+    vehicle_spy_ip = config["IPAddress"]["VehicleSpyIp"]
+    # vehicle_spy_ip = config["IPAddress"]["HostIp"]
     vehicle_spy_port = config["PortNumber"]["VehicleSpy"]
     vehicle_spy_address = (vehicle_spy_ip, vehicle_spy_port)
     
@@ -247,7 +247,14 @@ def main():
     lead_time_step, lead_msg_count, lead_lat, lead_lon, lead_elevation, lead_heading, lead_speed  = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     previous_ego_bsm_json_string = ""
     intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, approach_id, lane_id = "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"    
-
+    relative_distance, desired_headway = 10.0, 0.0
+    
+    encoded_lead_speed = struct.pack("d", lead_speed)
+    encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_headway, lead_speed, approach_id, lane_id)
+    
+    driver_in_loop_test_manager_socket.sendto(encoded_ego_data, ego_controller_address)
+    driver_in_loop_test_manager_socket.sendto(encoded_lead_speed, lead_controller_address)
+    
     while True:
         data, address = driver_in_loop_test_manager_socket.recvfrom(2048)
         # logger.consoleDisplay("Received data is following:\n" + str(data))
@@ -264,20 +271,18 @@ def main():
             # ego_id, ego_time_step, ego_msg_count, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, ego_bsm_json_string, ego_steering_input = (ego_bsm_generator.get_bsm_json_string(ego_speed))
             
             relative_distance = haversine.haversine((lead_lat, lead_lon), (ego_lat, ego_lon), unit=haversine.Unit.METERS)
-            desired_distance_gap = ego_speed * time_gap
-
             
             encoded_lead_speed = struct.pack("d", lead_speed)
-            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_distance_gap, lead_speed, approach_id, lane_id)
+            encoded_ego_data= encode_vehicle_command(ego_speed, intersection_name, intersection_distance, signal_group, signal_state, min_time_to_change, max_time_to_change, relative_distance, desired_headway, lead_speed, approach_id, lane_id)
             
-            # encoded_ego_data= encode_vehicle_command(ego_speed, "Kearney & Watertower", "120", "2", "green", "10", "15", relative_distance, desired_distance_gap, lead_speed,  approach_id, lane_id)
+            # encoded_ego_data= encode_vehicle_command(ego_speed, "Kearney & Watertower", "120", "2", "green", "10", "15", relative_distance, desired_headway, lead_speed,  approach_id, lane_id)
 
             driver_in_loop_test_manager_socket.sendto(encoded_ego_data, ego_controller_address)
             driver_in_loop_test_manager_socket.sendto(encoded_lead_speed, lead_controller_address)
             
             
             # hmi_json_string = generate_hmi_json_string(lead_id, lead_model, lead_lat, lead_lon, lead_elevation, lead_speed, lead_heading, 
-            #                  ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_distance_gap)
+            #                  ego_id, ego_model, ego_lat, ego_lon, ego_elevation, ego_speed, ego_heading, relative_distance, desired_headway)
             
             # driver_in_loop_test_manager_socket.sendto(hmi_json_string.encode(), hmi_address)
             
@@ -286,6 +291,7 @@ def main():
         elif address == ego_controller_address and received_data_length == Ego_Controller_Data_Length:
             
             ego_lat, ego_lon, ego_elevation, ego_heading, ego_speed = struct.unpack("ddddd", data) #speed in mps
+            desired_headway = ego_speed * time_gap
             bsm_json_string = ego_bsm_generator.generate_bsm_json_string(ego_lat, ego_lon, ego_elevation, ego_heading, ego_speed)
             driver_in_loop_test_manager_socket.sendto(bsm_json_string.encode(),vehicle_status_manager_address)
             

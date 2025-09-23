@@ -8,8 +8,8 @@ def getSpeed(previousSpeed):
 
     currentSpeed = previousSpeed * (random.randint(80,130)/100)
     
-    if(currentSpeed > 8.0):
-        currentSpeed = 6.0
+    if(currentSpeed > 16.0):
+        currentSpeed = 10.0
 
             
     return currentSpeed
@@ -25,7 +25,7 @@ def main():
     hostAddress = (hostIp, port)
 
     clientIp = config["IPAddress"]["HostIp"]
-    clinetPort = config["PortNumber"]["LeadVehicleDataManager"]
+    clinetPort = config["PortNumber"]["EgoVehicleDataManager"]
     clientAddress = (clientIp, clinetPort)
     
     speedDataSenderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

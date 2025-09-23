@@ -120,8 +120,8 @@ def main():
     v_max = 50.0 #in mph
     a_max = 2.0  #in mps2
     d_max = 2.0 #in mps2
-    cruise_time = 20.0
-    idle_time = 10.0
+    cruise_time = 100.0
+    idle_time = 5.0
     num_cycles = 20
     dt = 0.1
 

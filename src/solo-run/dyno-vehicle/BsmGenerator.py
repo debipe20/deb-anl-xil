@@ -40,7 +40,7 @@ class BsmGenerator:
     def __init__(self, config, logger: Logger):
         self.logger = logger
         self.config = config
-        self.vehicleId = config["VehicleInformation"]["HostVehicleId"]
+        self.vehicleId = config["VehicleInformation"]["EgoVehicleId"]
         self.currentLatitude = 0.0
         self.currentLongitude = 0.0
         self.currentElevation = 0.0
@@ -56,7 +56,7 @@ class BsmGenerator:
         self.step = 0
         self.previousTimeStampSetStatus = False
         self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
-        self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["HostBsmLogFileName"]
+        self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["EgoBsmLogFileName"]
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -65,10 +65,10 @@ class BsmGenerator:
         """
 
         dataFrame = pd.read_csv(self.wayPointsLogFile)
-        self.latitudeList = dataFrame["latitude"].tolist()
-        self.longitudeList = dataFrame["longitude"].tolist()
-        self.elevationList = dataFrame["elevation"].tolist()
-        self.headingList = dataFrame["heading"].tolist()
+        self.latitudeList = dataFrame["Latitude"].tolist()
+        self.longitudeList = dataFrame["Longitude"].tolist()
+        self.elevationList = dataFrame["Elevation"].tolist()
+        self.headingList = dataFrame["Heading"].tolist()
 
         self.currentLatitude = self.latitudeList[0]
         self.currentLongitude = self.longitudeList[0]
@@ -202,7 +202,7 @@ class BsmGenerator:
         except Exception as e:
             self.logger.consoleDisplay("Following error occurred:\n", str(e))
 
-        self.logger.logHostVehicleBsmData(self.timeStep, self.msgCount, self.currentLatitude, self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading)
+        self.logger.logEgoVehicleBsmData(self.timeStep, self.msgCount, self.vehicleId, self.currentLatitude, self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading)
 
         return (
             self.currentLatitude,

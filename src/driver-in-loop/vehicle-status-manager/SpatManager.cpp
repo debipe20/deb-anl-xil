@@ -191,13 +191,13 @@ double SpatManager::get_current_time_in_seconds()
 /*
     - Method to obtain phase status for a requested signal group of an intersection
 */
-string SpatManager::get_signal_phase_status(int spat_id, int signal_group)
+string SpatManager::get_signal_phase_status(int intersection_id, int signal_group)
 {
     string signal_phase_status = "unknown";
 
     vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
                                                                                                [&](TrafficControllerData::AvailableSpat const &p)
-                                                                                               { return p.intersection_id == spat_id; });
+                                                                                               { return p.intersection_id == intersection_id; });
     if (find_spat_id_in_list != Available_Spat_List.end())
     {
         for (size_t i = 0; i < find_spat_id_in_list->trafficControllerStatus.size(); i++)

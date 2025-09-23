@@ -258,6 +258,11 @@ int VehicleStatusManager::getSignalGroup()
 	return signalGroup;
 }
 
+int VehicleStatusManager::getVehicleIntersectionStatus()
+{
+	return vehicleIntersectionStatus;
+}
+
 int VehicleStatusManager::getVehicleDistanceFromStopBar()
 {
     return static_cast<int>(std::round(vehicleDistanceFromStopBar / 100));

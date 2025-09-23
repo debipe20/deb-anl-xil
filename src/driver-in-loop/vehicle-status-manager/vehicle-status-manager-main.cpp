@@ -39,6 +39,7 @@ int main()
 
     VehicleStatusManager vehicleStatusManager;
     MapManager mapManager;
+    SpatManager spatManager;
     BasicVehicle basicVehicle;
     
     UdpSocket vehicleStatusManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["VehicleStatusManager"].asInt()));
@@ -55,6 +56,7 @@ int main()
     {
         vehicleStatusManagerSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
         string receivedJsonString(receiveBuffer);
+        // cout << "Received Json String is following:\n" << receivedJsonString << endl;
         msgType = vehicleStatusManager.getMessageType(receivedJsonString);
 
         if (msgType == MsgEnum::DSRCmsgID_bsm)
@@ -75,6 +77,12 @@ int main()
             mapManager.printAvailableMapList();
         }
 
+        else if (msgType == MsgEnum::DSRCmsgID_spat)
+        {
+            spatManager.manage_spat_data(receivedJsonString);
+            spatManager.delete_timed_out_spat_data_from_available_spat_list();
+        }
+        
 
         else if (msgType == static_cast<int>(msgType::carlaTrafficLightStatus))
         {

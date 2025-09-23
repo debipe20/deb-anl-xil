@@ -112,6 +112,9 @@ int VehicleStatusManager::getMessageType(string jsonString)
 		else if ((jsonObject["MsgType"]).asString() == "BSM")
 			messageType = MsgEnum::DSRCmsgID_bsm;
 
+		else if ((jsonObject["MsgType"]).asString() == "SPaT")
+			messageType = MsgEnum::DSRCmsgID_spat;
+
 		else if ((jsonObject["MsgType"]).asString() == "CarlaTrafficLightStatus")
 			messageType = static_cast<int>(msgType::carlaTrafficLightStatus);
 	}

@@ -42,7 +42,6 @@ public:
     SpatManager();
     ~SpatManager();
     void manage_spat_data(string json_string);
-    void set_intersection_controller_staus();
     bool check_add_spat_data_into_available_spat_list(int spat_id);
     bool check_update_spat_data_into_available_spat_list(int spat_id);
     bool check_delete_timed_out_spat_data_from_available_spat_list();
@@ -50,4 +49,5 @@ public:
     void set_timed_out_intersection_id(int spat_id);
     int get_timed_out_intersection_id();
     double get_current_time_in_seconds();
+    string get_signal_phase_status(int spat_id, int signal_group);
 };

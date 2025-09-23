@@ -1,3 +1,8 @@
+"""
+usage:
+1. Loop: python3 spatSender.py
+2. Single Instance: python3 spatSender.py --once
+"""
 import socket
 import json
 import time

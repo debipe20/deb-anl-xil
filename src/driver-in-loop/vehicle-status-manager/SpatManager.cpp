@@ -29,7 +29,6 @@ void SpatManager::manage_spat_data(string json_string)
     int spat_id{};
     spat_info.reset();
     
-
     Json::Value jsonObject;
     Json::CharReaderBuilder builder;
     Json::CharReader *reader = builder.newCharReader();
@@ -38,7 +37,7 @@ void SpatManager::manage_spat_data(string json_string)
     reader->parse(json_string.c_str(), json_string.c_str() + json_string.size(), &jsonObject, &errors);
     delete reader;
 
-    spat_id = (jsonObject["Spat"]["IntersectionState"]["intersectionID"]).asInt();
+    spat_id = (jsonObject["Spat"]["intersectionState"]["intersectionID"]).asInt();
 
     if(check_add_spat_data_into_available_spat_list(spat_id))
     {
@@ -70,11 +69,6 @@ void SpatManager::manage_spat_data(string json_string)
         }
     }
 }
-
-// void SpatManager::set_intersection_controller_staus():
-// {
-
-// }
 
 /*
     -Check whether spat_id has to be added in the available spat list or not
@@ -192,6 +186,31 @@ double SpatManager::get_current_time_in_seconds()
     double currentTime = getPosixTimestamp();
 
     return currentTime;
+}
+
+/*
+    - Method to obtain phase status for a requested signal group of an intersection
+*/
+string SpatManager::get_signal_phase_status(int spat_id, int signal_group)
+{
+    string signal_phase_status = "unknown";
+
+    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
+                                                                                               [&](TrafficControllerData::AvailableSpat const &p)
+                                                                                               { return p.intersection_id == spat_id; });
+    if (find_spat_id_in_list != Available_Spat_List.end())
+    {
+        for (size_t i = 0; i < find_spat_id_in_list->trafficControllerStatus.size(); i++)
+        {
+            if (find_spat_id_in_list->trafficControllerStatus[i].phase_number == signal_group)
+            {
+                signal_phase_status = find_spat_id_in_list->trafficControllerStatus[i].phase_status;
+                break;
+            }
+        }
+    }
+
+    return signal_phase_status;
 }
 
 SpatManager::~SpatManager()

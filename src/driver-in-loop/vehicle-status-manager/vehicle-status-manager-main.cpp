@@ -56,6 +56,7 @@ int main()
     {
         vehicleStatusManagerSocket.receiveData(receiveBuffer, sizeof(receiveBuffer));
         string receivedJsonString(receiveBuffer);
+        // cout << "Received Json String is following:\n" << receivedJsonString << endl;
         msgType = vehicleStatusManager.getMessageType(receivedJsonString);
 
         if (msgType == MsgEnum::DSRCmsgID_bsm)
@@ -78,6 +79,7 @@ int main()
 
         else if (msgType == MsgEnum::DSRCmsgID_spat)
         {
+            spatManager.manage_spat_data(receivedJsonString);
             spatManager.delete_timed_out_spat_data_from_available_spat_list();
         }
         

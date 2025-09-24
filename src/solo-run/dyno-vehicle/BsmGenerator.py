@@ -22,7 +22,8 @@ The methods available from this class are the following:
 import json
 import pandas as pd
 import haversine
-import time, datetime
+import time
+import datetime
 import os
 from Logger import Logger
 
@@ -55,8 +56,10 @@ class BsmGenerator:
         self.extraDistance = 0.0
         self.step = 0
         self.previousTimeStampSetStatus = False
-        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = ([] for i in range(4) )
-        self.wayPointsLogFile = os.path.expanduser("~") + self.config["VehicleInformation"]["EgoBsmLogFileName"]
+        self.latitudeList, self.longitudeList, self.elevationList, self.headingList = (
+            [] for i in range(4))
+        self.wayPointsLogFile = os.path.expanduser(
+            "~") + self.config["VehicleInformation"]["EgoBsmLogFileName"]
         self.readPreloadedCoordinates()
 
     def readPreloadedCoordinates(self):
@@ -95,7 +98,7 @@ class BsmGenerator:
 
         self.timeStep = currentTime - self.previousTime
         travelDistance = self.currentSpeed * self.timeStep
-        
+
         if self.extraDistance >= travelDistance:
             self.previousTime = time.time()
             self.extraDistance = self.extraDistance - travelDistance
@@ -111,7 +114,8 @@ class BsmGenerator:
 
                 calculatedDistanceNext = haversine.haversine(
                     (self.previousLatitude, self.previousLongitude),
-                    (self.latitudeList[index + 1], self.longitudeList[index + 1]),
+                    (self.latitudeList[index + 1],
+                     self.longitudeList[index + 1]),
                     unit=haversine.Unit.METERS)
 
                 if (calculatedDistance <= travelDistance) and (calculatedDistanceNext <= travelDistance):
@@ -151,12 +155,13 @@ class BsmGenerator:
 
         if self.currentSpeed > 0:
             self.getNearestCoordinates()
-            
-        else: self.previousTime = time.time()
+
+        else:
+            self.previousTime = time.time()
 
         self.setMsgCount()
-        self.currentHeading = round(self.currentHeading, 2)        
-        
+        self.currentHeading = round(self.currentHeading, 2)
+
         try:
             bsmDictionary = {
                 "messageId": 20,
@@ -165,8 +170,8 @@ class BsmGenerator:
                         "msgCnt": self.msgCount,
                         "id": self.vehicleId,
                         "secMark": int(self.getMsOfMinute()),
-                        "lat": int(self.currentLatitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE ),
-                        "long": int(self.currentLongitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE ),
+                        "lat": int(self.currentLatitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE),
+                        "long": int(self.currentLongitude * ONE_BY_TEN_MICRO_DEGREE_TO_DEGREE),
                         "elev": int(self.currentElevation * DECA_CONVERSION),
                         "accuracy": {
                             "semiMajor": 255,
@@ -197,18 +202,43 @@ class BsmGenerator:
                 },
             }
 
+            basic_vehicle_dictionary = {
+                "MsgType": "BSM",
+                "Timestamp_posix": time.time(),
+                "Timestamp_verbose": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3],
+                "BasicVehicle": {
+                    "heading_Degree": self.currentHeading,
+                    "position": {
+                        "elevation_Meter": self.currentElevation,
+                        "latitude_DecimalDegree": self.currentLatitude,
+                        "longitude_DecimalDegree": self.currentLongitude
+                    },
+                    "secMark_Second": time.time() % 1,  # This gives the fractional part of the current second
+
+                    "size": {
+                        "length_cm": 600,
+                        "width_cm": 230
+                    },
+                    "speed_MeterPerSecond": self.currentSpeed,
+                    "temporaryID": int(self.vehicleId),
+                    "type": "0"
+                }
+            }
+            basic_vehicle_json_string  = json.dumps(basic_vehicle_dictionary, sort_keys=True, indent=4)
             bsmJsonString = json.dumps(bsmDictionary, sort_keys=True, indent=4)
-            
+
         except Exception as e:
             self.logger.consoleDisplay("Following error occurred:\n", str(e))
 
-        self.logger.logEgoVehicleBsmData(self.timeStep, self.msgCount, self.vehicleId, self.currentLatitude, self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading)
+        self.logger.logEgoVehicleBsmData(self.timeStep, self.msgCount, self.vehicleId, self.currentLatitude,
+                                         self.currentLongitude, self.currentElevation, self.currentSpeed, self.currentHeading)
 
         return (
             self.currentLatitude,
             self.currentLongitude,
             self.currentSpeed,
             bsmJsonString,
+            basic_vehicle_json_string
         )
 
     def setMsgCount(self):
@@ -219,18 +249,17 @@ class BsmGenerator:
             self.msgCount += 1
 
         else:
-            self.msgCount = MIN_MSG_COUNT 
+            self.msgCount = MIN_MSG_COUNT
 
     def getMsOfMinute(self):
         """
         Method to get current time in mili second unit
         """
-        
+
         timeNow = datetime.datetime.now()
         msOfMinute = timeNow.second * SECOND_MILISECOND_CONVERSION
 
         return msOfMinute
-        
+
     def __del__(self):
         self.logger.consoleDisplay("Closing BSM Generator Application")
-

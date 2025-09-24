@@ -49,5 +49,5 @@ public:
     void set_timed_out_intersection_id(int spat_id);
     int get_timed_out_intersection_id();
     double get_current_time_in_seconds();
-    string get_signal_phase_status(int intersection_id, int signal_group);
+    string get_signal_phase_status(int active_intersection_id, int signal_group);
 };

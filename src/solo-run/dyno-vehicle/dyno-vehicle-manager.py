@@ -74,6 +74,8 @@ def main():
     vehicleControllerIp = config["IPAddress"]["HostIp"]
     vehicleControllerPort = config["PortNumber"]["VehicleController"]
     vehicleControllerAddress = (vehicleControllerIp, vehicleControllerPort)
+    msgEncoderPort = 10003
+    msgEncoderAddress = (hostIp, msgEncoderPort)
     
     leadVehicleDataManagerPort = config["PortNumber"]["LeadVehicleDataManager"]
     leadVehicleDataManagerAddress = (hostIp, leadVehicleDataManagerPort)
@@ -104,18 +106,20 @@ def main():
 
         if dataLength == SpeedDataLength:
             decodedCounter, decodedSpeed = struct.unpack("dd", data)            
-            egoVehicleLat, egoVehicleLon, egoVehicleSpeed, bsmJsonString = (bsmGenerator.getBsmJsonString(decodedSpeed))
+            egoVehicleLat, egoVehicleLon, egoVehicleSpeed, bsmJsonString, basic_vehicle_json_string = (bsmGenerator.getBsmJsonString(decodedSpeed))
             
-            encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
-            egoVehicleDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
+            egoVehicleDataManagerSocket.sendto(basic_vehicle_json_string.encode('utf-8'), msgEncoderAddress)
+            # egoVehicleDataManagerSocket.sendto(sendingData, vehicleControllerAddress)
+            # encodedBsm = v2x.MessageFrame.from_json(bsmJsonString)
+            # egoVehicleDataManagerSocket.sendto(encodedBsm, messageReceiverAddress)
             
             # egoBsmHex = binascii.hexlify(encodedBsm)
-            egoBsmHex = encodedBsm.hex()            
-            logger.logEgoBsmHexData(egoBsmHex)
-            # logger.consoleDisplay("Encoded Hexlify BSM is: \n" + str(egoBsmHex))
+            # # egoBsmHex = encodedBsm.hex()            
+            # logger.logEgoBsmHexData(egoBsmHex)
+            # # logger.consoleDisplay("Encoded Hexlify BSM is: \n" + str(egoBsmHex))
 
-            logger.logEgoVehicleData(decodedCounter, decodedSpeed)
-            logger.consoleDisplay("Decoded data is: " + str(decodedSpeed) + " and counter is: " + str(decodedCounter))
+            # logger.logEgoVehicleData(decodedCounter, decodedSpeed)
+            # logger.consoleDisplay("Decoded data is: " + str(decodedSpeed) + " and counter is: " + str(decodedCounter))
             
             if time.time() - leadVehicleDataReceivedTime > 1.0:
                 while relativeDistance > 10:

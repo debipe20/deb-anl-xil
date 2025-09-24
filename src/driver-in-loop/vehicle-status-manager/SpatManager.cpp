@@ -28,7 +28,7 @@ void SpatManager::manage_spat_data(string json_string)
 {
     int spat_id{};
     spat_info.reset();
-    
+
     Json::Value jsonObject;
     Json::CharReaderBuilder builder;
     Json::CharReader *reader = builder.newCharReader();
@@ -39,20 +39,20 @@ void SpatManager::manage_spat_data(string json_string)
 
     spat_id = (jsonObject["Spat"]["intersectionState"]["intersectionID"]).asInt();
 
-    if(check_add_spat_data_into_available_spat_list(spat_id))
+    if (check_add_spat_data_into_available_spat_list(spat_id))
     {
         spat_info.intersection_id = spat_id;
         spat_info.regional_id = (jsonObject["Spat"]["IntersectionState"]["regionalID"]).asInt();
         spat_info.update_time = get_current_time_in_seconds();
-        // spat_info.trafficControllerStatus = 
+        // spat_info.trafficControllerStatus =
 
         // Parse phaseState and store in trafficControllerStatus
-        const Json::Value& phaseState = jsonObject["Spat"]["phaseState"];
+        const Json::Value &phaseState = jsonObject["Spat"]["phaseState"];
         if (phaseState.isArray())
         {
-            spat_info.trafficControllerStatus.reserve(phaseState.size());  // Pre-reserve space in vector for efficiency
+            spat_info.trafficControllerStatus.reserve(phaseState.size()); // Pre-reserve space in vector for efficiency
 
-            for (const auto& phase : phaseState)
+            for (const auto &phase : phaseState)
             {
                 status.reset();
 
@@ -61,7 +61,7 @@ void SpatManager::manage_spat_data(string json_string)
                 status.start_time = phase.get("startTime", 0.0).asDouble();
                 status.min_end_time = phase.get("minEndTime", 0.0).asDouble();
                 status.max_end_time = phase.get("maxEndTime", 0.0).asDouble();
-                status.elapsed_time = 0.0;  // If you need to calculate this, do it here
+                status.elapsed_time = 0.0; // If you need to calculate this, do it here
 
                 // Push the phase status into the trafficControllerStatus vector
                 spat_info.trafficControllerStatus.push_back(std::move(status));
@@ -79,7 +79,7 @@ bool SpatManager::check_add_spat_data_into_available_spat_list(int spat_id)
 {
     bool add_spat_id{false};
 
-    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
+    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List), end(Available_Spat_List),
                                                                                                [&](TrafficControllerData::AvailableSpat const &p)
                                                                                                { return p.intersection_id == spat_id; });
     if (Available_Spat_List.empty())
@@ -99,7 +99,7 @@ bool SpatManager::check_update_spat_data_into_available_spat_list(int spat_id)
 {
     bool update_spat_id{false};
 
-    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
+    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List), end(Available_Spat_List),
                                                                                                [&](TrafficControllerData::AvailableSpat const &p)
                                                                                                { return p.intersection_id == spat_id; });
 
@@ -118,7 +118,7 @@ bool SpatManager::check_update_spat_data_into_available_spat_list(int spat_id)
 /*
     - The following boolean method will determine whether received spat is required to delete from the Available Spat List
     - If SPaT is not received from an intersection for more than predefined time(10sec),the method will return true.
-    - The method will set the timed out intersection ID 
+    - The method will set the timed out intersection ID
 */
 bool SpatManager::check_delete_timed_out_spat_data_from_available_spat_list()
 {
@@ -152,15 +152,14 @@ void SpatManager::delete_timed_out_spat_data_from_available_spat_list()
     {
         spat_id = get_timed_out_intersection_id();
 
-        vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
-                                                                                               [&](TrafficControllerData::AvailableSpat const &p)
-                                                                                               { return p.intersection_id == spat_id; });
+        vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List), end(Available_Spat_List),
+                                                                                                   [&](TrafficControllerData::AvailableSpat const &p)
+                                                                                                   { return p.intersection_id == spat_id; });
 
         if (find_spat_id_in_list != Available_Spat_List.end())
             Available_Spat_List.erase(find_spat_id_in_list);
     }
 }
-
 
 /*
     - Setter for timed out intersection id
@@ -191,23 +190,31 @@ double SpatManager::get_current_time_in_seconds()
 /*
     - Method to obtain phase status for a requested signal group of an intersection
 */
-string SpatManager::get_signal_phase_status(int intersection_id, int signal_group)
+string SpatManager::get_signal_phase_status(int active_intersection_id, int signal_group)
 {
-    string signal_phase_status = "unknown";
+    string signal_phase_status{"unknown"};
 
-    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
+    vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List), end(Available_Spat_List),
                                                                                                [&](TrafficControllerData::AvailableSpat const &p)
-                                                                                               { return p.intersection_id == intersection_id; });
+                                                                                               { return p.intersection_id == active_intersection_id; });
     if (find_spat_id_in_list != Available_Spat_List.end())
     {
+        cout << "Entered in the loop" << endl;
         for (size_t i = 0; i < find_spat_id_in_list->trafficControllerStatus.size(); i++)
         {
             if (find_spat_id_in_list->trafficControllerStatus[i].phase_number == signal_group)
             {
                 signal_phase_status = find_spat_id_in_list->trafficControllerStatus[i].phase_status;
+                cout << "Signal Status is " << signal_phase_status << endl;
                 break;
             }
         }
+    }
+
+    else
+    {
+        cout << "Didn't Enter in the loop" << endl;
+        signal_phase_status = "unknown";
     }
 
     return signal_phase_status;

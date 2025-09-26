@@ -4,10 +4,12 @@ import time
 
 def main():
     # hostIp = "192.168.26.101"
-    hostIp = "127.0.0.1"
+    # hostIp = "127.0.0.1"
+    hostIp = "10.0.0.230"
     port = 50001
     # clientIp = "192.168.26.102"
-    clientIp = "127.0.0.1"
+    # clientIp = "127.0.0.1"
+    clientIp = "10.0.0.101"
     clientPort = 50002
     com_info = (hostIp, port)
     clientAddress = (clientIp, clientPort)

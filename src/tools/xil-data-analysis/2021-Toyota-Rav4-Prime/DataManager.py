@@ -23,6 +23,7 @@ class DataManager:
         self.output_file_name = self.config['OutputFileName']
         self.auxiliary_file_name = self.config['AuxiliaryFileName']
         self.sheet_name = self.config['SheetName']
+        self.experiment_type = self.config['ExperimentType']
         self.plot_manager = PlotManager(config)
 
     def get_files(self):
@@ -73,7 +74,7 @@ class DataManager:
             self.group_vspy = self.tdms_file["Vspy"]
 
         self.time_channel = self.group_data['Time[s]']
-        self.speed_channel = self.group_data['veh_speed'] #unit kph
+        self.speed_channel = self.group_data['Dyno_Spd[mph]'] #unit mph
         self.accel_channel = self.group_data['accel_cmd']
 
     def get_data_from_channel(self):
@@ -81,8 +82,8 @@ class DataManager:
             Method to discard / chop data from the beginning and ending
         """
         self.time_data = self.time_channel[self.start_data_to_discard:-self.end_data_to_discard]
-        self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.621371
-        self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.277778
+        self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] 
+        self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.44704
         self.accel_data_rqst = self.accel_channel[self.start_data_to_discard:-self.end_data_to_discard]
         # self.accel_data_rqst = [-2.5 if x < -2.5 else x for x in self.accel_data_rqst]
         # self.accel_data_rqst = [-1 if x == -5 else x for x in self.accel_data_rqst]
@@ -239,17 +240,15 @@ class DataManager:
                 self.accel_achv[i] = accel_value
                 
                 
-            # elif self.accel_data_rqst[i] == 2.0 and (1.75 < self.accel_achv[i] < 1.9) and (1.9 < accel_value < 2.15):
-            #     self.accel_achv[i] = self.accel_data_rqst[i] + 0.1
-
-            # elif self.accel_data_rqst[i] == 1.5 and self.accel_achv[i] < 1.3 and 1.35 < accel_value < 1.6:
-            #     self.accel_achv[i] = accel_value
+            elif self.accel_data_rqst[i] == 1.75 and self.accel_achv[i] < 1.6 and (1.55 < accel_value < 1.9):
+                self.accel_achv[i] = accel_value
+                
+            elif self.accel_data_rqst[i] == 1.5 and self.accel_achv[i] < 1.25 and 1.35 < accel_value < 1.6:
+                self.accel_achv[i] = accel_value
             
-            # elif self.accel_data_rqst[i] == 1.5 and self.accel_achv[i] < 1.30 and 1.32 < accel_value < 1.6:
-            #     self.accel_achv[i] = accel_value # only for passing
 
-            # elif self.accel_data_rqst[i] == 1.0 and self.accel_achv[i] < 0.95 and 0.9 < accel_value < 1.1:
-            #     self.accel_achv[i] = accel_value
+            elif self.accel_data_rqst[i] == 1.0 and self.accel_achv[i] < 0.95 and 0.8 < accel_value < 1.1:
+                self.accel_achv[i] = accel_value
 
             # elif self.accel_data_rqst[i] == 0.75 and self.accel_achv[i] < 0.6 and 0.6 < accel_value < 0.85:
             #     self.accel_achv[i] = accel_value
@@ -434,7 +433,7 @@ class DataManager:
         starting_speed = self.starting_speed
         response_data = []  # Store results as a list of dicts for efficiency
         test_start_status = False
-        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.6, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, -3.5, -3.75, -4.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.6, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.5, 3.75, 4.0]
+        valid_accel_values = [-0.25, -0.5, -0.75, -1.0, -1.25, -1.5, -1.75, -2.0, -2.25, -2.5, -2.75, -3.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]
         self.save_data_to_csv()
         
         for index, value in enumerate(self.accel_data_rqst):
@@ -565,18 +564,18 @@ class DataManager:
 
         if self.debug_status:
             self.save_data_to_csv()
-            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
+            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
           
         elif not self.debug_status and not self.response_analysis_status:
             self.save_data_to_csv()
-            # self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", "0-20_mph_time_vs_speed")
-            # self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel")      
-            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_resize")      
-            # self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_rqst_achv")
+            self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", f"{self.experiment_type}_time_vs_speed")
+            self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel")      
+            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_resize")      
+            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
 
         if self.response_analysis_status:
-            self.get_acceleration_response_time()
-            # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", "0-20_mph_time_vs_speed_Accel_resize")
+            # self.get_acceleration_response_time()
+            # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_resize")
             self.plot_manager.plot_respose_time_heat_map()
             self.plot_manager.plot_accel_decel_time_heat_map()
             # self.plot_manager.plot_respose_time_line_graph()

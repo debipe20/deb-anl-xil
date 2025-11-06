@@ -224,7 +224,7 @@ class PlotManager:
 
         # Define the sheet names corresponding to speed ranges
         # speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
-        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '40-60mph', '50-70mph']
         
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}
@@ -268,7 +268,7 @@ class PlotManager:
 
         # Define the sheet names corresponding to speed ranges
         # speed_ranges = ['0-20mph', '20-40mph', '30-50mph', '50-70mph']
-        speed_ranges = ['0-20mph', '30-50mph', '50-70mph']
+        speed_ranges = ['0-20mph', '40-60mph', '50-70mph']
 
         # Load data from all sheets into a dictionary of DataFrames
         data_dict = {speed: pd.read_excel(xls, sheet_name=speed) for speed in speed_ranges}

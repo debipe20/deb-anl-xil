@@ -1,0 +1,1 @@
+timestamp, desired_lat, desired_lon, desired_heading, current_lat, current_lon, current_speed, current_heading, travel_distance, calculated_distance, calculated_distance_next, starting_index, selected_index

@@ -27,10 +27,11 @@
 		"LeadController":50011	
 	},
 	"VehicleInformation": {
-		"EgoVehicleId": "265012",
+		"EgoVehicleId": "26501232",
 		"LeadVehicleId": "f03ad626",
-		"EgoBsmLogFileName": "/Desktop/deb-anl-xil/data/kearney/ego-waypoints.csv",
-		"LeadBsmLogFileName": "/Desktop/deb-anl-xil/data/kearney/lead-waypoints.csv",
+		"AnlWayPointsFileName": "/Desktop/deb-anl-xil/data/energy-cohort/delave_waypoints.csv",
+		"EgoBsmLogFileName": "ego-waypoints.csv",
+		"LeadBsmLogFileName": "lead-waypoints.csv",
 		"EgoVehicleModel":"Hyundai Ioniq 5",
 		"LeadVehicleModel": "Simulated"
 	},

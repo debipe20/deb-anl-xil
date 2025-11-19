@@ -29,7 +29,7 @@
 	"VehicleInformation": {
 		"EgoVehicleId": "26501232",
 		"LeadVehicleId": "f03ad626",
-		"AnlWayPointsFileName": "/Desktop/deb-anl-xil/data/energy-cohort/delave_waypoints.csv",
+		"AnlWayPointsFileName": "../energy-cohort/delave_waypoints.csv",
 		"EgoBsmLogFileName": "ego-waypoints.csv",
 		"LeadBsmLogFileName": "lead-waypoints.csv",
 		"EgoVehicleModel":"Hyundai Ioniq 5",

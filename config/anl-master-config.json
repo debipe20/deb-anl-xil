@@ -29,8 +29,8 @@
 	"VehicleInformation": {
 		"EgoVehicleId": "265012",
 		"LeadVehicleId": "f03ad626",
-		"EgoBsmLogFileName": "/Desktop/deb-anl-xil/data/kearney/ego-waypoints.csv",
-		"LeadBsmLogFileName": "/Desktop/deb-anl-xil/data/kearney/lead-waypoints.csv",
+		"EgoBsmLogFileName": "ego-waypoints.csv",
+		"LeadBsmLogFileName": "lead-waypoints.csv",
 		"EgoVehicleModel":"Hyundai Ioniq 5",
 		"LeadVehicleModel": "Simulated"
 	},

@@ -5,8 +5,8 @@
       "name": "Python: CARLA Debug",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/carla-vehicle-control-main.py",
-      "python": "/home/debashis/anaconda3/envs/carla_voices_env/bin/python3",
+      "program": "${workspaceFolder}/drive_route.py",
+      "python": "/home/debashis/anaconda3/envs/carla_dt_env/bin/python3",
       "console": "integratedTerminal",
       "preLaunchTask": "Activate Conda Environment"
     }

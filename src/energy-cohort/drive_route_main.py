@@ -237,15 +237,40 @@ def get_speed_mps(vehicle: carla.Actor) -> float:
 
 def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.6):
     """
-    Returns:
-        lead_vehicle       (carla.Actor or None)
-        distance_m         (float or None)
-        lead_speed_mps     (float or None)
-        lead_speed_mph     (float or None)
-    for the closest vehicle in front of ego_vehicle within lane_width,
-    or (None, None, None, None) if no one is ahead.
-    """
+    Find the closest vehicle ahead of the ego vehicle within a lateral corridor.
 
+    The function iterates over vehicles in the simulation world, keeps only those
+    that are in front of the ego vehicle (positive projection onto the ego's
+    forward direction), rejects vehicles that are too far laterally (outside the
+    current lane/corridor), and returns the nearest remaining candidate within max_distance.
+
+    Args:
+        ego_vehicle:
+            The ego vehicle actor (must provide CARLA get_transform()).
+        world:
+            Simulation world object used to retrieve vehicle actors.
+        max_distance (float, optional):
+            Maximum distance (meters) to search ahead. Defaults to 80.0.
+        lane_width (float, optional):
+            Maximum allowed lateral offset (meters) from the ego's forward axis
+            to still be considered "ahead in the same lane/corridor". Defaults to 3.6.
+
+    Returns:
+        tuple:
+            (lead_vehicle, distance_m, lead_speed_mps, lead_speed_mph), where:
+
+            - lead_vehicle: Closest vehicle ahead, or None if not found.
+            - distance_m: Distance to the lead vehicle in meters, or None.
+            - lead_speed_mps: Lead vehicle speed in m/s, or None.
+            - lead_speed_mph: Lead vehicle speed in mph, or None.
+
+        If no valid lead vehicle is found, returns (None, None, None, None).
+
+    Notes:
+        - "Ahead" is determined using the ego vehicle's forward direction.
+        - Lateral offset is computed in the ground plane to approximate lane alignment.
+        - Vehicle speed is computed via an external helper (e.g., get_speed_mps).
+    """
     
     vehicles = world.get_actors().filter('vehicle.*')
 

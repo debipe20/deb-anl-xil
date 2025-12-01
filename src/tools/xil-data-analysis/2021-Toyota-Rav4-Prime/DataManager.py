@@ -75,6 +75,7 @@ class DataManager:
 
         self.time_channel = self.group_data['Time[s]']
         self.speed_channel = self.group_data['Dyno_Spd[mph]'] #unit mph
+        self.speed_channel = self.group_data['Veh_wheel_spd_FL_HSCAN2__kph'] #unit kph, for additional test case
         self.accel_channel = self.group_data['accel_cmd']
 
     def get_data_from_channel(self):
@@ -82,8 +83,10 @@ class DataManager:
             Method to discard / chop data from the beginning and ending
         """
         self.time_data = self.time_channel[self.start_data_to_discard:-self.end_data_to_discard]
-        self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] 
-        self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.44704
+        # self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] 
+        # self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.44704
+        self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.621371 #for additional test case kph to mph
+        self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.277778 #for additional test case kph to mps
         self.accel_data_rqst = self.accel_channel[self.start_data_to_discard:-self.end_data_to_discard]
         # self.accel_data_rqst = [-2.5 if x < -2.5 else x for x in self.accel_data_rqst]
         # self.accel_data_rqst = [-1 if x == -5 else x for x in self.accel_data_rqst]
@@ -448,7 +451,7 @@ class DataManager:
                 starting_speed = self.speed_data_mph[index]                
 
             ### Acceleration Response Time Calculation
-            elif test_start_status and accel_rqst_start_time > 0 and (self.speed_data_mph[index] - starting_speed) > 0.2 and accel_value > 0:
+            elif test_start_status and accel_rqst_start_time > 0 and (self.speed_data_mph[index] - starting_speed) > 0.1 and accel_value > 0:
                 accel_rqst_end_time = self.experimental_time_data[index]
                 accel_response_time = accel_rqst_end_time - accel_rqst_start_time 
                 
@@ -563,7 +566,7 @@ class DataManager:
         self.calculate_acceleration_achv()
 
         if self.debug_status:
-            self.save_data_to_csv()
+            # self.save_data_to_csv()
             self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
           
         elif not self.debug_status and not self.response_analysis_status:
@@ -574,10 +577,10 @@ class DataManager:
             self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
 
         if self.response_analysis_status:
-            # self.get_acceleration_response_time()
+            self.get_acceleration_response_time()
             # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_resize")
-            self.plot_manager.plot_respose_time_heat_map()
-            self.plot_manager.plot_accel_decel_time_heat_map()
+            # self.plot_manager.plot_respose_time_heat_map()
+            # self.plot_manager.plot_accel_decel_time_heat_map()
             # self.plot_manager.plot_respose_time_line_graph()
             # self.plot_manager.plot_respose_time_surface_plot()
 '''##############################################

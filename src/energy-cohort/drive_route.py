@@ -239,59 +239,60 @@ def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.6):
     """
     Returns:
         lead_vehicle       (carla.Actor or None)
-        distance_m         (float or None)
+        distance_to_lead   (float or None)
         lead_speed_mps     (float or None)
         lead_speed_mph     (float or None)
-    for the closest vehicle in front of ego_vehicle within lane_width,
+    for the closest vehicle in front of the ego vehicle within lane_width,
     or (None, None, None, None) if no one is ahead.
     """
-
     
-    vehicles = world.get_actors().filter('vehicle.*')
+    all_vehicles = world.get_actors().filter('vehicle.*')
 
-    ego_tf = ego_vehicle.get_transform() #the transform (position + rotation) of the ego vehicle.
-    ego_loc = ego_tf.location #3D position of ego
-    ego_forward = ego_tf.get_forward_vector()  # carla.Vector3D, a unit vector pointing in the direction the car is facing (its heading)
+    ego_transform = ego_vehicle.get_transform()  # the transform (position + rotation) of the ego vehicle
+    ego_position = ego_transform.location  # 3D position of ego
+    ego_forward_direction = ego_transform.get_forward_vector()  # direction the ego vehicle is facing
 
     closest_vehicle = None
-    closest_dist = max_distance
+    closest_distance = max_distance  # start with the maximum distance allowed
 
-    for v in vehicles:
-        if v.id == ego_vehicle.id:
-            continue
+    for vehicle in all_vehicles:
+        if vehicle.id == ego_vehicle.id:
+            continue  # skip the ego vehicle itself
 
-        loc = v.get_transform().location
-        rel = loc - ego_loc  # Relative Vector Distance, Vector from ego to this vehicle
+        vehicle_position = vehicle.get_transform().location
+        relative_position = vehicle_position - ego_position  # vector from ego to this vehicle
 
-        # Longitudinal component along ego heading (dot product)
-        longitudinal = (
-            rel.x * ego_forward.x +
-            rel.y * ego_forward.y +
-            rel.z * ego_forward.z
+        # Longitudinal component along ego vehicle's heading (dot product)
+        longitudinal_distance = (
+            relative_position.x * ego_forward_direction.x +
+            relative_position.y * ego_forward_direction.y +
+            relative_position.z * ego_forward_direction.z
         )
 
-        # Ignore vehicles behind or exactly at ego longitudinally
-        if longitudinal <= 0.0:
+        # Ignore vehicles behind the ego vehicle (longitudinally) or exactly at the same position
+        if longitudinal_distance <= 0.0:
             continue
 
-        # Lateral offset using 2D cross product magnitude
-        lateral = abs(rel.x * ego_forward.y - rel.y * ego_forward.x)
-        if lateral > lane_width:
-            # Too far to the side -> likely another lane
+        # Calculate lateral distance (perpendicular distance to ego's forward direction)
+        lateral_distance = abs(relative_position.x * ego_forward_direction.y - relative_position.y * ego_forward_direction.x)
+        if lateral_distance > lane_width:
+            # If the vehicle is too far off to the side, it's likely in another lane
             continue
 
-        dist = ego_loc.distance(loc) #3D Euclidean distance between ego and that car, in meters.
-        if dist < closest_dist:
-            closest_dist = dist
-            closest_vehicle = v
+        # Calculate the 3D Euclidean distance between the ego vehicle and this vehicle
+        distance_to_vehicle = ego_position.distance(vehicle_position)
+        if distance_to_vehicle < closest_distance:
+            closest_distance = distance_to_vehicle
+            closest_vehicle = vehicle
 
     if closest_vehicle is None:
         return None, None, None, None
 
-    lead_speed_mps = get_speed_mps(closest_vehicle)
-    lead_speed_mph = lead_speed_mps * 2.23694
+    lead_vehicle_speed_mps = get_speed_mps(closest_vehicle)
+    lead_vehicle_speed_mph = lead_vehicle_speed_mps * 2.23694  # convert m/s to mph
 
-    return closest_vehicle, closest_dist, lead_speed_mps, lead_speed_mph
+    return closest_vehicle, closest_distance, lead_vehicle_speed_mps, lead_vehicle_speed_mph
+
 
 def compute_desired_speed_mps(ego_speed_mps, lead_distance_m, lead_speed_mps, speed_limit_mph, min_gap_m = 10.0, time_headway_s=1.5, gap_gain=0.5) -> float:
     """
@@ -349,7 +350,7 @@ def run_loop(world, vehicle, agent, autopilot_active, args):
     print(f">>> Initial target speed = {target_speed_kph:.1f} kph")
 
     manual_speed_limit_enabled = True
-    train_mode = False
+    train_mode = True
 
     # Simple longitudinal control for train mode
     train_throttle = 0.0
@@ -493,7 +494,6 @@ def run_loop(world, vehicle, agent, autopilot_active, args):
                 control = agent.run_step(manual_speed_limit=manual_speed_value)
 
                 if train_mode:
-                    manual_speed_value = 50 #kph
                     # TRAIN MODE: BehaviorAgent steers, PID controls throttle/brake
                     throttle_pid, brake_pid, pid_raw = speed_pid.compute_control(
                         current_speed=ego_speed_mps,

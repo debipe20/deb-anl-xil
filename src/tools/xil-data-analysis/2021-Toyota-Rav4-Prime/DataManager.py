@@ -11,6 +11,7 @@ class DataManager:
         self.debug_status = self.config['Debug']
         self.data_save_status = self.config['DataSave']
         self.response_analysis_status = self.config['ResponseAnalysis']
+        self.comparison_analysis_status = self.config ['ComparisoAnalysis']
         self.vehicle_name = self.config['VehicleName']
         self.smoothing_method = self.config['SmothingMethod']
         self.window_size = self.config['WindowSize']
@@ -77,6 +78,7 @@ class DataManager:
         self.speed_channel = self.group_data['Dyno_Spd[mph]'] #unit mph
         self.speed_channel = self.group_data['Veh_wheel_spd_FL_HSCAN2__kph'] #unit kph, for additional test case
         self.accel_channel = self.group_data['accel_cmd']
+        self.accel_delivered_channel = self.group_data['accel_cmd']
 
     def get_data_from_channel(self):
         """
@@ -88,6 +90,9 @@ class DataManager:
         self.speed_data_mph = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.621371 #for additional test case kph to mph
         self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.277778 #for additional test case kph to mps
         self.accel_data_rqst = self.accel_channel[self.start_data_to_discard:-self.end_data_to_discard]
+        self.accel_data_delivered = self.accel_delivered_channel[self.start_data_to_discard:-self.end_data_to_discard]
+        
+        
         # self.accel_data_rqst = [-2.5 if x < -2.5 else x for x in self.accel_data_rqst]
         # self.accel_data_rqst = [-1 if x == -5 else x for x in self.accel_data_rqst]
         # self.accel_data_rqst = [-1 if x < -1 and self.time_data[i] < 250 else x 
@@ -110,7 +115,7 @@ class DataManager:
         self.speed_data_mph = list(speed_data_mph_filtered)
         self.speed_data_mps = list(speed_data_mps_filtered)
         self.accel_data_rqst = list(accel_data_rqst_filtered)
-
+         
     def calculate_acceleration_achv(self):
         """
         """
@@ -556,6 +561,8 @@ class DataManager:
         accel_decel_time_df = pd.DataFrame(response_data)
         
         return accel_decel_time_df 
+    
+    
 
     def generate_plots(self):
         self.get_files()
@@ -564,8 +571,15 @@ class DataManager:
         
         # self.filter_data_set()
         self.calculate_acceleration_achv()
+        
+        if self.comparison_analysis_status:
+            self.experimental_time_data = [0]
+            for i in range(1, len(self.speed_data_mps)):
+                self.experimental_time_data.append(self.experimental_time_data[-1]+0.1)
+            self.plot_manager.comparison_plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_data_delivered, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_delivered")
 
-        if self.debug_status:
+
+        elif self.debug_status:
             # self.save_data_to_csv()
             self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
           

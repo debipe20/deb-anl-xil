@@ -130,6 +130,63 @@ class PlotManager:
 
         plt.close(fig)
 
+
+    def comparison_plot_two_data_on_secondary_yaxis(self, x_data, y_data1, y_data2, y_data3, x_label, y_label1, y_label2, title, fileName):
+        # Create a figure and axis object
+        fig, ax1 = plt.subplots(figsize=(14,5))
+
+        # ax1.set_xlabel(x_label, color='tab:green')
+        ax1.set_ylabel(y_label1, color='tab:blue', fontsize=16)
+        ax1.set_xlabel(x_label, fontsize=16)
+        # ax1.set_ylabel(y_label1, color='tab:blue')
+        primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed[mph]')
+        # ax1.tick_params(axis='y', labelcolor='tab:blue')
+        ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=12)
+        ax1.tick_params(axis='x', labelsize=12)  # Set label size for x-axis ticks
+
+        # Instantiate a second axes that shares the same x-axis
+        ax2 = ax1.twinx()
+        # ax2.set_ylabel(y_label2, color='tab:red')
+        ax2.set_ylabel(y_label2, color='tab:red', fontsize=16)
+        secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', linestyle='--', label='Accel Req[m/s²]')
+        mark_every = max(1, len(x_data)//200)  # reduces marker clutter
+        tertiary_axis_line, = ax2.plot(x_data, y_data3, color='tab:green', linestyle=':', label='Accel Deliver[m/s²]')
+        # ax2.tick_params(axis='y', labelcolor='tab:red')
+        ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=12)
+        # Set secondary y-axis ticks at intervals of 0.5
+        ax2.yaxis.set_major_locator(MultipleLocator(0.5))
+        
+        # Left y-axis padding
+        ymin, ymax = ax1.get_ylim()
+        ax1.set_ylim(ymin, ymax * 1.15) 
+        
+        # Right y-axis padding (if needed)
+        # ymin2, ymax2 = ax2.get_ylim()
+        # ax2.set_ylim(ymin2, ymax2 * 1.10)
+                                        
+        # Combine legends from all axes
+        lines = [primary_axis_line, secondary_axis_line, tertiary_axis_line]
+        labels = [line.get_label() for line in lines]
+        ax1.legend(lines, labels, loc='upper left', fontsize=16, bbox_to_anchor=(0, 1.0), prop={"size": 9})
+
+        ax1.grid(True)
+        if self.title_status:
+            # plt.title(title, fontweight='bold')
+            plt.title(title, fontsize=18, fontweight='bold')
+        
+        if self.plot_save:
+            file_directory = "figures/" + fileName + ".jpg"
+            # plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            plt.tight_layout()
+            plt.savefig(file_directory, dpi=300)
+            print("saved plot successfully")
+        else:
+            plt.show()
+
+        plt.close(fig)
+
+
+
     def plot_specific_accelerations(self, time_data, speed_data_mph, accel_data, specific_accelerations, x_label, y_label1, y_label2, title, fileName):
         # Filter data for the specific acceleration values
         filtered_time_data = []

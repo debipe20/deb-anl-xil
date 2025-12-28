@@ -11,7 +11,7 @@ class DataManager:
         self.debug_status = self.config['Debug']
         self.data_save_status = self.config['DataSave']
         self.response_analysis_status = self.config['ResponseAnalysis']
-        self.comparison_analysis_status = self.config ['ComparisoAnalysis']
+        self.comparison_analysis_status = self.config ['ComparisonAnalysis']
         self.vehicle_name = self.config['VehicleName']
         self.smoothing_method = self.config['SmothingMethod']
         self.window_size = self.config['WindowSize']

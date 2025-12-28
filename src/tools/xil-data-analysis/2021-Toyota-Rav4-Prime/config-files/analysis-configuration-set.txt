@@ -3,52 +3,53 @@
 **** Campaign 2
 
 ## HV Mode with PID
-0-20 mph:62511023-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 500
-40-60 mph:62512003-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 800
-50-70 mph:62512004-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard": 200
+0-20 mph:62511023-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":500
+40-60 mph:62512003-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":800
+50-70 mph:62512004-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard":200
 
 ## EV Mode with PID
-0-20 mph:62512013-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 600
+0-20 mph:62512013-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":600
 
 
 ## EV Mode without PID
-0-20 mph:62512028-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 600
+0-20 mph:62512028-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":600
 
 
 ## HV Mode without PID
-0-20 mph:62512042-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 1500
-
+0-20 mph:62512042-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":400
+40-60 mph:62512046-> "NoOfStartDataDiscard":100, "NoOfEndDataDiscard":100
+50-70 mph:62512047-> "NoOfStartDataDiscard":300, "NoOfEndDataDiscard":200
 
 **** Campaign 1
 Speed Ramp Test
 
-0-20 mph:62510014-> "NoOfStartDataDiscard":100, "NoOfEndDataDiscard": 10
+0-20 mph:62510014-> "NoOfStartDataDiscard":100, "NoOfEndDataDiscard":10
 
-30-50 mph:62510019-> "NoOfStartDataDiscard":2100, "NoOfEndDataDiscard": 1500
+30-50 mph:62510019-> "NoOfStartDataDiscard":2100, "NoOfEndDataDiscard":1500
 
-40-60 mph:62510020-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard": 10
+40-60 mph:62510020-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard":10
 
-50-70 mph:62510021-> "NoOfStartDataDiscard":700, "NoOfEndDataDiscard": 200
+50-70 mph:62510021-> "NoOfStartDataDiscard":700, "NoOfEndDataDiscard":200
 
 
 Acceleration Limit Test:
 
-0 mph:62510006-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard": 10
+0 mph:62510006-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard":10
 
-20 mph:62510007-> "NoOfStartDataDiscard" 10, "NoOfEndDataDiscard": 10
+20 mph:62510007-> "NoOfStartDataDiscard" 10, "NoOfEndDataDiscard":10
 
-40 mph:62510008-> "NoOfStartDataDiscard" 10, "NoOfEndDataDiscard": 10
+40 mph:62510008-> "NoOfStartDataDiscard" 10, "NoOfEndDataDiscard":10
 
-60 mph:62510009-> "NoOfStartDataDiscard" 500, "NoOfEndDataDiscard": 350
+60 mph:62510009-> "NoOfStartDataDiscard" 500, "NoOfEndDataDiscard":350
 
 
 Deceleration Limit Test:
 
-20 mph:62510010-> "NoOfStartDataDiscard":2000, "NoOfEndDataDiscard": 10
+20 mph:62510010-> "NoOfStartDataDiscard":2000, "NoOfEndDataDiscard":10
 
-40 mph:62510011-> "NoOfStartDataDiscard" 20, "NoOfEndDataDiscard": 10
+40 mph:62510011-> "NoOfStartDataDiscard" 20, "NoOfEndDataDiscard":10
 
-60 mph:62510012-> "NoOfStartDataDiscard" 100, "NoOfEndDataDiscard": 10
+60 mph:62510012-> "NoOfStartDataDiscard" 100, "NoOfEndDataDiscard":10
 
 Resume Test:
-62510022-> "NoOfStartDataDiscard":2000, "NoOfEndDataDiscard": 10
+62510022-> "NoOfStartDataDiscard":2000, "NoOfEndDataDiscard":10

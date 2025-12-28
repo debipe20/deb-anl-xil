@@ -148,9 +148,9 @@ class PlotManager:
         ax2 = ax1.twinx()
         # ax2.set_ylabel(y_label2, color='tab:red')
         ax2.set_ylabel(y_label2, color='tab:red', fontsize=16)
-        secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', linestyle='--', label='Accel Req[m/s²]')
-        mark_every = max(1, len(x_data)//200)  # reduces marker clutter
-        tertiary_axis_line, = ax2.plot(x_data, y_data3, color='tab:green', linestyle=':', label='Accel Deliver[m/s²]')
+        # secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', linestyle='--', label='Accel Req[m/s²]')
+        secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', label='Accel Reqested[m/s²]')
+        tertiary_axis_line, = ax2.plot(x_data, y_data3, color='tab:green', linestyle='--', label='Accel Delivered[m/s²]')
         # ax2.tick_params(axis='y', labelcolor='tab:red')
         ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=12)
         # Set secondary y-axis ticks at intervals of 0.5

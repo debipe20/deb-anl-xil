@@ -1,5 +1,25 @@
 2021 Toyota Rav4 Prime Dynamic Response Test
 
+**** Campaign 2
+
+## HV Mode with PID
+0-20 mph:62511023-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 500
+40-60 mph:62512003-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 800
+50-70 mph:62512004-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard": 200
+
+## EV Mode with PID
+0-20 mph:62512013-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 600
+
+
+## EV Mode without PID
+0-20 mph:62512028-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 600
+
+
+## HV Mode without PID
+0-20 mph:62512042-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard": 1500
+
+
+**** Campaign 1
 Speed Ramp Test
 
 0-20 mph:62510014-> "NoOfStartDataDiscard":100, "NoOfEndDataDiscard": 10

@@ -78,7 +78,7 @@ class DataManager:
         self.speed_channel = self.group_data['Dyno_Spd[mph]'] #unit mph
         self.speed_channel = self.group_data['Veh_wheel_spd_FL_HSCAN2__kph'] #unit kph, for additional test case
         self.accel_channel = self.group_data['accel_cmd']
-        self.accel_delivered_channel = self.group_data['accel_cmd']
+        self.accel_delivered_channel = self.group_data['Vehicle_Accel_Cmd__mps2']
 
     def get_data_from_channel(self):
         """
@@ -91,7 +91,7 @@ class DataManager:
         self.speed_data_mps = self.speed_channel[self.start_data_to_discard:-self.end_data_to_discard] * 0.277778 #for additional test case kph to mps
         self.accel_data_rqst = self.accel_channel[self.start_data_to_discard:-self.end_data_to_discard]
         self.accel_data_delivered = self.accel_delivered_channel[self.start_data_to_discard:-self.end_data_to_discard]
-        
+        print("Discarded required data")
         
         # self.accel_data_rqst = [-2.5 if x < -2.5 else x for x in self.accel_data_rqst]
         # self.accel_data_rqst = [-1 if x == -5 else x for x in self.accel_data_rqst]
@@ -576,19 +576,19 @@ class DataManager:
             self.experimental_time_data = [0]
             for i in range(1, len(self.speed_data_mps)):
                 self.experimental_time_data.append(self.experimental_time_data[-1]+0.1)
-            self.plot_manager.comparison_plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_data_delivered, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_delivered")
+            self.plot_manager.comparison_plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_data_delivered, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_rqst_delivered")
 
 
         elif self.debug_status:
             # self.save_data_to_csv()
-            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
+            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_rqst_achv")
           
         elif not self.debug_status and not self.response_analysis_status:
             self.save_data_to_csv()
             self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", f"{self.experiment_type}_time_vs_speed")
-            self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel")      
-            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_resize")      
-            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_rqst_achv")
+            self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel")      
+            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_resize")      
+            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_rqst_achv")
 
         if self.response_analysis_status:
             self.get_acceleration_response_time()

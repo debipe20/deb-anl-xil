@@ -255,7 +255,7 @@ class PlotManager:
         plt.scatter(acc_override_speed_mph, acc_override_acceleration, alpha=0.7, label="ACC Override ON", color="blue", s=10)
                 
         # Add labels, title, and legend
-        plt.title("2023 Hyundai Ioniq5 Acceleration Envelope", fontsize=16, weight="bold")
+        plt.title("2024 Toyota Rav4 Prime Acceleration Envelope", fontsize=16, weight="bold")
         plt.xlabel("Speed [mph]", fontsize=14)
         plt.ylabel("Acceleration [g]", fontsize=14)
         plt.legend(loc="upper right", fontsize=12)
@@ -276,7 +276,7 @@ class PlotManager:
     def plot_respose_time_heat_map(self):
 
         # Load the Excel file
-        file_path = "output-file/auxiliary-analysis-data.xlsx"
+        file_path = "output-file/auxiliary-analysis-ev-with-pid.xlsx"
         xls = pd.ExcelFile(file_path)
 
         # Define the sheet names corresponding to speed ranges
@@ -309,7 +309,7 @@ class PlotManager:
         cbar.set_label('Response Time (s)', fontdict={'fontsize': 16})
         
         if self.plot_save:
-            file_directory = "figures/respose_time_heat_map.jpg"
+            file_directory = "figures/respose_time_heat_map_ev_with_pid.jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
             print("saved plot successfully")
         
@@ -320,7 +320,7 @@ class PlotManager:
     def plot_accel_decel_time_heat_map(self):
 
         # Load the Excel file
-        file_path = "output-file/auxiliary-analysis-data.xlsx"
+        file_path = "output-file/auxiliary-analysis-ev-with-pid.xlsx"
         xls = pd.ExcelFile(file_path)
 
         # Define the sheet names corresponding to speed ranges
@@ -357,7 +357,7 @@ class PlotManager:
         cbar.set_label('Accel/Decel Time (s)', fontdict={'fontsize': 16})
         
         if self.plot_save:
-            file_directory = "figures/accel_decel_time_heat_map.jpg"
+            file_directory = "figures/accel_decel_time_heat_map_ev_with_pid.jpg"
             plt.savefig(file_directory, bbox_inches='tight', dpi=300)
             print("saved plot successfully")
         
@@ -468,5 +468,40 @@ class PlotManager:
          
         plt.close()
         
+    def plot_jerk_limit(self, fig_size_status, x_data, y_data1, y_data2, x_label, y_label1, y_label2, title, fileName):
+        # # Create a figure and axis object
+        if fig_size_status:
+            # fig, ax1 = plt.subplots(figsize=(10,5))
+            fig, ax1 = plt.subplots(figsize=(14,5))
+            # fig, ax1 = plt.subplots(figsize=(12,6))
+        else: fig, ax1 = plt.subplots()
+        
+        ax1.set_xlabel(x_label)
+        ax1.set_ylabel(y_label1, color='tab:blue')
+        primary_axis_line, = ax1.plot(x_data, y_data1, color='tab:blue', label='Speed')
+        ax1.tick_params(axis='y', labelcolor='tab:blue')
+        ax1.grid(True)
 
-    
+        ax2 = ax1.twinx()  # Instantiate a second axes that shares the same x-axis
+        ax2.set_ylabel(y_label2, color='tab:red')
+        secondary_axis_line, = ax2.plot(x_data, y_data2, color='tab:red', label='Jerk')
+        ax2.tick_params(axis='y', labelcolor='tab:red')
+        # tick_values = np.arange(min(y_data2), max(y_data2), 0.5)
+        # ax2.set_yticks(tick_values)
+
+        # Combine legends from both axes
+        lines = [primary_axis_line, secondary_axis_line]  # Handles for both lines
+        labels = [line.get_label() for line in lines]  # Labels for the lines
+
+        if self.title_status:
+            plt.title(title, fontweight='bold')
+        
+        if self.plot_save:
+            file_directory = "figures/" + fileName + ".jpg"
+            plt.savefig(file_directory, bbox_inches='tight', dpi=300)
+            print("saved plot successfully")
+
+        else:plt.show()
+
+        plt.close(fig)
+

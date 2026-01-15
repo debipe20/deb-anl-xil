@@ -9,16 +9,37 @@
 
 ## EV Mode with PID
 0-20 mph:62512013-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":600
-
+40-60 mph:62512017-> "NoOfStartDataDiscard":1100, "NoOfEndDataDiscard":400
+50-70 mph:62512018-> "NoOfStartDataDiscard":200, "NoOfEndDataDiscard":200
 
 ## EV Mode without PID
 0-20 mph:62512028-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":600
-
+40-60 mph:62512032-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":100
+50-70 mph:62512033-> "NoOfStartDataDiscard":100, "NoOfEndDataDiscard":100
 
 ## HV Mode without PID
 0-20 mph:62512042-> "NoOfStartDataDiscard":400, "NoOfEndDataDiscard":400
 40-60 mph:62512046-> "NoOfStartDataDiscard":100, "NoOfEndDataDiscard":100
 50-70 mph:62512047-> "NoOfStartDataDiscard":300, "NoOfEndDataDiscard":200
+
+
+Acceleration Limit Test:
+## EV Mode with PID:
+0 mph:62512019-> "NoOfStartDataDiscard":600, "NoOfEndDataDiscard":250
+20 mph:62512020-> "NoOfStartDataDiscard" 200, "NoOfEndDataDiscard":400
+40 mph:62512021-> "NoOfStartDataDiscard" 200, "NoOfEndDataDiscard":300
+60 mph:62512022-> "NoOfStartDataDiscard" 300, "NoOfEndDataDiscard":600
+
+
+Deceleration Limit Test:
+## EV Mode with PID:
+20 mph:62512023-> "NoOfStartDataDiscard" 200, "NoOfEndDataDiscard":300
+40 mph:62512024-> "NoOfStartDataDiscard" 150, "NoOfEndDataDiscard":250
+60 mph:62512025-> "NoOfStartDataDiscard" 100, "NoOfEndDataDiscard":250
+
+Resume Test:
+## EV Mode with PID:
+62512026-> "NoOfStartDataDiscard":2700, "NoOfEndDataDiscard":300
 
 **** Campaign 1
 Speed Ramp Test

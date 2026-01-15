@@ -115,7 +115,7 @@ class DataManager:
         self.speed_data_mph = list(speed_data_mph_filtered)
         self.speed_data_mps = list(speed_data_mps_filtered)
         self.accel_data_rqst = list(accel_data_rqst_filtered)
-         
+             
     def calculate_acceleration_achv(self):
         """
         """
@@ -562,7 +562,21 @@ class DataManager:
         
         return accel_decel_time_df 
     
-    
+    def compute_jerk(self):
+        self.jerk = [0.0]
+
+        for i in range(1, len(self.accel_achv)):
+            da = self.accel_achv[i] - self.accel_achv[i - 1]
+            dt = self.experimental_time_data[i] - self.experimental_time_data[i - 1]
+
+            if dt > 0:
+                self.jerk.append(da / dt)
+            else:
+                self.jerk.append(0.0)  # or np.nan
+
+        max_jerk = max(abs(j) for j in self.jerk if j is not None)
+        print(f"Max jerk is {max_jerk:.3f} m/s^3")
+
 
     def generate_plots(self):
         self.get_files()
@@ -571,6 +585,7 @@ class DataManager:
         
         # self.filter_data_set()
         self.calculate_acceleration_achv()
+        self.compute_jerk()
         
         if self.comparison_analysis_status:
             self.experimental_time_data = [0]
@@ -585,16 +600,17 @@ class DataManager:
           
         elif not self.debug_status and not self.response_analysis_status:
             self.save_data_to_csv()
-            self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", f"{self.experiment_type}_time_vs_speed")
-            self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel")      
-            self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_resize")      
-            self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_rqst_achv")
-
+            # self.plot_manager.plot_primary_yaxis(self.experimental_time_data, self.speed_data_mph, "Time [s]", "Speed [mph]", "Time vs Speed Plot", f"{self.experiment_type}_time_vs_speed")
+            # self.plot_manager.plot_primary_secondary_yaxis(False, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel")      
+            # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_resize")      
+            # self.plot_manager.plot_two_data_on_secondary_yaxis(self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, self.accel_achv, "Time [s]", "Speed [mph]", "Acceleration [m/s²]",  "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_accel_rqst_achv")
+            self.plot_manager.plot_jerk_limit(True, self.experimental_time_data, self.speed_data_mph, self.jerk, "Time [s]", "Speed [mph]", "Jerk [m/s³]",  "Time vs Speed and Jerk Limit Plot", f"{self.experiment_type}_time_vs_speed_jerk_limit")
+        
         if self.response_analysis_status:
-            self.get_acceleration_response_time()
+            # self.get_acceleration_response_time()
             # self.plot_manager.plot_primary_secondary_yaxis(True, self.experimental_time_data, self.speed_data_mph, self.accel_data_rqst, "Time [s]", "Speed [mph]", "Acceleration [m/s²]", "Time vs Speed and Acceleration Plot", f"{self.experiment_type}_time_vs_speed_Accel_resize")
-            # self.plot_manager.plot_respose_time_heat_map()
-            # self.plot_manager.plot_accel_decel_time_heat_map()
+            self.plot_manager.plot_respose_time_heat_map()
+            self.plot_manager.plot_accel_decel_time_heat_map()
             # self.plot_manager.plot_respose_time_line_graph()
             # self.plot_manager.plot_respose_time_surface_plot()
 '''##############################################

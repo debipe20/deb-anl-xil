@@ -136,6 +136,12 @@ def parse_args():
         type=float,
         nargs=3,
         help='Destination coordinate for route autopilot (DX DY DZ)')
+    
+    parser.add_argument(
+        '--show_route',
+        action='store_true',
+        help='Display the planned route waypoints on the HUD/World')
+        
     return parser.parse_args()
 
 
@@ -351,6 +357,7 @@ def run_loop(world, vehicle, agent, autopilot_active, args):
 
     manual_speed_limit_enabled = True
     train_mode = True
+    target_speed_kph = 0.0
 
     # Simple longitudinal control for train mode
     train_throttle = 0.0
@@ -358,6 +365,8 @@ def run_loop(world, vehicle, agent, autopilot_active, args):
     # PID controller for speed in train mode
     speed_pid = SpeedPIDController(Kp=0.6, Ki=0.1, Kd=0.0, max_integral=10.0, deadband=0.2,
         min_throttle=0.2, min_brake=0.1, filter_alpha=0.3, throttle_smoothing=0.05)
+    
+    INITIAL_PLAN = False
     
     try:
         while True:
@@ -491,7 +500,31 @@ def run_loop(world, vehicle, agent, autopilot_active, args):
                     continue
 
                 # Your modified BehaviorAgent.run_step(manual_speed_limit=...)
-                control = agent.run_step(manual_speed_limit=manual_speed_value)
+                # control = agent.run_step(manual_speed_limit=manual_speed_value)
+                ### Adding code block to display the route
+                control = agent.run_step(debug=args.show_route, manual_speed_limit=manual_speed_value)
+ 
+                # if args.show_route:
+                #     # Draw the next few waypoints from the local planner
+                #     plan = agent.get_local_planner().get_plan()
+                #     for i, (wp, _) in enumerate(plan):
+                #         if i >= 50: break # Limit to 50 points to avoid lag
+                #         loc = wp.transform.location + carla.Location(z=0.5)
+                #         world.debug.draw_point(loc, size=0.1, color=carla.Color(0, 255, 0), life_time=0.1)
+                
+                if args.show_route:
+                    # Draw the next few waypoints from the local planner
+                    plan = agent.get_local_planner().get_plan()
+                    if not INITIAL_PLAN:
+                        for i, (wp, _) in enumerate(plan):
+                            loc = wp.transform.location + carla.Location(z=0.5)
+                            world.debug.draw_point(loc, size=0.1, color=carla.Color(0, 255, 0), life_time=10)
+                            INITIAL_PLAN = True
+                    else:
+                        for i, (wp, _) in enumerate(plan):
+                            if i >= 50: break # Limit to 50 points to avoid lag
+                            loc = wp.transform.location + carla.Location(z=0.5)
+                            world.debug.draw_point(loc, size=0.1, color=carla.Color(0, 255, 0), life_time=0.1)
 
                 if train_mode:
                     # TRAIN MODE: BehaviorAgent steers, PID controls throttle/brake

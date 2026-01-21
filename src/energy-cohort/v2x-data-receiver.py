@@ -4,44 +4,154 @@ from osys import v2x
 import json
 import binascii
 
-def get_msg_type()
+import json
+from datetime import datetime
+
+GPS_CONVERSION = 10_000_000          # 1e-7 degrees
+ELEVATION_CONVERSION = 10            # decimeters → meters
+HEADING_CONVERSION = 0.0125          # degrees
+SPEED_CONVERSION = 0.02              # m/s
+SECOND_MILLISECOND_CONVERSION = 1000
+
+def normalize_hex_id(value) -> str:
+    """
+    Normalize a vehicle ID to lowercase hex without '0x'.
+    Accepts hex string or int.
+    """
+    if isinstance(value, int):
+        return format(value, "x")
+
+    if isinstance(value, str):
+        v = value.strip().lower()
+        return v[2:] if v.startswith("0x") else v
+
+    raise ValueError(f"Unsupported vehicle ID type: {type(value)}")
+
+
+def build_bsm_json(input_msg):
+    core = input_msg["value"]["coreData"]
+
+    latitude = core["lat"] / GPS_CONVERSION
+    longitude = core["long"] / GPS_CONVERSION
+    elevation = core["elev"] / ELEVATION_CONVERSION
+
+    heading_deg = core["heading"] * HEADING_CONVERSION
+    speed_mps = core["speed"] * SPEED_CONVERSION
+    sec_mark_seconds = core["secMark"] / SECOND_MILLISECOND_CONVERSION
+
+    width_cm = core["size"]["width"] * 10
+    length_cm = core["size"]["length"] * 100
+    
+    tmp_id = core["id"]
+    temporary_id = int(tmp_id, 16) if isinstance(tmp_id, str) else int(tmp_id)
+
+    now = datetime.utcnow()
+
+    output_msg = {
+        "MsgType": "BSM",
+        "Timestamp_posix": now.timestamp(),
+        "Timestamp_verbose": now.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+        "BasicVehicle": {
+            "heading_Degree": heading_deg,
+            "position": {
+                "elevation_Meter": elevation,
+                "latitude_DecimalDegree": latitude,
+                "longitude_DecimalDegree": longitude
+            },
+            "secMark_Second": sec_mark_seconds,
+            "size": {
+                "length_cm": length_cm,
+                "width_cm": width_cm
+            },
+            "speed_MeterPerSecond": speed_mps,
+            "temporaryID": temporary_id,
+            "type": "0"
+        }
+    }
+
+    return json.dumps(output_msg, indent=4)
+
+
+import json
+
+def build_map_wrapper(map_json: dict, hexstring: str) -> str:
+    # Extract intersection ID (MAP usually contains one intersection)
+    intersection = map_json["value"]["intersections"][0]
+    intersection_id = intersection["id"]["id"]
+
+    output = {
+        "MsgType": "MAP",
+        "IntersectionName": f"Map{intersection_id}",
+        "MapPayload": hexstring,
+        "IntersectionID": intersection_id
+    }
+
+    return json.dumps(output, indent=4)
+
 
 def main():
-    hostIp = "192.168.26.101"
-    # hostIp = "127.0.0.1"
-    port = 5398
-    com_info = (hostIp, port)
+    configFile = open("../../config/anl-master-config.json", "r")
+    config = json.load(configFile)
+    configFile.close()
 
-    msgReceiverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    msgReceiverSocket.bind(com_info)
+    # host_ip = config["IPAddress"]["HostIp"]
+    host_ip = "127.0.0.1"
+    port = config["PortNumber"]["V2XDataReceiver"]
+    com_info = (host_ip, port)
 
-    while True:
-        data, address = msgReceiverSocket.recvfrom(1024)
+    client_port = config["PortNumber"]["VehicleStatusManager"]
+    client_info = (host_ip,client_port)
 
-        try:
-            receivedJsonString = v2x.MessageFrame.to_json(data, len(data))          
-            receivedJsonString = json.loads(receivedJsonString)
-            print(receivedJsonString)
-            print("Vehicle ID is: ", receivedJsonString["value"]["coreData"]["id"] )
-            
-            if receivedJsonString["messageId"] == 18:
-                msg_type = "MAP"
-                
-            elif receivedJsonString["messageId"] == 19:
-                msg_type = "SPaT"
-                
-            elif receivedJsonString["messageId"] == 20:
-                msg_type = "BSM"
-                
-            else: 
-                print(("\n[{}]".format(timestamp) + " Unknown message type" ))
-                
-        except Exception as e:
-            print("Failed to decode message")
-        timestamp = str(round(time.time(),4))
-        # print(("\n[{}]".format(timestamp) + " " + "Message no " + str(counter) + " is received containing vehicle speed " + str(vehicleSpeed)))
+    msg_receiver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    msg_receiver_socket.bind(com_info)
+
+
+    ego_vehicle_id = config["VehicleInformation"]["EgoVehicleId"]
+
+    try: 
+        while True:
+            data, address = msg_receiver_socket.recvfrom(8192)
+            timestamp = str(round(time.time(),4))
+
+            try:
+                receivedJsonString = v2x.MessageFrame.to_json(data, len(data))          
+                receivedJsonString = json.loads(receivedJsonString)
         
-    msgReceiverSocket.close()
+                
+                if receivedJsonString["messageId"] == 18: # MAP
+
+                    hex_payload = data.hex()
+                    sending_json_string = build_map_wrapper(receivedJsonString, hex_payload)
+                    msg_receiver_socket.sendto(sending_json_string.encode("utf-8"), client_info)
+                    
+                elif receivedJsonString["messageId"] == 19: # SPaT
+                    pass
+                    
+                elif receivedJsonString["messageId"] == 20: # BSM
+                    pass
+
+                    rx_id = normalize_hex_id(receivedJsonString["value"]["coreData"]["id"])
+                    ego_id = normalize_hex_id(ego_vehicle_id)
+
+                    if rx_id == ego_id:
+                    # if receivedJsonString["value"]["coreData"]["id"] == ego_vehicle_id:
+                        sending_json_string = build_bsm_json(receivedJsonString)
+                        msg_receiver_socket.sendto(sending_json_string.encode("utf-8"), client_info)
+
+                    
+                else: 
+                    print(("\n[{}]".format(timestamp) + " Unknown message type" ))
+                    
+            except Exception as e:
+
+                print(f"\n[{timestamp}] Failed to decode/process message: {e}")
+
+    except KeyboardInterrupt:
+        print("\nShutdown requested (Ctrl+C)")
+
+    finally:
+        print(f"\n[{round(time.time(),4)}] Closing UDP socket")
+        msg_receiver_socket.close()
 
 if __name__ == '__main__':
     main()

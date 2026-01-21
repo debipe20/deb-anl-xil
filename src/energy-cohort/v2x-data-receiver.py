@@ -1,6 +1,10 @@
 import socket
-import struct
 import time
+from osys import v2x
+import json
+import binascii
+
+def get_msg_type()
 
 def main():
     hostIp = "192.168.26.101"
@@ -13,11 +17,27 @@ def main():
 
     while True:
         data, address = msgReceiverSocket.recvfrom(1024)
-        print(data.hex(), '\n')
-        # timestamp = str(round(time.time(),4))
-        # print(("\n[{}]".format(timestamp) + " " + data))
-        # counter, vehicleSpeed = struct.unpack("dd", data) 
 
+        try:
+            receivedJsonString = v2x.MessageFrame.to_json(data, len(data))          
+            receivedJsonString = json.loads(receivedJsonString)
+            print(receivedJsonString)
+            print("Vehicle ID is: ", receivedJsonString["value"]["coreData"]["id"] )
+            
+            if receivedJsonString["messageId"] == 18:
+                msg_type = "MAP"
+                
+            elif receivedJsonString["messageId"] == 19:
+                msg_type = "SPaT"
+                
+            elif receivedJsonString["messageId"] == 20:
+                msg_type = "BSM"
+                
+            else: 
+                print(("\n[{}]".format(timestamp) + " Unknown message type" ))
+                
+        except Exception as e:
+            print("Failed to decode message")
         timestamp = str(round(time.time(),4))
         # print(("\n[{}]".format(timestamp) + " " + "Message no " + str(counter) + " is received containing vehicle speed " + str(vehicleSpeed)))
         

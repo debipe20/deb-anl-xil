@@ -24,10 +24,11 @@
 		"VehicleSpy": 10017,
 		"HMI": 50009,
 		"EgoController":50010,
-		"LeadController":50011	
+		"LeadController":50011,
+		"V2XDataReceiver": 5398
 	},
 	"VehicleInformation": {
-		"EgoVehicleId": "26501232",
+		"EgoVehicleId": "f03ad636",
 		"LeadVehicleId": "f03ad626",
 		"AnlWayPointsFileName": "../energy-cohort/delave_waypoints.csv",
 		"EgoBsmLogFileName": "ego-waypoints.csv",

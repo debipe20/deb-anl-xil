@@ -1,10 +1,8 @@
 import socket
 import time
-from osys import v2x
 import json
 import binascii
-
-import json
+from osys import v2x
 from datetime import datetime
 
 GPS_CONVERSION = 10_000_000          # 1e-7 degrees
@@ -12,6 +10,18 @@ ELEVATION_CONVERSION = 10            # decimeters → meters
 HEADING_CONVERSION = 0.0125          # degrees
 SPEED_CONVERSION = 0.02              # m/s
 SECOND_MILLISECOND_CONVERSION = 1000
+
+# -----------------------------
+# Mapping rules
+# -----------------------------
+
+EVENT_STATE_MAP = {
+    "stop-And-Remain": "red",
+    "protected-Movement-Allowed": "protected_green",
+    "permissive-Movement-Allowed": "permissive_green",
+    "clearance": "yellow"
+}
+
 
 def normalize_hex_id(value) -> str:
     """
@@ -74,7 +84,7 @@ def build_bsm_json(input_msg):
 
 import json
 
-def build_map_wrapper(map_json: dict, hexstring: str) -> str:
+def build_map_json(map_json: dict, hexstring: str) -> str:
     # Extract intersection ID (MAP usually contains one intersection)
     intersection = map_json["value"]["intersections"][0]
     intersection_id = intersection["id"]["id"]
@@ -88,6 +98,52 @@ def build_map_wrapper(map_json: dict, hexstring: str) -> str:
 
     return json.dumps(output, indent=4)
 
+
+def build_spat_json(decoded_spat: dict) -> dict:
+    intersection = decoded_spat["value"]["intersections"][0]
+
+    phase_states = []
+
+    for state in intersection["states"]:
+        signal_group = state["signalGroup"]
+        sts_list = state.get("state-time-speed", [])
+        if not sts_list:
+            continue
+        sts = sts_list[0]
+
+        event_state = sts["eventState"]
+        timing = sts["timing"]
+
+        phase_states.append({
+            "currState": EVENT_STATE_MAP.get(event_state, "unknown"),
+            "maxEndTime": timing.get("maxEndTime"),
+            "minEndTime": timing.get("minEndTime"),
+            "phaseNo": signal_group,
+            "startTime": timing.get("maxEndTime", 0) + 1
+        })
+
+    # Timestamps
+    ts_posix = time.time()
+    ts_verbose = datetime.fromtimestamp(ts_posix).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+
+    output = {
+        "MsgType": "SPaT",
+        "Spat": {
+            "intersectionState": {
+                "intersectionID": intersection["id"]["id"],
+                "regionalID": 0
+            },
+            "minuteOfYear": intersection.get("moy"),
+            "msOfMinute": intersection.get("timeStamp"),
+            "msgCnt": intersection.get("revision", 0),
+            "phaseState": phase_states,
+            "status": intersection.get("status", "")
+        },
+        "Timestamp_posix": ts_posix,
+        "Timestamp_verbose": ts_verbose
+    }
+
+    return json.dumps(output, indent=4)
 
 def main():
     configFile = open("../../config/anl-master-config.json", "r")
@@ -121,15 +177,14 @@ def main():
                 if receivedJsonString["messageId"] == 18: # MAP
 
                     hex_payload = data.hex()
-                    sending_json_string = build_map_wrapper(receivedJsonString, hex_payload)
+                    sending_json_string = build_map_json(receivedJsonString, hex_payload)
                     msg_receiver_socket.sendto(sending_json_string.encode("utf-8"), client_info)
                     
                 elif receivedJsonString["messageId"] == 19: # SPaT
-                    pass
+                    sending_json_string = build_spat_json(receivedJsonString)
+                    msg_receiver_socket.sendto(sending_json_string.encode("utf-8"), client_info)
                     
                 elif receivedJsonString["messageId"] == 20: # BSM
-                    pass
-
                     rx_id = normalize_hex_id(receivedJsonString["value"]["coreData"]["id"])
                     ego_id = normalize_hex_id(ego_vehicle_id)
 

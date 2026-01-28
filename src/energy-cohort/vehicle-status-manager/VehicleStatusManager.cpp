@@ -72,22 +72,14 @@ void VehicleStatusManager::setVehicleIntersectionStatus(int vehIntersectionStatu
 	vehicleIntersectionStatus = vehIntersectionStatus;
 }
 
-void VehicleStatusManager::setTrafficSignalState(string jsonString)
+void VehicleStatusManager::setVehicleDistanceFromStopBar(double vehDistanceFromStopBar)
 {
-	Json::Value jsonObject;
-	Json::CharReaderBuilder builder;
-	Json::CharReader *reader = builder.newCharReader();
-	string errors{};
+	vehicleDistanceFromStopBar = vehDistanceFromStopBar;
+}
 
-	bool parsingSuccessful = reader->parse(jsonString.c_str(), jsonString.c_str() + jsonString.size(), &jsonObject, &errors);
-	delete reader;
-
-	if (parsingSuccessful)
-	{
-		trafficSignalState = (jsonObject["LightState"]).asString();
-
-		cout << " Set traffic light state is " << trafficSignalState << " for signal group " << signalGroup << endl;
-	}
+void VehicleStatusManager::setTrafficSignalState(SpatManager spatManager)
+{
+	trafficSignalState = spatManager.get_signal_phase_status(intersectionID, signalGroup);
 }
 
 /*
@@ -115,8 +107,8 @@ int VehicleStatusManager::getMessageType(string jsonString)
 		else if ((jsonObject["MsgType"]).asString() == "SPaT")
 			messageType = MsgEnum::DSRCmsgID_spat;
 
-		else if ((jsonObject["MsgType"]).asString() == "CarlaTrafficLightStatus")
-			messageType = static_cast<int>(msgType::carlaTrafficLightStatus);
+		else 
+			messageType = 0;
 	}
 
 	return messageType;
@@ -188,11 +180,11 @@ void VehicleStatusManager::getVehicleInformationFromMAP(MapManager mapManager, B
 			setApproachID(plocAwareLib->getApproachIdByLaneId(regionalId, intersectionId, (unsigned char)((unsigned)getLaneID())));
 			setSignalGroup(plocAwareLib->getControlPhaseByIds(static_cast<uint16_t>(regionalID), static_cast<uint16_t>(intersectionID), static_cast<uint8_t>(vehicleAprroachID), static_cast<uint8_t>(vehicleLaneID))); //Method for obtaining signal group based on vehicle laneID and approachID using MapEngine Library.
 			plocAwareLib->getPtDist2D(vehicleTracking_t_1, point2D_t_2);
-			vehicleDistanceFromStopBar = unsigned(point2D_t_1.distance2pt(point2D_t_2)); //unit of centimeters
+			setVehicleDistanceFromStopBar(unsigned(point2D_t_1.distance2pt(point2D_t_2))); //unit of centimeters
 			setVehicleID(basicVehicle); //Vehicle change its ID on a regular basis. Need to check the vehicle id.
 			activeIntersectionName = plocAwareLib->getIntersectionNameById(regionalId, intersectionId);
-			
-			cout << "Intersection Name is: " << activeIntersectionName << endl;
+
+			cout << "Vehicle is on: " << activeIntersectionName << endl;
 			cout << "Vehicle is on map: " << vehicleIntersectionStatus << endl;
 			cout << "Lane id is: " << vehicleLaneID << endl;
 			cout << "Approach id is: " << vehicleAprroachID << endl;
@@ -207,6 +199,7 @@ void VehicleStatusManager::getVehicleInformationFromMAP(MapManager mapManager, B
 			setSignalGroup(0);
 			setLaneID(0);
 			setApproachID(0);
+			setVehicleDistanceFromStopBar(0);
 			activeMapStatus = false;
 		}
 
@@ -305,7 +298,7 @@ string VehicleStatusManager::getActiveIntersectionName()
 	return activeIntersectionName;
 }
 
-string VehicleStatusManager::getSignalState()
+string VehicleStatusManager::getTrafficSignalState()
 {
 	return trafficSignalState;
 }
@@ -320,9 +313,10 @@ double VehicleStatusManager::getMaxTimeToChange()
 	return maxTimeToChange;
 }
 
-string VehicleStatusManager::createJsonStringForDriverInLoopTestManager()
+string VehicleStatusManager::createJsonStringForAutomatedDrving()
 {
 	string jsonString{};
+	
 	
 	Json::Value jsonObject;
 	Json::StreamWriterBuilder builder;
@@ -330,18 +324,29 @@ string VehicleStatusManager::createJsonStringForDriverInLoopTestManager()
 	builder["indentation"] = "";
 
 	jsonObject["MsgType"] = "MapSPaTData";
-	jsonObject["Map-SPat-Data"]["IntersectionName"] = getActiveIntersectionName();
-	jsonObject["Map-SPat-Data"]["IntersectionDistance"] = getVehicleDistanceFromStopBar();
-	jsonObject["Map-SPat-Data"]["SignalGroup"] = getSignalGroup();
-	jsonObject["Map-SPat-Data"]["SignalState"] = getSignalState();
-	jsonObject["Map-SPat-Data"]["MinTimeToChange"] = getMinTimeToChange();
-	jsonObject["Map-SPat-Data"]["MaxTimeToChange"] = getMaxTimeToChange();
-	jsonObject["Map-SPat-Data"]["ApproachID"] = getApproachID();
-	jsonObject["Map-SPat-Data"]["LaneID"] = getLaneID();		
+	// jsonObject["Map-SPaT-Data"]["IntersectionName"] = getActiveIntersectionName();
+	jsonObject["Map-SPaT-Data"]["IntersectionDistance"] = getVehicleDistanceFromStopBar();
+	// jsonObject["Map-SPaT-Data"]["SignalGroup"] = getSignalGroup();
+	jsonObject["Map-SPaT-Data"]["SignalState"] = getTrafficSignalState();
+	// jsonObject["Map-SPaT-Data"]["MinTimeToChange"] = getMinTimeToChange();
+	// jsonObject["Map-SPaT-Data"]["MaxTimeToChange"] = getMaxTimeToChange();
+	// jsonObject["Map-SPaT-Data"]["ApproachID"] = getApproachID();
+	// jsonObject["Map-SPaT-Data"]["LaneID"] = getLaneID();		
 
 	jsonString = Json::writeString(builder, jsonObject);
 	cout << "Map-SPaT Data is following: \n" << jsonString << endl;
+
 	return jsonString;
+}
+
+bool VehicleStatusManager::checkSendUpdateToAutomatedDrving()
+{
+	bool send_update{false};
+
+	if(activeMapStatus and getVehicleDistanceFromStopBar() <= 200)
+		send_update = true;
+
+	return send_update;
 }
 
 VehicleStatusManager::~VehicleStatusManager()

@@ -219,7 +219,6 @@ def setup_vehicle(world, carla_map, args):
 def setup_agent(vehicle, args):
     agent = BehaviorAgent(vehicle, behavior="normal")
     autopilot_active = False
-    dest_loc = None  # >>> ADDED >>> keep destination for replanning
 
     if args.dest:
         dest_loc = carla.Location(x=args.dest[0], y=args.dest[1], z=args.dest[2])
@@ -231,117 +230,7 @@ def setup_agent(vehicle, args):
     else:
         print(">>> No destination provided; route autopilot inactive, manual control expected.")
 
-    return agent, autopilot_active, dest_loc  # >>> CHANGED >>> return dest_loc
-# -------------------------------------------------------------------------
-# >>> ADDED >>> On-road / off-road detection and recovery control
-# -------------------------------------------------------------------------
-def is_on_driving_lane(carla_map, location: carla.Location) -> bool:
-    """
-    Returns True only if the current location maps to a DRIVING waypoint
-    without projection (i.e., truly on-road/drivable lane).
-    """
-    wp = carla_map.get_waypoint(
-        location,
-        project_to_road=False,
-        lane_type=carla.LaneType.Driving
-    )
-    return wp is not None
-def clamp(x, lo, hi):
-    return max(lo, min(hi, x))
-def normalize_angle_deg(a):
-    # Normalize to [-180, 180]
-    while a > 180.0:
-        a -= 360.0
-    while a < -180.0:
-        a += 360.0
-    return a
-def recover_to_road_control(vehicle: carla.Vehicle, carla_map, desired_speed_mps=3.0) -> carla.VehicleControl:
-    """
-    Simple recovery policy:
-      - Find nearest drivable waypoint (project_to_road=True),
-      - steer towards it,
-      - keep a low desired speed until back on road.
-    """
-    ego_tf = vehicle.get_transform()
-    ego_loc = ego_tf.location
-    ego_yaw = ego_tf.rotation.yaw
-    wp = carla_map.get_waypoint(
-        ego_loc,
-        project_to_road=True,
-        lane_type=carla.LaneType.Driving
-    )
-    control = carla.VehicleControl()
-    control.hand_brake = False
-    control.manual_gear_shift = False
-    if wp is None:
-        # Worst case: no waypoint found; stop safely
-        control.throttle = 0.0
-        control.brake = 1.0
-        control.steer = 0.0
-        return control
-    target_loc = wp.transform.location
-    dx = target_loc.x - ego_loc.x
-    dy = target_loc.y - ego_loc.y
-    target_yaw = math.degrees(math.atan2(dy, dx))
-    yaw_err = normalize_angle_deg(target_yaw - ego_yaw)
-    steer_cmd = clamp(yaw_err / 45.0, -1.0, 1.0)  # 45 deg error -> full steer
-    # Simple speed hold (very coarse): throttle if slow, brake if fast
-    v = vehicle.get_velocity()
-    speed_mps = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
-    if speed_mps < desired_speed_mps:
-        control.throttle = 0.35
-        control.brake = 0.0
-    else:
-        control.throttle = 0.0
-        control.brake = 0.25
-    control.steer = float(steer_cmd)
-    return control
-# -------------------------------------------------------------------------
-# >>> ADDED >>> Replanning logic (early-stop detection + replan)
-# -------------------------------------------------------------------------
-def maybe_replan(agent, carla_map, dest_loc, arrive_dist_m=4.0, low_plan_len=8) -> bool:
-    """
-    Replan if:
-      - destination exists,
-      - not within arrive_dist_m,
-      - local plan is depleted or very short OR agent.done() is True.
-    Returns True if replanned.
-    """
-    if dest_loc is None:
-        return False
-    ego_loc = agent._vehicle.get_location()
-    dist_to_goal = ego_loc.distance(dest_loc)
-    if dist_to_goal <= arrive_dist_m:
-        return False  # arrived
-    # Check remaining plan length
-    try:
-        plan_len = len(list(agent.get_local_planner().get_plan()))
-    except Exception:
-        plan_len = 0
-    if (plan_len > low_plan_len) and (not agent.done()):
-        return False
-    # Build plan from current pose to destination (snap endpoints to Driving waypoints)
-    start_wp = carla_map.get_waypoint(
-        ego_loc,
-        project_to_road=True,
-        lane_type=carla.LaneType.Driving
-    )
-    end_wp = carla_map.get_waypoint(
-        dest_loc,
-        project_to_road=True,
-        lane_type=carla.LaneType.Driving
-    )
-    if start_wp is None or end_wp is None:
-        print(">>> Replan skipped: could not project start/dest to Driving waypoint.")
-        return False
-    route = agent.trace_route(start_wp, end_wp)
-    if route is None or len(route) == 0:
-        print(">>> Replan failed: trace_route returned empty route.")
-        return False
-    agent.set_global_plan(route, stop_waypoint_creation=True, clean_queue=True)
-    print(f">>> Replanned route (dist_to_goal={dist_to_goal:.1f} m, new_route_len={len(route)})")
-    return True
-
+    return agent, autopilot_active
 
 # -------------------------------------------------------------------------
 # Method to get lead vehicle headway
@@ -352,7 +241,7 @@ def get_speed_mps(vehicle: carla.Actor) -> float:
     
     return speed_mps
 
-def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.4):
+def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.6):
     """
     Returns:
         lead_vehicle       (carla.Actor or None)
@@ -448,7 +337,7 @@ def compute_desired_speed_mps(ego_speed_mps, lead_distance_m, lead_speed_mps, sp
 # Main loop with keyboard speed control (SPACE / UP / DOWN)
 # -------------------------------------------------------------------------
 
-def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args):  # >>> CHANGED >>> carla_map + dest_loc
+def run_loop(world, vehicle, agent, autopilot_active, args):
     # Pygame setup for keyboard events
     pygame.init()
     screen = pygame.display.set_mode((300, 300))  # tiny window just to grab focus
@@ -478,13 +367,6 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
         min_throttle=0.2, min_brake=0.1, filter_alpha=0.3, throttle_smoothing=0.05)
     
     INITIAL_PLAN = False
-    # >>> ADDED >>> Recovery mode state
-    recovery_mode = False
-    recovery_ticks = 0
-    MAX_RECOVERY_TICKS = 250  # ~5 seconds if 20 FPS, adjust as needed
-    # >>> ADDED >>> thresholds
-    ARRIVE_DIST_M = 4.0
-    LOW_PLAN_LEN = 8
     
     try:
         while True:
@@ -612,56 +494,10 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
             # Autopilot / agent control
             # -----------------------------
             if autopilot_active:
-                # >>> ADDED >>> Off-road detection
-                on_road = is_on_driving_lane(carla_map, vehicle.get_location())
-                if not on_road:
-                    if not recovery_mode:
-                        print(">>> Off-road detected: entering recovery mode.")
-                        recovery_mode = True
-                        recovery_ticks = 0
-
-                # >>> ADDED >>> Recovery behavior (bring vehicle back on road)
-                if recovery_mode:
-                    recovery_ticks += 1
-                    control = recover_to_road_control(vehicle, carla_map, desired_speed_mps=3.0)
-
-                    # Optionally respect your lead-vehicle hard stop in recovery mode too
-                    if lead_vehicle is not None and lead_distance is not None and lead_distance <= 10.0:
-                        control.throttle = 0.0
-                        control.brake = 1.0
-
-                    vehicle.apply_control(control)
-
-                    # Exit recovery mode if back on-road, then replan immediately
-                    if is_on_driving_lane(carla_map, vehicle.get_location()):
-                        print(">>> Recovery success: back on drivable lane. Replanning.")
-                        recovery_mode = False
-                        maybe_replan(agent, carla_map, dest_loc, arrive_dist_m=ARRIVE_DIST_M, low_plan_len=LOW_PLAN_LEN)
-                    elif recovery_ticks >= MAX_RECOVERY_TICKS:
-                        print(">>> Recovery timeout: stopping vehicle for safety.")
-                        stop = carla.VehicleControl(throttle=0.0, brake=1.0, steer=0.0)
-                        vehicle.apply_control(stop)
-                        recovery_mode = False
-                    continue  # skip agent control during recovery
-
-                # >>> CHANGED >>> Replan if plan depleted/too short before destination
-                replanned = maybe_replan(agent, carla_map, dest_loc, arrive_dist_m=ARRIVE_DIST_M, low_plan_len=LOW_PLAN_LEN)
-
-                # If the agent says done and we did NOT replan, treat as arrived and stop autopilot
-                if agent.done() and not replanned:
-                    if dest_loc is not None and vehicle.get_location().distance(dest_loc) > ARRIVE_DIST_M:
-                        # Defensive: sometimes done() is true even though not arrived; force a replan attempt
-                        forced = maybe_replan(agent, carla_map, dest_loc, arrive_dist_m=ARRIVE_DIST_M, low_plan_len=999999)
-                        if forced:
-                            print(">>> Forced replan because done() but not within arrival distance.")
-                        else:
-                            print(">>> Route ended but cannot replan; disabling autopilot.")
-                            autopilot_active = False
-                            continue
-                    else:
-                        print(">>> Route completed")
-                        autopilot_active = False
-                        continue
+                if agent.done():
+                    print(">>> Route completed")
+                    autopilot_active = False
+                    continue
 
                 # Your modified BehaviorAgent.run_step(manual_speed_limit=...)
                 # control = agent.run_step(manual_speed_limit=manual_speed_value)
@@ -699,7 +535,7 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
                     )
 
                     # Hard safety override if extremely close to lead vehicle
-                    if lead_vehicle is not None and lead_distance is not None and lead_distance <= 10.0:
+                    if lead_vehicle is not None and lead_distance is not None and lead_distance <= 5.0:
                         throttle_pid = 0.0
                         brake_pid = 1.0
 
@@ -789,10 +625,8 @@ def main():
     args = parse_args()
     world, carla_map = get_world_and_map(args.host, args.port)
     vehicle = setup_vehicle(world, carla_map, args)
-    agent, autopilot_active, dest_loc = setup_agent(vehicle, args)  # >>> CHANGED >>>
-
-    run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)  # >>> CHANGED >>>
-
+    agent, autopilot_active = setup_agent(vehicle, args)
+    run_loop(world, vehicle, agent, autopilot_active, args)
 
 
 if __name__ == '__main__':

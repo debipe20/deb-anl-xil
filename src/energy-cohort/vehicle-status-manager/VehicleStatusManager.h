@@ -40,10 +40,6 @@ using std::vector;
 using std::ofstream;
 using std::ifstream;
 
-enum msgType
-{
-    carlaTrafficLightStatus = 1,
-};
 
 class VehicleStatusManager
 {
@@ -77,7 +73,8 @@ public:
     void setApproachID(int approachID);
     void setSignalGroup(int phaseNo);
     void setVehicleIntersectionStatus(int vehIntersectionStatus);
-    void setTrafficSignalState(string jsonString);
+    void setVehicleDistanceFromStopBar(double vehDistanceFromStopBar);
+    void setTrafficSignalState(SpatManager spatManager);
     int getMessageType(string jsonString);
     void getVehicleInformationFromMAP(MapManager mapManager, BasicVehicle basicVehicle);
     vector<Map::ActiveMap> getActiveMapList(MapManager mapManager);
@@ -91,12 +88,12 @@ public:
     int getVehicleIntersectionStatus();
     int getVehicleDistanceFromStopBar();
     string getActiveIntersectionName();
-    string getSignalState();
+    string getTrafficSignalState();
     double getMinTimeToChange();
     double getMaxTimeToChange();
     vector<Map::AvailableMap> manageMapStatusInAvailableMapList(MapManager mapManager);    
-    string createJsonStringForDriverInLoopTestManager();
-    
+    string createJsonStringForAutomatedDrving();
+    bool checkSendUpdateToAutomatedDrving();
 };
 
 

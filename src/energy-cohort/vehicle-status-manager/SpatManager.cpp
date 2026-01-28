@@ -67,6 +67,54 @@ void SpatManager::manage_spat_data(string json_string)
                 spat_info.trafficControllerStatus.push_back(std::move(status));
             }
         }
+        Available_Spat_List.push_back(spat_info);
+    }
+
+    else if(check_update_spat_data_into_available_spat_list(spat_id))
+    {
+        vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
+                                                                                               [&](TrafficControllerData::AvailableSpat const &p)
+                                                                                               { return p.intersection_id == spat_id; });
+
+                        
+        find_spat_id_in_list->update_time = get_current_time_in_seconds();
+        // Update phase info
+        const Json::Value& phaseState = jsonObject["Spat"]["phaseState"];
+        if (phaseState.isArray())
+        {
+            for (const auto& phase : phaseState)
+            {
+                const int phase_no = phase.get("phaseNo", 0).asInt();
+                auto phase_it = std::find_if(find_spat_id_in_list->trafficControllerStatus.begin(), find_spat_id_in_list->trafficControllerStatus.end(),
+                             [&](const TrafficControllerData::TrafficConrtollerStatus& s)
+                             { return s.phase_number == phase_no; });
+
+                if (phase_it != find_spat_id_in_list->trafficControllerStatus.end())
+                {
+                    // Update existing phase
+                    phase_it->phase_status = phase.get("currState", "").asString();
+                    phase_it->start_time   = phase.get("startTime", 0.0).asDouble();
+                    phase_it->min_end_time = phase.get("minEndTime", 0.0).asDouble();
+                    phase_it->max_end_time = phase.get("maxEndTime", 0.0).asDouble();
+                    phase_it->elapsed_time = 0.0; // compute if needed
+                }
+
+                else// Add new phase if not present
+                {
+                    TrafficControllerData::TrafficConrtollerStatus new_status;
+                    new_status.reset();
+
+                    new_status.phase_number = phase_no;
+                    new_status.phase_status = phase.get("currState", "").asString();
+                    new_status.start_time   = phase.get("startTime", 0.0).asDouble();
+                    new_status.min_end_time = phase.get("minEndTime", 0.0).asDouble();
+                    new_status.max_end_time = phase.get("maxEndTime", 0.0).asDouble();
+                    new_status.elapsed_time = 0.0;
+
+                    find_spat_id_in_list->trafficControllerStatus.push_back(std::move(new_status));
+                }
+            }
+        }
     }
 }
 
@@ -194,6 +242,9 @@ double SpatManager::get_current_time_in_seconds()
 string SpatManager::get_signal_phase_status(int intersection_id, int signal_group)
 {
     string signal_phase_status = "unknown";
+
+    if(Available_Spat_List.empty())
+        return signal_phase_status;
 
     vector<TrafficControllerData::AvailableSpat>::iterator find_spat_id_in_list = std::find_if(begin(Available_Spat_List),end(Available_Spat_List),
                                                                                                [&](TrafficControllerData::AvailableSpat const &p)

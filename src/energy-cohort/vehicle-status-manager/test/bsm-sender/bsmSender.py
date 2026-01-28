@@ -20,7 +20,7 @@ config = (json.load(configFile))
 configFile.close()
 
 hostIp = config["IPAddress"]["HostIp"]
-port = config["PortNumber"]["HostVehicleDataManager"]
+port = config["PortNumber"]["EgoVehicleDataManager"]
 bsm_sender_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 bsm_sender_socket.bind((hostIp,port))
 

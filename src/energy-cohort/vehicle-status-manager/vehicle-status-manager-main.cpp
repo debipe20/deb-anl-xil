@@ -18,36 +18,36 @@ This script:
 
 #include "VehicleStatusManager.h"
 #include <UdpSocket.h>
-#include <cstdlib> 
+#include <cstdlib>
 
 int main()
 {
-    string homeDir = getenv("HOME");  // Works on Linux
+    string homeDir = getenv("HOME"); // Works on Linux
     string configFilePath = homeDir + "/Desktop/deb-anl-xil/config/anl-master-config.json";
 
-    cout << "Config file path: " << configFilePath << endl;   
+    cout << "Config file path: " << configFilePath << endl;
 
     Json::Value jsonObject;
     // ifstream configJson("/nojournal/bin/mmitss-phase3-master-config.json");
     ifstream configJson(configFilePath);
     string configJsonString((std::istreambuf_iterator<char>(configJson)), std::istreambuf_iterator<char>());
     Json::CharReaderBuilder builder;
-    Json::CharReader * reader = builder.newCharReader();
+    Json::CharReader *reader = builder.newCharReader();
     string errors{};
-    reader->parse(configJsonString.c_str(), configJsonString.c_str() + configJsonString.size(), &jsonObject, &errors);        
+    reader->parse(configJsonString.c_str(), configJsonString.c_str() + configJsonString.size(), &jsonObject, &errors);
     delete reader;
 
     VehicleStatusManager vehicleStatusManager;
     MapManager mapManager;
     SpatManager spatManager;
     BasicVehicle basicVehicle;
-    
+
     UdpSocket vehicleStatusManagerSocket(static_cast<short unsigned int>(jsonObject["PortNumber"]["VehicleStatusManager"].asInt()));
-    const string driverInLoopTestManagerIP = jsonObject["IPAddress"]["HostIp"].asString();
-    const int driverInLoopTestManagerPortNo = static_cast<short unsigned int>(jsonObject["PortNumber"]["DriverInLoopTestManager"].asInt());
-    
+    const string egoControllerIP = jsonObject["IPAddress"]["HostIp"].asString();
+    const int egoControllerPortNo = static_cast<short unsigned int>(jsonObject["PortNumber"]["EgoController"].asInt());
+
     cout << "Successfully open Socket" << endl;
-    
+
     char receiveBuffer[40960];
     int msgType{};
     string sendingJsonString{};
@@ -62,34 +62,37 @@ int main()
         if (msgType == MsgEnum::DSRCmsgID_bsm)
         {
             basicVehicle.json2BasicVehicle(receivedJsonString);
-            cout << "Received Basic Vehicle Data\n" << receivedJsonString << endl;
-            vehicleStatusManager.getVehicleInformationFromMAP(mapManager, basicVehicle);            
-            sendingJsonString = vehicleStatusManager.createJsonStringForDriverInLoopTestManager();
-            vehicleStatusManagerSocket.sendData(driverInLoopTestManagerIP, static_cast<short unsigned int>(driverInLoopTestManagerPortNo), sendingJsonString);
+            cout << "Received Basic Vehicle Data" << endl;
+            vehicleStatusManager.getVehicleInformationFromMAP(mapManager, basicVehicle);
+            if (vehicleStatusManager.checkSendUpdateToAutomatedDrving())
+            {
+                vehicleStatusManager.setTrafficSignalState(spatManager);
+                sendingJsonString = vehicleStatusManager.createJsonStringForAutomatedDrving();
+                vehicleStatusManagerSocket.sendData(egoControllerIP, static_cast<short unsigned int>(egoControllerPortNo), sendingJsonString);
+            }
             // Update the Map status (MapAge, or delete old Map)
-            vehicleStatusManager.manageMapStatusInAvailableMapList(mapManager);      
+            vehicleStatusManager.manageMapStatusInAvailableMapList(mapManager);
         }
 
         else if (msgType == MsgEnum::DSRCmsgID_map)
         {
+            cout << "Received Map Data" << endl;
             mapManager.json2MapPayload(receivedJsonString);
             mapManager.maintainAvailableMapList();
-            mapManager.printAvailableMapList();
+            // mapManager.printAvailableMapList();
         }
 
         else if (msgType == MsgEnum::DSRCmsgID_spat)
         {
+            cout << "Received SPaT Data" << endl;
             spatManager.manage_spat_data(receivedJsonString);
-            spatManager.delete_timed_out_spat_data_from_available_spat_list();
+            // spatManager.delete_timed_out_spat_data_from_available_spat_list();
         }
-        
 
-        else if (msgType == static_cast<int>(msgType::carlaTrafficLightStatus))
-        {
-            vehicleStatusManager.setTrafficSignalState(receivedJsonString);
-        }
+        else
+            cout << "Message type is unknown" << endl;
     }
-    
+
     vehicleStatusManagerSocket.closeSocket();
     return 0;
 }

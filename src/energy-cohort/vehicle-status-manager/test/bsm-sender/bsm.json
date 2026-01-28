@@ -1,10 +1,10 @@
 {
     "BasicVehicle": {
-        "heading_Degree": 360.0,
+        "heading_Degree": 90.0,
         "position": {
-            "elevation_Meter": 226,
-            "latitude_DecimalDegree":  41.710805,
-            "longitude_DecimalDegree": -87.992055
+            "elevation_Meter": 41,
+            "latitude_DecimalDegree":  39.680994,
+            "longitude_DecimalDegree": -75.742033
         },
         "secMark_Second": 56000,
         "size": {

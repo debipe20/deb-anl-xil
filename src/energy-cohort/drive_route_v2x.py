@@ -5,9 +5,11 @@ import random
 import sys
 import os
 import math
-
+import socket
+import json
 import pygame  # for keyboard input
 import importlib.util
+import time
 
 from find_carla_egg import find_carla_egg
 
@@ -352,7 +354,7 @@ def get_speed_mps(vehicle: carla.Actor) -> float:
     
     return speed_mps
 
-def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.4):
+def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.6):
     """
     Returns:
         lead_vehicle       (carla.Actor or None)
@@ -449,6 +451,98 @@ def compute_desired_speed_mps(ego_speed_mps, lead_distance_m, lead_speed_mps, sp
 # -------------------------------------------------------------------------
 
 def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args):  # >>> CHANGED >>> carla_map + dest_loc
+    """
+    Main synchronous control loop for the ego vehicle.
+
+    This loop advances the CARLA simulation (`world.tick()`), computes perception-derived
+    longitudinal targets (lead-vehicle following + speed limit), and applies either
+    BehaviorAgent control (autopilot) or manual/assisted control depending on runtime flags.
+
+    Key behaviors when `autopilot_active` is True
+    ---------------------------------------------
+    1) Route following / lateral control:
+       - `agent.run_step(...)` is called to produce a base `carla.VehicleControl`.
+       - In train mode, this base control is used primarily for steering (lateral control).
+
+    2) Replanning / completion logic:
+       - `maybe_replan(...)` is invoked to rebuild the global plan when the plan is short,
+         depleted, or `agent.done()` becomes True before reaching the destination.
+       - If the agent is truly done (within ARRIVE_DIST_M to destination), autopilot is disabled.
+
+    3) Off-road recovery (highest-level mode switch):
+       - If the ego vehicle leaves a drivable lane (`is_on_driving_lane(...) == False`),
+         the loop enters `recovery_mode`.
+       - During recovery, agent control and PID/UDP logic are skipped; a simple controller
+         (`recover_to_road_control`) steers toward the nearest drivable waypoint and holds a low speed.
+       - When back on-road, recovery exits and a replan is attempted.
+
+    Longitudinal control priority in train mode (override order)
+    ------------------------------------------------------------
+    In `train_mode == True`, throttle/brake are NOT taken from BehaviorAgent; they are produced
+    and overridden in the following strict order each tick:
+
+      (A) PID baseline (lowest priority)
+          - `SpeedPIDController.compute_control(current_speed, desired_speed, dt)` computes
+            `throttle_pid` and `brake_pid` to track `desired_speed_mps`.
+
+      (B) UDP Map-SPaT override (medium priority; only if a valid packet is received)
+          - A non-blocking UDP read attempts to parse JSON containing "Map-SPat-Data".
+          - Example rule: if signal is red and intersection distance <= 200 m:
+                throttle_pid = 0.0
+                brake_pid = max(brake_pid, 0.5)
+
+      (C) Lead-vehicle safety hard stop (highest priority)
+          - If a lead vehicle is detected within 5 m:
+                throttle_pid = 0.0
+                brake_pid = 1.0
+          - This overrides BOTH PID output and any UDP-based override.
+
+    Desired speed computation
+    -------------------------
+    - `get_vehicle_ahead(...)` finds the closest vehicle ahead in-lane and returns its distance/speed.
+    - `compute_desired_speed_mps(...)` applies a simple time-headway / min-gap policy:
+        * No lead vehicle: desired speed tracks the (manual or configured) speed limit.
+        * Lead vehicle present: desired speed follows lead speed plus a correction based on gap error.
+
+    Inputs / UI
+    -----------
+    - Pygame is used for keyboard input and HUD-like status rendering.
+    - Keys:
+        * SPACE: stop/resume target speed
+        * UP/DOWN: adjust manual target speed
+        * E: toggle manual speed limiting
+        * T: toggle train mode
+        * W/S: manual throttle/brake commands (only meaningful if you implement them; PID currently dominates in train mode)
+
+    Networking
+    ----------
+    - A UDP socket is bound to the configured host/port and set to non-blocking mode.
+    - At most one datagram is processed per tick; absence of data is non-fatal.
+
+    Parameters
+    ----------
+    world : carla.World
+        CARLA world instance used for ticking and debug drawing.
+    carla_map : carla.Map
+        Map used for waypoint queries (on-road detection, replanning, recovery).
+    vehicle : carla.Vehicle
+        Ego vehicle actor to be controlled.
+    agent : BehaviorAgent
+        Route-following agent used when autopilot is active.
+    autopilot_active : bool
+        Enables agent-based route control and recovery/replanning logic.
+    dest_loc : carla.Location or None
+        Destination location for route autopilot/replanning. If None, autopilot is typically inactive.
+    args : argparse.Namespace
+        CLI arguments (speed limit, route display, etc.).
+
+    Notes
+    -----
+    - If `recovery_mode` is active, this loop applies recovery control and continues to the next tick,
+      bypassing agent.run_step() and PID/UDP logic for that iteration.
+    - When exiting (exception or quit), the function attempts to disable autopilot and close sockets cleanly.
+    """
+    
     # Pygame setup for keyboard events
     pygame.init()
     screen = pygame.display.set_mode((300, 300))  # tiny window just to grab focus
@@ -485,6 +579,22 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
     # >>> ADDED >>> thresholds
     ARRIVE_DIST_M = 4.0
     LOW_PLAN_LEN = 8
+    
+    configFile = open("../../config/anl-master-config.json", "r")
+    config = json.load(configFile)
+    configFile.close()
+
+    host_ip = config["IPAddress"]["HostIp"]
+    port = config["PortNumber"]["EgoController"]
+    com_info = (host_ip, port)
+
+    ego_controller_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ego_controller_socket.bind(com_info)
+    # ego_controller_socket.settimeout(0.01)  # 10 ms
+    ego_controller_socket.setblocking(False)  # non-blocking (no settimeout)
+    
+    last_spat = {"signal": None, "dist": None, "t": -1e9}
+    SPAT_HOLD_S = 0.5
     
     try:
         while True:
@@ -690,7 +800,9 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
                             loc = wp.transform.location + carla.Location(z=0.5)
                             world.debug.draw_point(loc, size=0.1, color=carla.Color(0, 255, 0), life_time=0.1)
 
+                
                 if train_mode:
+                    # 1) Always compute PID first
                     # TRAIN MODE: BehaviorAgent steers, PID controls throttle/brake
                     throttle_pid, brake_pid, pid_raw = speed_pid.compute_control(
                         current_speed=ego_speed_mps,
@@ -698,16 +810,61 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
                         dt=dt,
                     )
 
-                    # Hard safety override if extremely close to lead vehicle
-                    if lead_vehicle is not None and lead_distance is not None and lead_distance <= 10.0:
+                    # 2) Try to read one UDP packet (non-fatal if none)
+                    # Try to read one UDP packet; if none, keep PID output
+                    now = time.time()
+                    try:
+                        data, addr = ego_controller_socket.recvfrom(2048)
+                        decoded_data = data.decode("utf-8", errors="replace")
+                        parsed_json = json.loads(decoded_data)
+                        print(f"[{now}] Received Map-SPaT data:\n{parsed_json}")
+
+                        map_spat_data = parsed_json.get("Map-SPaT-Data", {})
+                        signal_state = (map_spat_data.get("SignalState") or "").lower()
+                        intersection_distance = map_spat_data.get("IntersectionDistance", None)
+
+                        # Convert distance to float if possible
+                        try:
+                            intersection_distance = float(intersection_distance)
+                        except (TypeError, ValueError):
+                            intersection_distance = None
+
+                        # Update latch
+                        last_spat.update({"signal": signal_state, "dist": intersection_distance, "t": now})
+                    except (BlockingIOError, json.JSONDecodeError):
+                        pass
+                    
+                    # 2) Use latched SPaT for a short time window (the key missing piece)
+                    use_spat = (now - last_spat["t"]) <= SPAT_HOLD_S
+                    sig = last_spat["signal"] if use_spat else None
+                    dist = last_spat["dist"] if use_spat else None
+                    
+                    # 3) Apply override based on latched values
+                    if sig == "red" and dist is not None:
+                        if dist <= 15:
+                            throttle_pid = 0.0
+                            brake_pid = 1.0
+                        elif dist <= 100:
+                            throttle_pid = 0.0
+                            brake_pid = max(brake_pid, 0.5)
+                        elif dist <= 200:
+                            throttle_pid = 0.0
+                            brake_pid = max(brake_pid, 0.25)
+                                                    
+                    
+
+                    # 4) Hard safety override has highest priority
+                    if lead_vehicle is not None and lead_distance is not None and lead_distance <= 5.0:
                         throttle_pid = 0.0
                         brake_pid = 1.0
+                        
+                    # Debug what will be applied (based on latch)
+                    print(f"APPLY ctrl: thr={throttle_pid:.2f} brk={brake_pid:.2f} sig={sig} dist={dist}")
 
                     control.throttle = throttle_pid
                     control.brake = brake_pid
-                    control.hand_brake = 0
+                    control.hand_brake = False
                 else:
-                    # Not in train mode -> reset PID to avoid stale integral
                     speed_pid.reset()
 
                 vehicle.apply_control(control)
@@ -776,10 +933,9 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
         print(">>> Exiting loop; ensuring autopilot is OFF.")
         try:
             vehicle.set_autopilot(False)
+            ego_controller_socket.close()
         except Exception as e:
             print(f"Failed to disable autopilot cleanly: {e}")
-
-
 
 # -------------------------------------------------------------------------
 # Entry point

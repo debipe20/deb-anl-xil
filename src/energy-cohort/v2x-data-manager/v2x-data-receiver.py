@@ -53,7 +53,8 @@ def build_bsm_json(input_msg):
     length_cm = core["size"]["length"] * 100
     
     tmp_id = core["id"]
-    temporary_id = int(tmp_id, 16) if isinstance(tmp_id, str) else int(tmp_id)
+    # temporary_id = int(tmp_id, 16) if isinstance(tmp_id, str) else int(tmp_id)
+    temporary_id = 12005
 
     now = datetime.utcnow()
 
@@ -146,12 +147,12 @@ def build_spat_json(decoded_spat: dict) -> dict:
     return json.dumps(output, indent=4)
 
 def main():
-    configFile = open("../../config/anl-master-config.json", "r")
+    configFile = open("../../../config/anl-master-config.json", "r")
     config = json.load(configFile)
     configFile.close()
 
-    # host_ip = config["IPAddress"]["HostIp"]
-    host_ip = "127.0.0.1"
+    host_ip = config["IPAddress"]["HostIp"]
+    # host_ip = "127.0.0.1"
     port = config["PortNumber"]["V2XDataReceiver"]
     com_info = (host_ip, port)
 
@@ -167,10 +168,14 @@ def main():
     try: 
         while True:
             data, address = msg_receiver_socket.recvfrom(8192)
+            # print(data)
+            hex_payload = data.hex()
+            # print(hex_payload)
             timestamp = str(round(time.time(),4))
-
+            # print(len(data))
             try:
-                receivedJsonString = v2x.MessageFrame.to_json(data, len(data))          
+                receivedJsonString = v2x.MessageFrame.to_json(data, len(data)) 
+                # print(type(receivedJsonString), receivedJsonString)         
                 receivedJsonString = json.loads(receivedJsonString)
         
                 

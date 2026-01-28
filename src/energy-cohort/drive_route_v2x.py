@@ -354,7 +354,7 @@ def get_speed_mps(vehicle: carla.Actor) -> float:
     
     return speed_mps
 
-def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.6):
+def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.2):
     """
     Returns:
         lead_vehicle       (carla.Actor or None)
@@ -841,13 +841,13 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
                     
                     # 3) Apply override based on latched values
                     if sig == "red" and dist is not None:
-                        if dist <= 10:
+                        if dist <= 5:
                             throttle_pid = 0.0
                             brake_pid = 1.0
                         elif dist <= 15:
                             throttle_pid = 0.0
                             brake_pid = max(brake_pid, 0.25)
-                        elif dist <= 50:
+                        elif dist <= 25:
                             throttle_pid = min(throttle_pid, 0.2)
                             brake_pid = max(brake_pid, 0.15)
                                                     

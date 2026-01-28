@@ -841,15 +841,15 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
                     
                     # 3) Apply override based on latched values
                     if sig == "red" and dist is not None:
-                        if dist <= 15:
+                        if dist <= 10:
                             throttle_pid = 0.0
                             brake_pid = 1.0
-                        elif dist <= 100:
-                            throttle_pid = 0.0
-                            brake_pid = max(brake_pid, 0.5)
-                        elif dist <= 200:
+                        elif dist <= 15:
                             throttle_pid = 0.0
                             brake_pid = max(brake_pid, 0.25)
+                        elif dist <= 50:
+                            throttle_pid = min(throttle_pid, 0.2)
+                            brake_pid = max(brake_pid, 0.15)
                                                     
                     
 

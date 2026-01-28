@@ -1,6 +1,6 @@
 {
 	"IPAddress": {
-		"HostIp": "127.0.0.1",
+		"HostIp": "192.168.26.101",
 		"SourceDsrcDeviceIp": "192.168.26.121",
 		"V2XHubIp": "192.168.26.101",
 		"VehicleControllerIp": "192.168.26.113",

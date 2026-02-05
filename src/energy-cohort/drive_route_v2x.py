@@ -257,7 +257,7 @@ def normalize_angle_deg(a):
     while a < -180.0:
         a += 360.0
     return a
-def recover_to_road_control(vehicle: carla.Vehicle, carla_map, desired_speed_mps=3.0) -> carla.VehicleControl:
+def recover_to_road_control(vehicle: carla.Vehicle, carla_map, desired_speed_mps=3.8) -> carla.VehicleControl:
     """
     Simple recovery policy:
       - Find nearest drivable waypoint (project_to_road=True),
@@ -394,7 +394,7 @@ def get_vehicle_ahead(ego_vehicle, world, max_distance=80.0, lane_width=3.2):
 
         # Calculate lateral distance (perpendicular distance to ego's forward direction)
         lateral_distance = abs(relative_position.x * ego_forward_direction.y - relative_position.y * ego_forward_direction.x)
-        if lateral_distance > lane_width:
+        if lateral_distance > lane_width *0.5:
             # If the vehicle is too far off to the side, it's likely in another lane
             continue
 
@@ -846,9 +846,9 @@ def run_loop(world, carla_map, vehicle, agent, autopilot_active, dest_loc, args)
                             brake_pid = 1.0
                         elif dist <= 15:
                             throttle_pid = 0.0
-                            brake_pid = max(brake_pid, 0.25)
+                            brake_pid = max(brake_pid, 0.2)
                         elif dist <= 25:
-                            throttle_pid = min(throttle_pid, 0.2)
+                            throttle_pid = min(throttle_pid, 0.1)
                             brake_pid = max(brake_pid, 0.15)
                                                     
                     

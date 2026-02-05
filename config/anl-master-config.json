@@ -1,6 +1,6 @@
 {
 	"IPAddress": {
-		"HostIp": "127.0.0.1",
+		"HostIp": "192.168.26.101",
 		"SourceDsrcDeviceIp": "192.168.26.121",
 		"V2XHubIp": "192.168.26.101",
 		"VehicleControllerIp": "192.168.26.113",
@@ -24,11 +24,13 @@
 		"VehicleSpy": 10017,
 		"HMI": 50009,
 		"EgoController":50010,
-		"LeadController":50011	
+		"LeadController":50011,
+		"V2XDataReceiver": 5398
 	},
 	"VehicleInformation": {
-		"EgoVehicleId": "265012",
+		"EgoVehicleId": "f03ad636",
 		"LeadVehicleId": "f03ad626",
+		"AnlWayPointsFileName": "../energy-cohort/delave_waypoints.csv",
 		"EgoBsmLogFileName": "ego-waypoints.csv",
 		"LeadBsmLogFileName": "lead-waypoints.csv",
 		"EgoVehicleModel":"Hyundai Ioniq 5",

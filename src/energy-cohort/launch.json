@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: CARLA Debug",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/drive_route.py",
+      "python": "/home/debashis/anaconda3/envs/carla_dt_env/bin/python3",
+      "console": "integratedTerminal",
+      "preLaunchTask": "Activate Conda Environment"
+    }
+  ]
+}

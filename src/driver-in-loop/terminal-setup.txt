@@ -1,0 +1,9 @@
+Terminal Setup Instruction:
+1. Carla-Simulator 		-> printf "\033]0;CARLA-Simulator\a"  				-> Desktop/c-vision/src/cvision/infrastructure-to-cloud-interface
+2. Driver-in-Loop-Test-Manager  -> printf "\033]0;Driver-in-Loop-Test-Manager\a"		-> Desktop/deb-anl-xil/src/driver-in-loop
+3. Lead-Controller 		-> printf "\033]0;Lead-Controller\a"				-> Desktop/deb-anl-xil/src/driver-in-loop
+4. Ego-Controller 		-> printf "\033]0;Ego-Controller\a"				-> Desktop/deb-anl-xil/src/driver-in-loop
+5. Vehicle-Status-Manager 	-> printf "\033]0;Vehicle-Status-Manager\a"			-> Desktop/deb-anl-xil/src/driver-in-loop/Vehicle-Status-Manager
+6. Map-Sender			-> printf "\033]0;Map-Sender\a"					-> Desktop/deb-anl-xil/src/driver-in-loop/Vehicle-Status-Manager/test/map-sender
+7. Traffic-Light-Status-Sender 	-> rintf "\033]0;Traffic-Light-Status-Sender\a"			-> Desktop/deb-anl-xil/src/driver-in-loop/Vehicle-Status-Manager/test
+8. Speed-Data-Sender 		-> printf "\033]0;Speed-Data-Sender\a"				-> Desktop/deb-anl-xil/src/driver-in-loop/test

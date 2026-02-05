@@ -12,10 +12,10 @@ Description:
 ------------
 The methods available from this class are the following:
 - createLogFile(): Method to create all the required log files
-- logHostVehicleBsmData(timeStep, msgCount, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading): Method to log host vehicle's GPS data and speed.
-- logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed): Method to log lead and ego vehicle's speed data, relative distance and relative speed
-- logHostVehicleData(counter, decodedSpeed): Method to log ego vehicle's speed
-- logHostBsmHexData(bsmHex): Method to log ego vehicle's encoded BSM
+- logEgoVehicleBsmData(timeStep, msgCount, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading): Method to log ego vehicle's GPS data and speed.
+- logLeadVehicleData(counter, relativeDistance, relativeSpeed, leadVehicleSpeed, egoVehicleSpeed): Method to log lead and ego vehicle's speed data, relative distance and relative speed
+- logEgoVehicleData(counter, decodedSpeed): Method to log ego vehicle's speed
+- logEgoBsmHexData(bsmHex): Method to log ego vehicle's encoded BSM
 - logSpatHexData(spatHex): Method to log encoded SPaT messages
 - logErrorData(errorMsg, payload): Method to log payload that Objective Systems can not decode
 - consoleDisplay(consoleString:str): Method to display information
@@ -45,27 +45,27 @@ class Logger:
         
         initializationTimestamp = ('{:%m%d%Y_%H%M%S}'.format(datetime.datetime.now()))
         
-        self.hostVehicleBsmLogFile = open(logfileDirectory + "host_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")        
-        self.hostVehicleLogFile = open(logfileDirectory + "host_vehicle_log_" + initializationTimestamp + ".csv", "w")
+        self.egoVehicleBsmLogFile = open(logfileDirectory + "ego_vehicle_bsm_log_" + initializationTimestamp + ".csv", "w")        
+        self.egoVehicleLogFile = open(logfileDirectory + "ego_vehicle_log_" + initializationTimestamp + ".csv", "w")
         self.leadVehicleLogFile = open(logfileDirectory + "lead_vehicle_log_" + initializationTimestamp + ".csv", "w")
-        self.hostBsmHexLogFile = open(logfileDirectory + "host_bsm_hex_log_" + initializationTimestamp + ".log","w")
+        self.egoBsmHexLogFile = open(logfileDirectory + "ego_bsm_hex_log_" + initializationTimestamp + ".log","w")
         self.spatHexLogFile = open(logfileDirectory + "lead_bsm_hex_log_" + initializationTimestamp + ".log","w")
         self.errorLogFile = open(logfileDirectory + "error_log_" + initializationTimestamp + ".log", "w")
 
         bsmHeader = ("timestamp_verbose,timeStep,msgCount,temporaryId,secMark,latitude,longitude,elevation,speed,heading\n")
-        hostHeader = ("TimeStamp, Counter, HostVehicleSpeed\n")
-        leadHeader = ("TimeStamp, Counter, RelativeDistance, RelativeSpeed, LeadVehicleSpeed, HostVehicleSpeed\n")
+        egoHeader = ("TimeStamp, Counter, EgoVehicleSpeed\n")
+        leadHeader = ("TimeStamp, Counter, RelativeDistance, RelativeSpeed, LeadVehicleSpeed, EgoVehicleSpeed\n")
 
-        self.hostVehicleBsmLogFile.write(bsmHeader)
-        self.hostVehicleLogFile.write(hostHeader)
+        self.egoVehicleBsmLogFile.write(bsmHeader)
+        self.egoVehicleLogFile.write(egoHeader)
         self.leadVehicleLogFile.write(leadHeader) 
             
-    def logHostVehicleBsmData(self, timeStep, msgCount, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading):
+    def logEgoVehicleBsmData(self, timeStep, msgCount, vehcileID, currentLatitude, currentLongitude, currentElevation, currentSpeed, currentHeading):
         if (self.loggingStatus == True):
             timestamp_verbose = str(time.time())
             timeStep = str(timeStep)
             msgCount = str(msgCount)
-            temporaryId = "f03ad610"
+            temporaryId = vehcileID
             secMark = str(100)
             latitude = str(currentLatitude)
             longitude = str(currentLongitude)
@@ -85,9 +85,9 @@ class Logger:
                 + heading + "\n"
             )
 
-            self.hostVehicleBsmLogFile.write(csvRow)
+            self.egoVehicleBsmLogFile.write(csvRow)
         
-    def logLeadVehicleData(self, counter, relativeDistance, relativeSpeed, leadVehicleSpeed, hostVehicleSpeed):
+    def logLeadVehicleData(self, counter, relativeDistance, relativeSpeed, leadVehicleSpeed, egoVehicleSpeed):
         if (self.loggingStatus == True):
             csvrow = (
                     str(round(time.time(), 4)) + ","
@@ -95,21 +95,21 @@ class Logger:
                     + str(round(relativeDistance, 3)) + ","
                     + str(round(relativeSpeed, 2)) + ","
                     + str(round(leadVehicleSpeed, 2)) + ","
-                    + str(round(hostVehicleSpeed, 2)) + "\n")
+                    + str(round(egoVehicleSpeed, 2)) + "\n")
             
             self.leadVehicleLogFile.write(csvrow)
     
-    def logHostVehicleData(self, counter, decodedSpeed):
+    def logEgoVehicleData(self, counter, decodedSpeed):
         if (self.loggingStatus == True):
             csvrow = (str(round(time.time(), 4)) + "," 
                     + str(round(counter, 0)) + "," 
                     + str(round(decodedSpeed, 2)) + "\n")
             
-            self.hostVehicleLogFile.write(csvrow)
+            self.egoVehicleLogFile.write(csvrow)
         
-    def logHostBsmHexData(self, bsmHex):
+    def logEgoBsmHexData(self, bsmHex):
         if (self.loggingStatus == True):
-            self.hostBsmHexLogFile.write(str(bsmHex) + "\n")
+            self.egoBsmHexLogFile.write(str(bsmHex) + "\n")
             
     def logSpatHexData(self, spatHex):
         if (self.loggingStatus == True):
@@ -129,10 +129,10 @@ class Logger:
     def __del__(self):
         if (self.loggingStatus == True):
             self.consoleDisplay("Closing log files!")
-            self.hostVehicleBsmLogFile.close()
-            self.hostVehicleLogFile.close()
+            self.egoVehicleBsmLogFile.close()
+            self.egoVehicleLogFile.close()
             self.leadVehicleLogFile.close()
-            self.hostBsmHexLogFile.close()
+            self.egoBsmHexLogFile.close()
             self.spatHexLogFile.close()
             self.errorLogFile.close()
         

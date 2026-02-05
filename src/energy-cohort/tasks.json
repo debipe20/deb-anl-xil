@@ -1,0 +1,14 @@
+{
+  "label": "Activate Conda Environment",
+  "type": "shell",
+  "command": "/bin/bash",
+  "args": [
+    "-c",
+    "echo 'Activating Conda environment...' && source /home/debashis/anaconda3/bin/activate carla_dt_env && exec ${command}"
+  ],
+  "problemMatcher": [],
+  "group": "build",
+  "presentation": {
+    "reveal": "never"
+  }
+}

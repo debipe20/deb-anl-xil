@@ -1,0 +1,10 @@
+Time,Message,Count,Cumulative,Type
+2021-01-01 23:56:24.028911,Remote BSM,0,0,Received
+2021-01-01 23:56:27.403808,BSM,4001,16006,Transmitted
+2021-01-01 23:56:24.030885,Simulation,0,0,Received
+2021-01-01 23:56:27.443808,Faulty-Simulation,2998,863999,Received
+2021-01-01 23:56:27.443808,Simulation,0,0,Transmitted
+2021-01-01 23:56:24.029964,MabX,299,86399,Received
+2021-01-01 23:56:24.029964,MabX,299,86399,Transmitted
+2021-01-01 23:56:24.012070,Facility,0,0,Received
+2021-01-01 23:56:24.012070,Facility,0,0,Transmitted

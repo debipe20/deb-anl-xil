@@ -2,19 +2,23 @@ import glob
 import os
 import sys
 
-import carla
+
 
 import random
 import time
 
+carla_egg_path = os.environ.get("CARLA_EGG_PATH")
+
 try:
-    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+    sys.path.append(glob.glob(carla_egg_path + '/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
         'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
 except IndexError:
     pass
 
+
+import carla
 
 def main():
     actor_list = []
@@ -54,7 +58,8 @@ def main():
         # print("spawn point is:\n", transform)
         # vehicle = world.spawn_actor(bp, transform)
         
-        spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
+        # spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
+        spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0))
         print("spawn point is:\n", spawn_point)
         vehicle = world.spawn_actor(bp, spawn_point)
         

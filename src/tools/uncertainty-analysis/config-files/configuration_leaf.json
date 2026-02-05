@@ -1,0 +1,26 @@
+{
+    "InputFileName": "Analysis/Nissan-Leaf/2019_Nissan_Leaf_TestPlanInstru_MasterSummary_200821.xlsm",
+    "InputSheetName": "TestSummary",
+    "NoOfSkipRows": 6,
+    "MaxSubPhase": 2,
+    "DataFields": [
+        "Test ID [#]",
+        "Sub-Phase",
+        "Cycle Distance [mi]",
+        "Start SOC",
+        "End SOC",
+        "HV Batt (500A)\nStart \nWP1 [Wh]\n",
+        "HV Batt Out (500A) End\nWP1 [Wh]",
+        "HV Batt (500A) WP1\nΔ [Wh]",
+        "HV Batt (500A) Energy consumption ΔWP1\n[Wh/mi]",
+        "12V DCDC out (200A) \n Start WP2 [Wh]",
+        "12V DCDC out (200A) \n End WP2 [Wh]",
+        "12V DCDC (200A)\nΔ WP2 [Wh]",
+        "12V DCDC (200A) Δ WP2 [Wh/mi]",
+        "12V batt ground (80A) \nStart WP4 [Wh]",
+        "12V batt ground (80A) \nEnd WP4 [Wh]",
+        "12V Batt Ground (80A)\nΔ WP4 [Wh]",
+        "12V Batt Ground (80A) Δ WP4 [Wh/mi]",
+        "Recharge Allocation Factor"
+    ]
+}

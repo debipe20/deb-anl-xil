@@ -1,0 +1,55 @@
+{
+    "messageId": 19,
+    "value": {
+        "timeStamp": 22838,
+        "intersections": [
+            {
+                "id": {
+                    "id": 1
+                },
+                "revision": 0,
+                "status": "0000",
+                "moy": 22838,
+                "timeStamp": 40474,
+                "states": [
+                    {
+                        "signalGroup": 2,
+                        "state-time-speed": [
+                            {
+                                "eventState": "stop-And-Remain",
+                                "timing": {
+                                    "minEndTime": 23350,
+                                    "maxEndTime": 23350
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 3,
+                        "state-time-speed": [
+                            {
+                                "eventState": "protected-Movement-Allowed",
+                                "timing": {
+                                    "minEndTime": 23290,
+                                    "maxEndTime": 23290
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "signalGroup": 4,
+                        "state-time-speed": [
+                            {
+                                "eventState": "protected-Movement-Allowed",
+                                "timing": {
+                                    "minEndTime": 23290,
+                                    "maxEndTime": 23290
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

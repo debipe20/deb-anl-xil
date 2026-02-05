@@ -147,6 +147,9 @@ TypeError: kwargs_from_env() got an unexpected keyword argument 'ssl_version'
 	- python3 destroy_vehicles.py -e ANL-DYNO-1,UCLA-OPENCDA,ORNL-AUTO-1,carma_1,MCITY-CAV-01,MCITY-TERASIM-01,MCITY-TERASIM-02
 	
 	- python3 follow_vehicle_dash_cam.py --follow_vehicle ANL-DYNO-1 --res 300x300
+	- python3 follow_vehicle_dash_cam.py --follow_vehicle UCLA-OPENCDA --res 1400x1400
+	- conda activate carla_voices_env
+	- python3 ego-controller.py --res 1920x1080 # For Full Screen 
 	
 # Logging tcpdump data:
 	- sudo tcpdump -i lo port <V2X Hub Message Receiver Port> -w anl_bsm.pcap

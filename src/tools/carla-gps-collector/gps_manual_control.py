@@ -61,8 +61,10 @@ import os
 import sys
 import time
 
+carla_egg_path = os.getenv("CARLA_EGG_PATH")
+
 try:
-    sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
+    sys.path.append(glob.glob(carla_egg_path + '/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
         'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
@@ -133,8 +135,20 @@ try:
 except ImportError:
     raise RuntimeError('cannot import numpy, make sure numpy package is installed')
 
-bsmLogFile = open("BSM-Log.csv", 'w')
-bsmLogFile.write("Latitude,Longitude,Elevation\n")
+# bsmLogFile = open("Kearney-BSM-Log.csv", 'w')
+# bsmLogFile.write("Latitude,Longitude,Elevation\n")
+
+# headingLogFile = open("Kearney-Heading-Log.csv", 'w')
+# headingLogFile.write("Heading\n")
+
+bsmLogFile = open("Kearney-Combined-Log.csv", 'w')
+bsmLogFile.write("Latitude,Longitude,Elevation,Heading,X,Y,Z,Yaw,Pitch,Roll\n")
+global_heading = 0.0
+# lat = 0.0
+# lon = 0.0
+# elev = 0.0
+# heading = 0.0
+
 
 # def gnss_callback(gnss):
 
@@ -232,7 +246,10 @@ class World(object):
             self.destroy()
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
         while self.player is None:
-            spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
+            # spawn_point = carla.Transform(carla.Location(x=-189.172150, y=-509.719635, z=41.869663), carla.Rotation(pitch=1.192223, yaw=-64.276932, roll=0.000000))
+            # spawn_point = carla.Transform(carla.Location(x=21.9, y=988.04, z=232.24), carla.Rotation(pitch=1.23, yaw=-92.48, roll=0.0))
+            # spawn_point = carla.Transform(carla.Location(x=24.0, y=1070, z=231.780380), carla.Rotation(pitch=0, yaw=-105, roll=0)) #Kearney Road
+            spawn_point = carla.Transform(carla.Location(x=-717.746460, y=743.447266, z=4.000000), carla.Rotation(pitch=0, yaw=15, roll=0)) #DelwareAve
             if not self.map.get_spawn_points():
                 print('There are no spawn points available in your map/town.')
                 print('Please add some Vehicle Spawn Point to your UE4 scene.')
@@ -803,13 +820,39 @@ class GnssSensor(object):
         self = weak_self()
         if not self:
             return
-        self.lat = event.latitude
-        self.lon = event.longitude        
-        self.elev = event.altitude
+        # self.lat = event.latitude
+        # self.lon = event.longitude        
+        # self.elev = event.altitude
+        
+        # lat = event.latitude
+        # lon = event.longitude        
+        # elev = event.altitude
 
-        csvRow = (str(self.lat) + "," + str(self.lon) + "," + str(self.elev) + "\n")
+        # csvRow = (str(self.lat) + "," + str(self.lon) + "," + str(self.elev) + "\n")
+        # # csvRow = (str(self.lat) + "," + str(self.lon) + "," + str(self.elev) + ",")
+        # bsmLogFile.write(csvRow)
+
+        global global_heading
+
+        # GNSS data
+        lat = event.latitude
+        lon = event.longitude        
+        elev = event.altitude
+
+        # CARLA coordinates and orientation
+        transform = self._parent.get_transform()
+        location = transform.location
+        rotation = transform.rotation
+        x = location.x
+        y = location.y
+        z = location.z
+        yaw = rotation.yaw
+        pitch = rotation.pitch
+        roll = rotation.roll
+
+        # Write to file
+        csvRow = f"{lat},{lon},{elev},{global_heading},{x},{y},{z},{yaw},{pitch},{roll}\n"
         bsmLogFile.write(csvRow)
-
 
 # ==============================================================================
 # -- IMUSensor -----------------------------------------------------------------
@@ -848,6 +891,13 @@ class IMUSensor(object):
             max(limits[0], min(limits[1], math.degrees(sensor_data.gyroscope.y))),
             max(limits[0], min(limits[1], math.degrees(sensor_data.gyroscope.z))))
         self.compass = math.degrees(sensor_data.compass)
+        global global_heading
+        global_heading =self.compass
+
+        
+        # csvRow = (str(self.compass) + "\n")
+        
+        # headingLogFile.write(csvRow)
 
 
 # ==============================================================================
@@ -1154,6 +1204,7 @@ def main():
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
         bsmLogFile.close()
+        # headingLogFile.close()
 
 if __name__ == '__main__':
 
